@@ -10,6 +10,8 @@ namespace TcgEngine.Client
     /// <summary>
     /// Represents the visual aspect of a card in hand.
     /// Will take the data from Card.cs and display it
+    /// 表示手中卡片的视觉方面。
+    /// 将从Card.cs获取数据并显示
     /// </summary>
 
     public class HandCard : MonoBehaviour

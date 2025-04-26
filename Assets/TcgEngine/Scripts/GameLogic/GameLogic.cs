@@ -8,6 +8,7 @@ namespace TcgEngine.Gameplay
 {
     /// <summary>
     /// Execute and resolves game rules and logic
+    /// 执行并解析游戏规则和逻辑
     /// </summary>
 
     public class GameLogic
@@ -328,6 +329,7 @@ namespace TcgEngine.Gameplay
         //--- Setup ------
 
         //Set deck using a Deck in Resources
+        //使用资源中的甲板设置甲板
         public virtual void SetPlayerDeck(Player player, DeckData deck)
         {
             player.cards_all.Clear();
@@ -369,6 +371,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Set deck using custom deck in save file or database
+        //使用保存文件或数据库中的自定义甲板设置甲板
         public virtual void SetPlayerDeck(Player player, UserDeckData deck)
         {
             player.cards_all.Clear();
@@ -468,11 +471,13 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //移动卡牌
         public virtual void MoveCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
                 card.slot = slot;
+                card.move_Range--;
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
                 //if(!skip_cost)
@@ -481,11 +486,14 @@ namespace TcgEngine.Gameplay
                 //player.AddHistory(GameAction.Move, card);
 
                 //Also move the equipment
+                //同时移动设备
                 Card equip = game_data.GetEquipCard(card.equipped_uid);
                 if (equip != null)
                     equip.slot = slot;
-
+                
+                //正在更新
                 UpdateOngoing();
+                //刷新数据
                 RefreshData();
 
                 onCardMoved?.Invoke(card, slot);
@@ -1274,11 +1282,14 @@ namespace TcgEngine.Gameplay
         //This function is called often to update status/stats affected by ongoing abilities
         //It basically first reset the bonus to 0 (CleanOngoing) and then recalculate it to make sure it it still present
         //Only cards in hand and on board are updated in this way
+        //经常调用此函数来更新受持续能力影响的状态/统计数据
+        //它基本上首先将奖金重置为0（CleanUngoing），然后重新计算以确保它仍然存在
+        //只有手上和机上的卡才会以这种方式更新
         public virtual void UpdateOngoing()
         {
             Profiler.BeginSample("Update Ongoing");
-            UpdateOngoingCards(); //Update status and stats
-            UpdateOngoingKills(); //Kill cards with 0 HP
+            UpdateOngoingCards(); //Update status and stats 更新状态和统计数据
+            UpdateOngoingKills(); //Kill cards with 0 HP 以0HP杀死卡牌
             Profiler.EndSample();
         }
 

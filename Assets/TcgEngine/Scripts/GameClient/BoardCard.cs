@@ -53,9 +53,6 @@ namespace TcgEngine.Client
         private Vector3 back_to_hand_target;
 
         private static List<BoardCard> card_list = new List<BoardCard>();
-
-        public uint move_frequency = 0;
-
         void Awake()
         {
             card_list.Add(this);
@@ -71,8 +68,6 @@ namespace TcgEngine.Client
 
             if (status_group != null)
                 status_group.alpha = 0f;
-
-            move_frequency = 1;
         }
 
         void OnDestroy()
@@ -201,6 +196,7 @@ namespace TcgEngine.Client
                 status_group.alpha = Mathf.MoveTowards(status_group.alpha, status_alpha_target, 5f * Time.deltaTime);
         }
 
+        //获取目标位置
         private Vector3 GetTargetPos()
         {
             Game data = GameClient.Get().GetGameData();

@@ -11,6 +11,9 @@ namespace TcgEngine.Server
     /// Represent one game on the server, when playing solo this will be created locally, 
     /// or if online multiple GameServer, one for each match, will be created by the dedicated server
     /// Manage receiving actions, sending refresh, and running AI
+    /// 在服务器上代表一个游戏，当独自玩时，它将在本地创建，
+    /// 或者，如果专用服务器将创建在线多个GameServer，每个比赛一个
+    /// 管理接收操作、发送刷新和运行AI
     /// </summary>
 
     public class GameServer

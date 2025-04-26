@@ -52,7 +52,7 @@ namespace TcgEngine.Client
                 //目标选择器，选择这张卡
                 GameClient.Get().SelectCard(card);
             }
-            else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id && bcard.move_frequency > 0)
+            else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
             {
                 //Start dragging card
                 //开始拖拽卡片
@@ -102,8 +102,7 @@ namespace TcgEngine.Client
                 else if (tslot != null && tslot is BoardSlot)
                 {
                     GameClient.Get().Move(card, tslot.GetSlot());
-                    Debug.Log(wpos);
-                    //selected_card.move_frequency--;
+
                 }
             }
             UnselectAll();

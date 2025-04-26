@@ -6,6 +6,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// List of game actions and refreshes, that can be performed by the player or received
+    /// 玩家可以执行或接收的游戏操作和刷新列表
     /// </summary>
 
     public static class GameAction

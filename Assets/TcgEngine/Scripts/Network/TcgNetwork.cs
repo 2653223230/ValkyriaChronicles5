@@ -10,6 +10,8 @@ namespace TcgEngine
     /// <summary>
     /// Main script handling network connection betweeen server and client
     /// It's one of the few scripts in this asset that needs to be on a DontDestroyOnLoad object
+    /// 处理服务器和客户端之间网络连接的主脚本
+    /// 它是此资源中少数需要位于DontDestroyOnLoad对象上的脚本之一
     /// </summary>
 
     [DefaultExecutionOrder(-10)]

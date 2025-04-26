@@ -5,6 +5,7 @@ using UnityEngine;
 namespace TcgEngine
 {
     //Contains all gameplay state data that is sync across network
+    //包含跨网络同步的所有游戏状态数据
 
     [System.Serializable]
     public class Game
@@ -139,6 +140,7 @@ namespace TcgEngine
         }
 
         //Check if a card is allowed to move to slot
+        //检查是否允许卡移动到插槽
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (card == null || !slot.IsValid())
@@ -160,10 +162,17 @@ namespace TcgEngine
             if (slot_card != null)
                 return false; //Already a card there
 
+            if(card.move_Range <= 0)
+                return false;
+                
+            if(Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y) > card.move_Range)
+                return false;
+
             return true;
         }
 
         //Check if a card is allowed to attack a player
+        //检查是否允许一张卡攻击玩家
         public virtual bool CanAttackTarget(Card attacker, Player target, bool skip_cost = false)
         {
             if(attacker == null || target == null)

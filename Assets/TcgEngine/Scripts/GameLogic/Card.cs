@@ -27,6 +27,8 @@ namespace TcgEngine
         public int attack_ongoing = 0;
         public int hp_ongoing = 0;
 
+        public uint move_Range = 1;
+
         public string equipped_uid = null;
 
         public List<CardTrait> traits = new List<CardTrait>();
