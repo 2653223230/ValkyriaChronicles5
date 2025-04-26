@@ -476,8 +476,8 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
+                card.move_Range -= Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y);
                 card.slot = slot;
-                card.move_Range--;
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
                 //if(!skip_cost)
