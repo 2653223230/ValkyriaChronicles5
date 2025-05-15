@@ -7,6 +7,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// Defines all ability data
+    /// 定义所有能力数据
     /// </summary>
 
     [CreateAssetMenu(fileName = "ability", menuName = "TcgEngine/AbilityData", order = 5)]

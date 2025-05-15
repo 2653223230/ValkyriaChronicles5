@@ -13,17 +13,17 @@ namespace TcgEngine
     [System.Serializable]
     public struct Slot : INetworkSerializable
     {
-        public int x; //From 1 to 5
-        public int y; //Not in use, could be used to add more rows or different locations on the board
-        public int p; //0 or 1, represent player ID
+        public int x; //From 1 to 5 从1到5
+        public int y; //Not in use, could be used to add more rows or different locations on the board 未使用，可用于在板上添加更多行或不同位置
+        public int p; //0 or 1, represent player ID 0或1代表玩家ID
 
-        public static int x_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot)
-        public static int x_max = 6; //Number of slots in a row/zone
+        public static int x_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot) 不要改变这一点，应该从1开始（0,0,0表示无效插槽）
+        public static int x_max = 10; //Number of slots in a row/zone 行/区域中的插槽数
 
-        public static int y_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot)
-        public static int y_max = 6; //Set this to the number of rows/locations you want to have
+        public static int y_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot) 不要改变这一点，应该从1开始（0,0,0表示无效插槽）
+        public static int y_max = 5; //Set this to the number of rows/locations you want to have 将其设置为您想要的行数/位置数
 
-        public static bool ignore_p = false; //Set to true if you dont want to use P value
+        public static bool ignore_p = false; //Set to true if you dont want to use P value 如果不想使用P值，请设置为true
 
         private static Dictionary<int, List<Slot>> player_slots = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();

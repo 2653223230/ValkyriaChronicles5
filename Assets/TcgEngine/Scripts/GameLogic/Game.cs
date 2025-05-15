@@ -164,8 +164,16 @@ namespace TcgEngine
 
             if(card.move_Range <= 0)
                 return false;
-                
-            if(Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y) > card.move_Range)
+
+            //正方形网格移动范围计算    
+            // if(Mathf.Abs(slot.x - card.slot.x) + Mathf.Abs(slot.y - card.slot.y) > card.move_Range)
+            //     return false;
+            
+            int dx = slot.x - card.slot.x;
+            int dy = slot.y - card.slot.y;
+            int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
+            int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
+            if (hexDistance > card.move_Range)
                 return false;
 
             return true;

@@ -40,6 +40,9 @@ namespace TcgEngine
     /// Defines all status effects data
     /// Status are effects that can be gained or lost with abilities, and that will affect gameplay
     /// Status can have a duration
+    /// 定义所有状态效果数据
+    /// 状态是可以通过能力获得或失去的效果，这将影响游戏玩法
+    /// 状态可以有一个持续时间
     /// </summary>
 
     [CreateAssetMenu(fileName = "status", menuName = "TcgEngine/StatusData", order = 7)]
