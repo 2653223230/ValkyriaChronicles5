@@ -62,6 +62,9 @@ namespace TcgEngine.Client
             bool your_turn = GameClient.Get().IsYourTurn();
             collide.enabled = slot_card == null; //Disable collider when a card is here有卡片时禁用对撞机
 
+            color_r = 255;
+            color_g = 255;
+            color_b = 255;
             //Find target opacity value查找目标不透明度值
             target_alpha = 0f;
             if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && gdata.CanPlayCard(dcard, slot))
@@ -91,6 +94,18 @@ namespace TcgEngine.Client
             if (can_do_attack || can_do_move)
             {
                 target_alpha = 1f;
+                if (can_do_attack)
+                {
+                    color_r = 255;
+                    color_g = 0;
+                    color_b = 0;
+                }
+                else
+                {
+                    color_r = 0;
+                    color_g = 255;
+                    color_b = 0;
+                }
             }
         }
 

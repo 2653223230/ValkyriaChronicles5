@@ -17,6 +17,9 @@ namespace TcgEngine.Client
         protected float start_alpha = 0f;
         protected float current_alpha = 0f;
         protected float target_alpha = 0f;
+        protected float color_r = 255f;
+        protected float color_g = 255f;
+        protected float color_b = 255f;
 
         private static List<BSlot> slot_list = new List<BSlot>();
 
@@ -38,7 +41,7 @@ namespace TcgEngine.Client
         protected virtual void Update()
         {
             current_alpha = Mathf.MoveTowards(current_alpha, target_alpha * start_alpha, 2f * Time.deltaTime);
-            render.color = new Color(render.color.r, render.color.g, render.color.b, current_alpha);
+            render.color = new Color(color_r, color_g, color_b, current_alpha);
         }
 
         public virtual Slot GetSlot()
@@ -125,8 +128,8 @@ namespace TcgEngine.Client
     public enum BoardSlotType
     {
         Fixed = 0,              //x,y,p = slot
-        PlayerSelf = 5,         //p = client player id
-        PlayerOpponent = 7,     //p = client's opponent player id
+        PlayerSelf = 5,         //p = client player id客户端玩家id
+        PlayerOpponent = 7,     //p = client's opponent player id客户端的对手玩家id
         FlipX = 10,              //p=0,   x=unchanged for first player,  x=reversed for second player
         FlipY = 11,              //p=0,   y=unchanged for first player,  y=reversed for second player
     }

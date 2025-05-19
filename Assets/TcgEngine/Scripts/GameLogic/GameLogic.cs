@@ -406,6 +406,7 @@ namespace TcgEngine.Gameplay
         }
 
         //---- Gameplay Actions --------------
+        //---- 游戏操作 --------------
 
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
         {
@@ -476,7 +477,14 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
-                card.move_Range -= Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y);
+                int dx = slot.x - card.slot.x;
+                int dy = slot.y - card.slot.y;
+                int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
+                int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
+                card.move_Range -= hexDistance;
+
+                //正方形网格移动
+                //card.move_Range -= Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y);
                 card.slot = slot;
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
@@ -514,6 +522,7 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //攻击目标
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             if (game_data.CanAttackTarget(attacker, target, skip_cost))
@@ -525,12 +534,14 @@ namespace TcgEngine.Gameplay
                 game_data.last_target = target.uid;
 
                 //Trigger before attack abilities
+                //攻击前触发能力
                 TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
                 TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, target, attacker);
                 TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
                 TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
 
                 //Resolve attack
+                //解决攻击
                 resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
                 resolve_queue.ResolveAll();
             }
@@ -881,6 +892,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Damage a card with attacker/caster
+        //用攻击者/施法者损坏卡片
         public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false)
         {
             if (attacker == null || target == null)
@@ -905,6 +917,7 @@ namespace TcgEngine.Gameplay
                 value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
 
             //Damage
+            //损坏
             int damage_max = Mathf.Min(value, target.GetHP());
             int extra = value - target.GetHP();
             target.damage += value;
@@ -935,6 +948,7 @@ namespace TcgEngine.Gameplay
         }
 
         //A card that kills another card
+        //杀死另一张牌的牌
         public virtual void KillCard(Card attacker, Card target)
         {
             if (attacker == null || target == null)
@@ -956,6 +970,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Send card into discard
+        //将卡片丢弃
         public virtual void DiscardCard(Card card)
         {
             if (card == null)

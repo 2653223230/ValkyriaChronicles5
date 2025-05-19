@@ -85,23 +85,23 @@ namespace TcgEngine.Client
                 {
                     GameClient.Get().CastAbility(card, ability.GetAbility());
                 }
-                else if (tslot is BoardSlotPlayer)
-                {
-                    if (card.exhausted)
-                        WarningText.ShowExhausted();
-                    else
-                        GameClient.Get().AttackPlayer(card, tslot.GetPlayer());
-                }
-                else if (target != null && target.uid != card.uid && target.player_id != card.player_id)
+                // else if (tslot is BoardSlotPlayer)
+                // {
+                //     if (card.exhausted)
+                //         WarningText.ShowExhausted();//卡牌处于“疲惫”状态（exhausted）时显示警告
+                //     else
+                //         GameClient.Get().AttackPlayer(card, tslot.GetPlayer());//攻击该槽位对应的玩家
+                // }
+                else if (target != null && target.uid != card.uid && target.player_id != card.player_id)//如果点击的是敌方卡牌（非自身且不属于当前玩家）
                 {
                     if(card.exhausted)
                         WarningText.ShowExhausted();
                     else
-                        GameClient.Get().AttackTarget(card, target);
+                        GameClient.Get().AttackTarget(card, target);//攻击敌方卡牌
                 }
                 else if (tslot != null && tslot is BoardSlot)
                 {
-                    GameClient.Get().Move(card, tslot.GetSlot());
+                    GameClient.Get().Move(card, tslot.GetSlot());//移动
 
                 }
             }

@@ -8,6 +8,7 @@ namespace TcgEngine.Client
 {
     /// <summary>
     /// Visual zone that can be attacked by opponent's card to damage the player HP
+    /// 可视区域，可被对手的牌攻击，伤害玩家生命值
     /// </summary>
 
     public class BoardSlotPlayer : BSlot
@@ -80,7 +81,7 @@ namespace TcgEngine.Client
 
             if (your_turn && drag_card != null && drag_card.CardData.IsRequireTargetSpell() && gdata.IsPlayTargetValid(drag_card.GetCard(), GetPlayer()))
             {
-                target_alpha = 1f; //Highlight when dragin a spell with target
+                target_alpha = 1f; //Highlight when dragin a spell with target 用目标拖动法术时突出显示
             }
 
             if (gdata.selector == SelectorType.SelectTarget && player.player_id == gdata.selector_player_id)
@@ -88,7 +89,7 @@ namespace TcgEngine.Client
                 Card caster = gdata.GetCard(gdata.selector_caster_uid);
                 AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
                 if (ability != null && ability.AreTargetConditionsMet(gdata, caster, GetPlayer()))
-                    target_alpha = 1f; //Highlight when selecting a target and empty slots are valid
+                    target_alpha = 1f; //Highlight when selecting a target and empty slots are valid 选择目标时突出显示，空槽有效
             }
 
         }

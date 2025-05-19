@@ -28,6 +28,7 @@ namespace TcgEngine
         public int hp_ongoing = 0;
 
         public int move_Range = 2;
+        public int attack_Range = 2;
 
         public string equipped_uid = null;
 

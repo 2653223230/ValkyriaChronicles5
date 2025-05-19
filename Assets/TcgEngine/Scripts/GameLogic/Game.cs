@@ -156,11 +156,11 @@ namespace TcgEngine
                 return false; //Card played wrong side
 
             if (card.slot == slot)
-                return false; //Cant move to same slot
+                return false; //Cant move to same slot 无法移动到同一插槽
 
             Card slot_card = GetSlotCard(slot);
             if (slot_card != null)
-                return false; //Already a card there
+                return false; //Already a card there 那里已经有一张卡了
 
             if(card.move_Range <= 0)
                 return false;
@@ -183,25 +183,26 @@ namespace TcgEngine
         //检查是否允许一张卡攻击玩家
         public virtual bool CanAttackTarget(Card attacker, Player target, bool skip_cost = false)
         {
-            if(attacker == null || target == null)
-                return false;
+            // if(attacker == null || target == null)
+            //     return false;
 
-            if (!attacker.CanAttack(skip_cost))
-                return false; //Card cant attack
+            // if (!attacker.CanAttack(skip_cost))
+            //     return false; //Card cant attack
 
-            if (attacker.player_id == target.player_id)
-                return false; //Cant attack same player
+            // if (attacker.player_id == target.player_id)
+            //     return false; //Cant attack same player
 
-            if (!IsOnBoard(attacker) || !attacker.CardData.IsCharacter())
-                return false; //Cards not on board
+            // if (!IsOnBoard(attacker) || !attacker.CardData.IsCharacter())
+            //     return false; //Cards not on board
 
-            if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
-                return false; //Protected by taunt
+            // if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
+            //     return false; //Protected by taunt
 
             return true;
         }
 
         //Check if a card is allowed to attack another one
+        //检查是否允许一张卡攻击另一张卡
         public virtual bool CanAttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             if (attacker == null || target == null)
@@ -224,6 +225,13 @@ namespace TcgEngine
 
             if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
                 return false; //Protected by adjacent card
+            
+            int dx = target.slot.x - attacker.slot.x;
+            int dy = target.slot.y - attacker.slot.y;
+            int dz = (attacker.slot.x + attacker.slot.y) - (target.slot.x + target.slot.y);
+            int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
+            if (hexDistance > attacker.attack_Range)
+                return false;
 
             return true;
         }
