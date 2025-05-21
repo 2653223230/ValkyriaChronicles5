@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 080ba8f3b7a08e34ba0648e5340f9bf4, type: 3}
   m_Name: GameplayData
   m_EditorClassIdentifier: 
-  hp_start: 20
+  hp_start: 0
   mana_start: 2
   mana_per_turn: 1
   mana_max: 10

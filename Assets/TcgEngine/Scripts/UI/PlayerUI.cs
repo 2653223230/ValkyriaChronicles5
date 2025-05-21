@@ -10,6 +10,8 @@ namespace TcgEngine.UI
     /// <summary>
     /// Main player UI inside the GameUI, inside the game scene
     /// there is one for each player
+    /// GameUI内的主要玩家UI，游戏场景内
+    /// 每个玩家都有一个
     /// </summary>
 
     public class PlayerUI : MonoBehaviour

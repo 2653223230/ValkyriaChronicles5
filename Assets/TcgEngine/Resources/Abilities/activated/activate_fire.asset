@@ -24,7 +24,7 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}
   status: []
-  value: 1
+  value: -1
   duration: 0
   chain_abilities: []
   mana_cost: 2
@@ -38,4 +38,4 @@ MonoBehaviour:
   target_audio: {fileID: 0}
   charge_target: 0
   title: Fire
-  desc: Deal 1 damage.
+  desc: "\u9020\u62101\u70B9\u4F24\u5BB3\u3002"

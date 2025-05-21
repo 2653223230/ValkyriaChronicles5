@@ -6,6 +6,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// Deck with more fields for having specific cards or starting board cards
+    /// 带有更多字段的牌组，用于设置特定牌或起始牌
     /// </summary>
 
     [System.Serializable]

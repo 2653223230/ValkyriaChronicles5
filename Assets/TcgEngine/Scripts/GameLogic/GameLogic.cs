@@ -87,19 +87,23 @@ namespace TcgEngine.Gameplay
         }
 
         //----- Turn Phases ----------
+        //----- 回合阶段 ----------
 
+        //开始游戏
         public virtual void StartGame()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
 
             //Choose first player
+            //选择第一个玩家
             game_data.state = GameState.Play;
             game_data.first_player = random.NextDouble() < 0.5 ? 0 : 1;
             game_data.current_player = game_data.first_player;
             game_data.turn_count = 1;
 
             //Adventure settings
+            //冒险设置
             LevelData level = game_data.settings.GetLevel();
             if (level != null)
             {
@@ -111,14 +115,16 @@ namespace TcgEngine.Gameplay
             }
 
             //Init each players
+            //启动每个玩家
             foreach (Player player in game_data.players)
             {
                 //Puzzle level deck
+                //拼图水平甲板
                 DeckPuzzleData pdeck = DeckPuzzleData.Get(player.deck);
 
                 //Hp / mana
-                player.hp_max = pdeck != null ? pdeck.start_hp : GameplayData.Get().hp_start;
-                player.hp = player.hp_max;
+                player.hp_max = 10;
+                player.hp = pdeck != null ? pdeck.start_hp : GameplayData.Get().hp_start;
                 player.mana_max = pdeck != null ? pdeck.start_mana : GameplayData.Get().mana_start;
                 player.mana = player.mana_max;
 
@@ -142,6 +148,7 @@ namespace TcgEngine.Gameplay
             StartTurn();
         }
 
+        //开始回合
         public virtual void StartTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -199,6 +206,7 @@ namespace TcgEngine.Gameplay
             resolve_queue.ResolveAll(0.2f);
         }
 
+        //开始下一个回合
         public virtual void StartNextTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -213,6 +221,7 @@ namespace TcgEngine.Gameplay
             StartTurn();
         }
 
+        //启动主阶段
         public virtual void StartMainPhase()
         {
             if (game_data.state == GameState.GameEnded)
@@ -223,6 +232,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
 
+        //结束回合
         public virtual void EndTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -255,6 +265,7 @@ namespace TcgEngine.Gameplay
         }
 
         //End game with winner
+        //以胜利者结束游戏
         public virtual void EndGame(int winner)
         {
             if (game_data.state != GameState.GameEnded)
@@ -262,7 +273,7 @@ namespace TcgEngine.Gameplay
                 game_data.state = GameState.GameEnded;
                 game_data.phase = GamePhase.None;
                 game_data.selector = SelectorType.None;
-                game_data.current_player = winner; //Winner player
+                game_data.current_player = winner; //Winner player 获胜者玩家
                 resolve_queue.Clear();
                 Player player = game_data.GetPlayer(winner);
                 onGameEnd?.Invoke(player);
@@ -271,6 +282,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Progress to the next step/phase 
+        //下一步/阶段的进展
         public virtual void NextStep()
         {
             if (game_data.state == GameState.GameEnded)
@@ -285,29 +297,53 @@ namespace TcgEngine.Gameplay
 
         //Check if a player is winning the game, if so end the game
         //Change or edit this function for a new win condition
+        //检查玩家是否赢得了游戏，如果是，结束游戏
+        //更改或编辑此功能以获得新的获胜条件
         protected virtual void CheckForWinner()
         {
+            // int count_alive = 0;
+            // Player alive = null;
+            // foreach (Player player in game_data.players)
+            // {
+            //     if (!player.IsDead())
+            //     {
+            //         alive = player;
+            //         count_alive++;
+            //     }
+            // }
+
+            // if (count_alive == 0)
+            // {
+            //     EndGame(-1); //Everyone is dead, Draw 所有人都死了，平局
+            // }
+            // else if (count_alive == 1)
+            // {
+            //     EndGame(alive.player_id); //Player win 玩家获胜
+            // }
+
             int count_alive = 0;
             Player alive = null;
             foreach (Player player in game_data.players)
             {
-                if (!player.IsDead())
+                if (player.hp >= 10)
                 {
                     alive = player;
                     count_alive++;
                 }
             }
 
-            if (count_alive == 0)
+            if (count_alive == 1)
             {
-                EndGame(-1); //Everyone is dead, Draw
+                EndGame(alive.player_id); //Player win 玩家获胜
             }
-            else if (count_alive == 1)
+            else if(count_alive > 1)
             {
-                EndGame(alive.player_id); //Player win
+                EndGame(-1);
             }
+            
         }
 
+        //清除回合数据
         protected virtual void ClearTurnData()
         {
             game_data.selector = SelectorType.None;
@@ -560,7 +596,8 @@ namespace TcgEngine.Gameplay
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
             resolve_queue.ResolveAll(0.3f);
         }
-
+        
+        //解析攻击命中
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
         {
             //Count attack damage
@@ -635,6 +672,7 @@ namespace TcgEngine.Gameplay
             resolve_queue.ResolveAll(0.3f);
         }
 
+        //解析攻击玩家命中
         protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
         {
             DamagePlayer(attacker, target, attacker.GetAttack());
@@ -1262,6 +1300,7 @@ namespace TcgEngine.Gameplay
             iability.DoEffects(this, caster, target);
         }
 
+        //能力解决后
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster)
         {
             Player player = game_data.GetPlayer(caster.player_id);

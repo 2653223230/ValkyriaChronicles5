@@ -5,6 +5,7 @@ using UnityEngine;
 namespace TcgEngine
 {
     //Represent the current state of a player during the game (data only)
+    //表示玩家在游戏中的当前状态（仅数据）
 
     [System.Serializable]
     public class Player
@@ -534,6 +535,7 @@ namespace TcgEngine
 
 
         //---- Action Check ---------
+        //---- 动作检查 ---------
 
         public virtual bool CanPayMana(Card card)
         {
@@ -554,18 +556,20 @@ namespace TcgEngine
             return exhaust && mana >= ability.mana_cost;
         }
 
+        //我死了
         public virtual bool IsDead()
         {
-            if (cards_hand.Count == 0 && cards_board.Count == 0 && cards_deck.Count == 0)
-                return true;
-            if (hp <= 0)
-                return true;
+            // if (cards_hand.Count == 0 && cards_board.Count == 0 && cards_deck.Count == 0)
+            //     return true;
+            // if (hp <= 0)
+            //     return true;
             return false;
         }
 
         //--------------------
 
         //Clone all player variables into another var, used mostly by the AI when building a prediction tree
+        //将所有玩家变量克隆到另一个var中，主要由AI在构建预测树时使用
         public static void Clone(Player source, Player dest)
         {
             dest.player_id = source.player_id;
@@ -587,8 +591,8 @@ namespace TcgEngine
 
             Card.CloneNull(source.hero, ref dest.hero);
             Card.CloneDict(source.cards_all, dest.cards_all);
-            Card.CloneListRef(dest.cards_all, source.cards_board, dest.cards_board);  
-            Card.CloneListRef(dest.cards_all, source.cards_equip, dest.cards_equip);  
+            Card.CloneListRef(dest.cards_all, source.cards_board, dest.cards_board);
+            Card.CloneListRef(dest.cards_all, source.cards_equip, dest.cards_equip);
             Card.CloneListRef(dest.cards_all, source.cards_hand, dest.cards_hand);
             Card.CloneListRef(dest.cards_all, source.cards_deck, dest.cards_deck);
             Card.CloneListRef(dest.cards_all, source.cards_discard, dest.cards_discard);
