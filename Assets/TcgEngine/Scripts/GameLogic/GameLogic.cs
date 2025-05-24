@@ -123,22 +123,24 @@ namespace TcgEngine.Gameplay
                 DeckPuzzleData pdeck = DeckPuzzleData.Get(player.deck);
 
                 //Hp / mana
-                player.hp_max = 10;
+                player.hp_max = 9;
                 player.hp = pdeck != null ? pdeck.start_hp : GameplayData.Get().hp_start;
                 player.mana_max = pdeck != null ? pdeck.start_mana : GameplayData.Get().mana_start;
                 player.mana = player.mana_max;
 
                 //Draw starting cards
+                //绘制起始牌
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
                 DrawCard(player, dcards);
 
                 //Add coin second player
-                bool is_random = level == null || level.first_player == LevelFirst.Random;
-                if (is_random && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
-                {
-                    Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
-                    player.cards_hand.Add(card);
-                }
+                //添加硬币第二玩家
+                // bool is_random = level == null || level.first_player == LevelFirst.Random;
+                // if (is_random && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
+                // {
+                //     Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
+                //     player.cards_hand.Add(card);
+                // }
             }
 
             //Start state
@@ -162,9 +164,14 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
 
             //Cards draw
+            //抽牌，当前不是第一回合或当前玩家不是先手玩家
             if (game_data.turn_count > 1 || player.player_id != game_data.first_player)
             {
-                DrawCard(player, GameplayData.Get().cards_per_turn);
+                // 计算需要补卡的数量
+                int cardsNeeded = GameplayData.Get().cards_per_turn - player.cards_hand.Count;
+                if (cardsNeeded > 0)
+                    DrawCard(player, cardsNeeded);
+                
             }
 
             //Mana 
@@ -244,6 +251,7 @@ namespace TcgEngine.Gameplay
             game_data.phase = GamePhase.EndTurn;
 
             //Reduce status effects with duration
+            //减少持续时间对状态的影响
             foreach (Player aplayer in game_data.players)
             {
                 aplayer.ReduceStatusDurations();
@@ -254,6 +262,7 @@ namespace TcgEngine.Gameplay
             }
 
             //End of turn abilities
+            //回合结束能力
             Player player = game_data.GetActivePlayer();
             TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
 
@@ -325,7 +334,7 @@ namespace TcgEngine.Gameplay
             Player alive = null;
             foreach (Player player in game_data.players)
             {
-                if (player.hp >= 10)
+                if (player.hp >= 9)
                 {
                     alive = player;
                     count_alive++;
@@ -583,6 +592,7 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //解决攻击
         protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
         {
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
@@ -601,21 +611,26 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
         {
             //Count attack damage
+            //计算攻击伤害
             int datt1 = attacker.GetAttack();
             int datt2 = target.GetAttack();
 
             //Damage Cards
+            //损坏卡片
             DamageCard(attacker, target, datt1);
 
             //Counter Damage
+            //抗损伤
             if (!attacker.HasStatus(StatusType.Intimidate))
                 DamageCard(target, attacker, datt2);
 
             //Save attack and exhaust
+            //节省攻击和排气
             if (!skip_cost)
                 ExhaustBattle(attacker);
 
             //Recalculate bonus
+            //重新计算奖金
             UpdateOngoing();
 
             //Abilities
@@ -697,6 +712,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Exhaust after battle
+        //战斗后的废气
         public virtual void ExhaustBattle(Card attacker)
         {
             bool attacked_before = game_data.cards_attacked.Contains(attacker.uid);
@@ -706,6 +722,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Redirect attack to a new target
+        //将攻击重定向到新目标
         public virtual void RedirectAttack(Card attacker, Card new_target)
         {
             foreach (AttackQueueElement att in resolve_queue.GetAttackQueue())
@@ -745,6 +762,7 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //抽卡
         public virtual void DrawCard(Player player, int nb = 1)
         {
             for (int i = 0; i < nb; i++)
@@ -761,6 +779,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Put a card from deck into discard
+        //将牌组中的一张牌丢弃
         public virtual void DrawDiscardCard(Player player, int nb = 1)
         {
             for (int i = 0; i < nb; i++)
@@ -977,10 +996,12 @@ namespace TcgEngine.Gameplay
             onCardDamaged?.Invoke(target, value);
 
             //Deathtouch
+            //死亡触摸
             if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Character)
                 KillCard(attacker, target);
 
             //Kill card if no hp
+            //如果没有hp，则杀死卡
             if (target.GetHP() <= 0)
                 KillCard(attacker, target);
         }
@@ -993,15 +1014,24 @@ namespace TcgEngine.Gameplay
                 return;
 
             if (!game_data.IsOnBoard(target) && !game_data.IsEquipped(target))
-                return; //Already killed
+                return; //Already killed 已经被杀了
 
             if (target.HasStatus(StatusType.Invincibility))
-                return; //Cant be killed
+                return; //Cant be killed 不能被杀死
 
-            Player pattacker = game_data.GetPlayer(attacker.player_id);
+            Player att_pattacker = game_data.GetPlayer(attacker.player_id);
+            Player tar_pattacker = game_data.GetPlayer(target.player_id);
             if (attacker.player_id != target.player_id)
-                pattacker.kill_count++;
-
+            {
+                att_pattacker.kill_count++;
+                att_pattacker.hp += 3;
+            }
+            else
+            {
+                tar_pattacker.kill_count++;
+                tar_pattacker.hp += 3;
+            }
+            
             DiscardCard(target);
 
             TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);

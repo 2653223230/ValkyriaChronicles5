@@ -281,6 +281,7 @@ namespace TcgEngine.Client
         }
 
         //Offset the HP visuals by a value so the HP dont go down before end of animation (like a projectile)
+        //将HP视觉效果偏移一个值，这样HP就不会在动画结束前下降（就像投射物一样）
         public void DelayDamage(int damage, float duration = 1f)
         {
             if (damage != 0)

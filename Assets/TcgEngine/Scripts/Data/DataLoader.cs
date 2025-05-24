@@ -8,6 +8,7 @@ namespace TcgEngine
 
     /// <summary>
     /// This script initiates loading all the game data
+    /// 此脚本启动加载所有游戏数据
     /// </summary>
 
     public class DataLoader : MonoBehaviour
@@ -30,7 +31,9 @@ namespace TcgEngine
         public void LoadData()
         {
             //To make loading faster, add a path inside each Load() function, relative to Resources folder
+            //为了加快加载速度，请在每个Load（）函数中添加一个相对于Resources文件夹的路径
             //For example CardData.Load("Cards");  to only load data inside the Resources/Cards folder
+            //例如CardData。加载（“卡片”）；仅加载资源/卡片文件夹中的数据
             CardData.Load();
             TeamData.Load();
             RarityData.Load();
@@ -52,6 +55,7 @@ namespace TcgEngine
         }
 
         //Make sure the data is valid
+        //确保数据有效
         private void CheckCardData()
         {
             card_ids.Clear();
@@ -84,7 +88,7 @@ namespace TcgEngine
 
                 foreach (AbilityData ability in card.abilities)
                 {
-                    if(ability == null)
+                    if (ability == null)
                         Debug.LogError(card.id + " has null ability");
                 }
 
