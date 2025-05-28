@@ -9,6 +9,7 @@ namespace TcgEngine.AI
 {
     /// <summary>
     /// Minimax algorithm for AI. 
+    /// 人工智能的Minimax算法。
     /// </summary>
 
     public class AILogic

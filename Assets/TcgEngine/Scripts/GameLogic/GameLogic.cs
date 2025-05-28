@@ -239,6 +239,22 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
 
+        //结束阶段
+        public virtual void EndStage()
+        {
+            Debug.Log("进行下一阶段");
+            if (game_data.state == GameState.GameEnded)
+                return;
+            if (game_data.phase != GamePhase.Main)
+                return;
+
+            game_data.selector = SelectorType.None;
+            //game_data.phase = GamePhase.EndStage;
+
+            resolve_queue.AddCallback(StartNextTurn);
+            resolve_queue.ResolveAll(0.2f);
+        }
+
         //结束回合
         public virtual void EndTurn()
         {
@@ -300,6 +316,18 @@ namespace TcgEngine.Gameplay
             CancelSelection();
 
             //Add to resolve queue in case its still resolving
+            resolve_queue.AddCallback(EndStage);
+            resolve_queue.ResolveAll();
+        }
+        //
+        public virtual void NextPhase()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            CancelSelection();
+
+            //Add to resolve queue in case its still resolving
             resolve_queue.AddCallback(EndTurn);
             resolve_queue.ResolveAll();
         }
@@ -345,11 +373,11 @@ namespace TcgEngine.Gameplay
             {
                 EndGame(alive.player_id); //Player win 玩家获胜
             }
-            else if(count_alive > 1)
+            else if (count_alive > 1)
             {
                 EndGame(-1);
             }
-            
+
         }
 
         //清除回合数据

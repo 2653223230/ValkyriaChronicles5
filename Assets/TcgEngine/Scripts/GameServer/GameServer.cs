@@ -55,7 +55,7 @@ namespace TcgEngine.Server
             game_data = new Game(uid, nb_players);
             gameplay = new GameLogic(game_data);
 
-            //Commands
+            //命令
             RegisterAction(GameAction.PlayerSettings, ReceivePlayerSettings);
             RegisterAction(GameAction.PlayerSettingsAI, ReceivePlayerSettingsAI);
             RegisterAction(GameAction.GameSettings, ReceiveGameplaySettings);
@@ -70,6 +70,7 @@ namespace TcgEngine.Server
             RegisterAction(GameAction.SelectChoice, ReceiveSelectChoice);
             RegisterAction(GameAction.SelectCost, ReceiveSelectCost);
             RegisterAction(GameAction.CancelSelect, ReceiveCancelSelection);
+            RegisterAction(GameAction.EndStage, ReceiveEndStage);
             RegisterAction(GameAction.EndTurn, ReceiveEndTurn);
             RegisterAction(GameAction.Resign, ReceiveResign);
             RegisterAction(GameAction.ChatMessage, ReceiveChat);
@@ -426,12 +427,21 @@ namespace TcgEngine.Server
             }
         }
 
-        public void ReceiveEndTurn(ClientData iclient, SerializedData sdata)
+        public void ReceiveEndStage(ClientData iclient, SerializedData sdata)
         {
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerTurn(player))
             {
                 gameplay.NextStep();
+            }
+        }
+
+        public void ReceiveEndTurn(ClientData iclient, SerializedData sdata)
+        {
+            Player player = GetPlayer(iclient);
+            if (player != null && game_data.IsPlayerTurn(player))
+            {
+                gameplay.NextPhase();
             }
         }
 

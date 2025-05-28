@@ -10,6 +10,7 @@ namespace TcgEngine.UI
 {
     /// <summary>
     /// Main UI script for all the game scene UI
+    /// 所有游戏场景UI的主UI脚本
     /// </summary>
 
     public class GameUI : MonoBehaviour
@@ -140,6 +141,11 @@ namespace TcgEngine.UI
             SelectTargetUI.Get().Hide();
         }
 
+        public void OnClickNextStage()
+        {
+            GameClient.Get().EndStage();
+            end_turn_timer = 0f; //立即禁用按钮（不要等待刷新）
+        }
         public void OnClickNextTurn()
         {
             GameClient.Get().EndTurn();

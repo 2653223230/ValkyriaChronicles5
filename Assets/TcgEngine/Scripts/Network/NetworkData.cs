@@ -6,7 +6,9 @@ namespace TcgEngine
 {
     /// <summary>
     /// Main config file for all network-related things
+    /// 所有网络相关内容的主配置文件
     /// Server API password is not in this file (and is in the Server scene instead) to prevent exposing it to client build
+    /// 服务器API密码不在此文件中（而是在服务器场景中），以防止将其暴露给客户端生成
     /// </summary>
 
     [CreateAssetMenu(fileName = "NetworkData", menuName = "TcgEngine/NetworkData", order = 0)]

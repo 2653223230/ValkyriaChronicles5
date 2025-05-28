@@ -27,6 +27,7 @@ namespace TcgEngine
         public int mana = 0;
         public int mana_max = 0;
         public int kill_count = 0;
+        public bool EndTurn = false;
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
         public Card hero = null;

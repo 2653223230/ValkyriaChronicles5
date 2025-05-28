@@ -7,6 +7,7 @@ namespace TcgEngine.AI
 {
     /// <summary>
     /// AI player using the MinMax AI algorithm
+    /// 使用MinMax AI算法的AI播放器
     /// </summary>
 
     public class AIPlayerMM : AIPlayer

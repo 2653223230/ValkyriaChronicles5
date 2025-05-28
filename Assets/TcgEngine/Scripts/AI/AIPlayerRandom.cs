@@ -8,6 +8,7 @@ namespace TcgEngine.AI
 {
     /// <summary>
     /// AI player making completely random decisions, really bad AI but useful for testing
+    /// AI玩家做出完全随机的决定，非常糟糕的AI，但对测试有用
     /// </summary>
     
     public class AIPlayerRandom : AIPlayer

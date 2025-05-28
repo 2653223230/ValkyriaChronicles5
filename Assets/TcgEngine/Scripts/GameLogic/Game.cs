@@ -614,6 +614,7 @@ namespace TcgEngine
         None = 0,
         StartTurn = 10, //Start of turn resolution
         Main = 20,      //Main play phase
+        EndStage = 25,
         EndTurn = 30,   //End of turn resolutions
     }
 

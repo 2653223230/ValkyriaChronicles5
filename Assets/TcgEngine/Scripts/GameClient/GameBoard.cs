@@ -9,7 +9,9 @@ namespace TcgEngine.Client
 {
     /// <summary>
     /// GameBoard takes care of spawning and despawning BoardCards, based on the refreshed data received from the server
+    /// Game Board根据从服务器接收到的刷新数据处理BoardCards的生成和卸载
     /// It also ends the game when the server sends a endgame
+    /// 当服务器发送结束游戏时，它也会结束游戏
     /// </summary>
 
     public class GameBoard : MonoBehaviour

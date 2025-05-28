@@ -25,6 +25,7 @@ namespace TcgEngine
         public const ushort SelectChoice = 1036;
         public const ushort SelectCost = 1037;
         public const ushort CancelSelect = 1039;
+        public const ushort EndStage = 1041;
         public const ushort EndTurn = 1040;
         public const ushort Resign = 1050;
         public const ushort ChatMessage = 1090;
@@ -82,6 +83,8 @@ namespace TcgEngine
                 return "attack_player";
             if (type == GameAction.CastAbility)
                 return "cast_ability";
+            if (type == GameAction.EndStage)
+                return "end_stage";
             if (type == GameAction.EndTurn)
                 return "end_turn";
             if (type == GameAction.SelectCard)

@@ -376,7 +376,12 @@ namespace TcgEngine.Client
             chat.player_id = player_id;
             SendAction(GameAction.ChatMessage, chat);
         }
-
+        //结束阶段
+        public void EndStage()
+        {
+            SendAction(GameAction.EndStage);
+        }
+        //结束回合
         public void EndTurn()
         {
             SendAction(GameAction.EndTurn);
