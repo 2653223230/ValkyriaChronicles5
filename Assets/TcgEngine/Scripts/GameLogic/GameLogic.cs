@@ -251,7 +251,10 @@ namespace TcgEngine.Gameplay
             game_data.selector = SelectorType.None;
             //game_data.phase = GamePhase.EndStage;
 
-            resolve_queue.AddCallback(StartNextTurn);
+            game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;
+            game_data.turn_timer = GameplayData.Get().turn_duration;
+
+            resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
         }
 
@@ -262,6 +265,9 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Main)
                 return;
+
+            Player player = game_data.GetActivePlayer();
+            player.EndTurn = true;
 
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.EndTurn;
@@ -279,7 +285,6 @@ namespace TcgEngine.Gameplay
 
             //End of turn abilities
             //回合结束能力
-            Player player = game_data.GetActivePlayer();
             TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
 
             onTurnEnd?.Invoke();
