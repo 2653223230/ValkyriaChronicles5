@@ -9,6 +9,7 @@ namespace TcgEngine.UI
 {
     /// <summary>
     /// Deck selector is a dropdown that let the player select a deck before a match
+    /// 牌组选择器是一个下拉菜单，让玩家在比赛前选择牌组
     /// </summary>
 
     public class DeckSelector : MonoBehaviour

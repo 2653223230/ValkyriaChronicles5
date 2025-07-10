@@ -9,6 +9,8 @@ namespace TcgEngine.UI
     /// <summary>
     /// Can display a deck in the UI
     /// Only shows a few cards and the total amount of cards
+    ///可以在UI中显示甲板
+    ///仅显示几张卡和卡的总数
     /// </summary>
 
     public class DeckDisplay : MonoBehaviour

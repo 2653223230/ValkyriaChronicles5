@@ -6,6 +6,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// Defines card variants
+    /// 定义卡片变体
     /// </summary>
 
     [CreateAssetMenu(fileName = "VariantData", menuName = "TcgEngine/VariantData", order = 5)]

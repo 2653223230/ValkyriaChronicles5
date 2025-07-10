@@ -197,7 +197,7 @@ namespace TcgEngine.Client
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
             if (drag && mpos.y > 0.25f)
-                TryPlayCard(board_pos);
+                TryPlayCard(board_pos);//尝试出牌
             else if (!GameTool.IsMobile())
                 HandCardArea.Get().SortCards();
             drag = false;

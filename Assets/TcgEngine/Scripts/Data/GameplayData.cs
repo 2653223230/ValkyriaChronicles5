@@ -7,6 +7,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// Generic gameplay settings, such as starting stats, decks limit, scenes, and ai level
+    /// 定义卡牌变量通用游戏设置，如起始统计、牌组限制、场景和ai级别
     /// </summary>
 
     [CreateAssetMenu(fileName = "GameplayData", menuName = "TcgEngine/GameplayData", order = 0)]

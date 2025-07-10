@@ -149,6 +149,30 @@ namespace TcgEngine.Gameplay
 
             StartTurn();
         }
+        
+        //开始阶段
+        public virtual void StartStage()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            ClearTurnData();
+            game_data.phase = GamePhase.StartTurn;
+            onTurnStart?.Invoke();
+            RefreshData();
+
+            Player player = game_data.GetActivePlayer();
+
+            //Turn timer and history 回合状态重置
+            game_data.turn_timer = GameplayData.Get().turn_duration;
+            player.history_list.Clear();
+
+            if (player.hero != null)
+                player.hero.Refresh();
+
+            resolve_queue.AddCallback(StartMainPhase);
+            resolve_queue.ResolveAll(0.2f);
+        }
 
         //开始回合
         public virtual void StartTurn()
@@ -161,6 +185,8 @@ namespace TcgEngine.Gameplay
             onTurnStart?.Invoke();
             RefreshData();
 
+            game_data.AllPlayersStartTurn();
+
             Player player = game_data.GetActivePlayer();
 
             //Cards draw
@@ -171,26 +197,30 @@ namespace TcgEngine.Gameplay
                 int cardsNeeded = GameplayData.Get().cards_per_turn - player.cards_hand.Count;
                 if (cardsNeeded > 0)
                     DrawCard(player, cardsNeeded);
-                
+
             }
 
-            //Mana 
-            player.mana_max += GameplayData.Get().mana_per_turn;
-            player.mana_max = Mathf.Min(player.mana_max, GameplayData.Get().mana_max);
-            player.mana = player.mana_max;
+            //Mana 法力值
+            foreach (Player playerMana in game_data.players)
+            {
+                playerMana.mana_max += GameplayData.Get().mana_per_turn;
+                playerMana.mana_max = Mathf.Min(playerMana.mana_max, GameplayData.Get().mana_max);
+                playerMana.mana = playerMana.mana_max;   
+            }
 
-            //Turn timer and history
+            //Turn timer and history 回合状态重置
             game_data.turn_timer = GameplayData.Get().turn_duration;
             player.history_list.Clear();
 
-            //Player poison
+            //Player poison 状态效果处理
             if (player.HasStatus(StatusType.Poisoned))
                 player.hp -= player.GetStatusValue(StatusType.Poisoned);
 
+            //英雄技能重置
             if (player.hero != null)
                 player.hero.Refresh();
 
-            //Refresh Cards and Status Effects
+            //Refresh Cards and Status Effects 场上单位处理
             for (int i = player.cards_board.Count - 1; i >= 0; i--)
             {
                 Card card = player.cards_board[i];
@@ -202,15 +232,33 @@ namespace TcgEngine.Gameplay
                     DamageCard(card, card.GetStatusValue(StatusType.Poisoned));
             }
 
-            //Ongoing Abilities
+            //Ongoing Abilities 持续效果更新
             UpdateOngoing();
 
             //StartTurn Abilities
+            // 单位技能
             TriggerPlayerCardsAbilityType(player, AbilityTrigger.StartOfTurn);
+            // 奥秘卡触发
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
 
             resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
+        }
+
+        //开始下一个阶段
+        public virtual void StartNextStage()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            Player nextPlayer = game_data.GetPlayer((game_data.current_player + 1) % game_data.settings.nb_players);
+            if (nextPlayer.EndTurn == false)
+            {
+                game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;//设置下一回合当前玩家
+            }
+
+            CheckForWinner();//判断输赢
+            StartStage();//开始回合
         }
 
         //开始下一个回合
@@ -219,13 +267,13 @@ namespace TcgEngine.Gameplay
             if (game_data.state == GameState.GameEnded)
                 return;
 
-            game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;
+            game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;//设置下一回合当前玩家
 
             if (game_data.current_player == game_data.first_player)
                 game_data.turn_count++;
 
-            CheckForWinner();
-            StartTurn();
+            CheckForWinner();//判断输赢
+            StartTurn();//开始回合
         }
 
         //启动主阶段
@@ -242,19 +290,12 @@ namespace TcgEngine.Gameplay
         //结束阶段
         public virtual void EndStage()
         {
-            Debug.Log("进行下一阶段");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Main)
                 return;
-
-            game_data.selector = SelectorType.None;
-            //game_data.phase = GamePhase.EndStage;
-
-            game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;
-            game_data.turn_timer = GameplayData.Get().turn_duration;
-
-            resolve_queue.AddCallback(StartMainPhase);
+            
+            resolve_queue.AddCallback(StartNextStage);
             resolve_queue.ResolveAll(0.2f);
         }
 
@@ -269,29 +310,38 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             player.EndTurn = true;
 
-            game_data.selector = SelectorType.None;
-            game_data.phase = GamePhase.EndTurn;
-
-            //Reduce status effects with duration
-            //减少持续时间对状态的影响
-            foreach (Player aplayer in game_data.players)
+            if (game_data.AllPlayersEndTurn() == true)
             {
-                aplayer.ReduceStatusDurations();
-                foreach (Card card in aplayer.cards_board)
-                    card.ReduceStatusDurations();
-                foreach (Card card in aplayer.cards_equip)
-                    card.ReduceStatusDurations();
+                Debug.Log("结束回合");
+                game_data.selector = SelectorType.None;
+                game_data.phase = GamePhase.EndTurn;
+
+                //Reduce status effects with duration
+                //减少持续时间对状态的影响
+                foreach (Player aplayer in game_data.players)
+                {
+                    aplayer.ReduceStatusDurations();
+                    foreach (Card card in aplayer.cards_board)
+                        card.ReduceStatusDurations();
+                    foreach (Card card in aplayer.cards_equip)
+                        card.ReduceStatusDurations();
+                }
+                //End of turn abilities
+                //回合结束能力
+                TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
+
+                onTurnEnd?.Invoke();
+                RefreshData();
+
+                resolve_queue.AddCallback(StartNextTurn);
+                resolve_queue.ResolveAll(0.2f);
             }
-
-            //End of turn abilities
-            //回合结束能力
-            TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
-
-            onTurnEnd?.Invoke();
-            RefreshData();
-
-            resolve_queue.AddCallback(StartNextTurn);
-            resolve_queue.ResolveAll(0.2f);
+            else
+            {
+                Debug.Log("结束阶段");
+                resolve_queue.AddCallback(StartNextStage);
+                resolve_queue.ResolveAll(0.2f);
+            }
         }
 
         //End game with winner
@@ -486,6 +536,7 @@ namespace TcgEngine.Gameplay
         //---- Gameplay Actions --------------
         //---- 游戏操作 --------------
 
+        //打出牌
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
@@ -841,6 +892,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Create a new card and send it to the board
+        //创建一张新卡并将其发送到董事会
         public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
         {
             if (!slot.IsValid())
@@ -908,6 +960,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Change owner of a card
+        //更改卡的所有者
         public virtual void ChangeOwner(Card card, Player owner)
         {
             if (card.player_id != owner.player_id)

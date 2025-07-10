@@ -12,6 +12,8 @@ namespace TcgEngine.UI
     /// <summary>
     /// Scripts to display all stats of a card, 
     /// is used by other script that display cards like BoardCard, and HandCard, CollectionCard..
+    /// 显示卡片所有统计数据的脚本，
+    /// 用于显示BoardCard、HandCard、CollectionCard等卡片的其他脚本。。
     /// </summary>
 
     public class CardUI : MonoBehaviour, IPointerClickHandler

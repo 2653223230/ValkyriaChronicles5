@@ -14,8 +14,8 @@ namespace TcgEngine
         public GameSettings settings;
 
         //Game state
-        public int first_player = 0;
-        public int current_player = 0;
+        public int first_player = 0;//第一名玩家
+        public int current_player = 0;//当前玩家
         public int turn_count = 0;
         public float turn_timer = 0f;
 
@@ -45,7 +45,7 @@ namespace TcgEngine
         public HashSet<string> cards_attacked = new HashSet<string>();
 
         public Game() { }
-        
+
         public Game(string uid, int nb_players)
         {
             this.game_uid = uid;
@@ -85,16 +85,16 @@ namespace TcgEngine
 
         public virtual bool IsPlayerActionTurn(Player player)
         {
-            return player != null && current_player == player.player_id 
+            return player != null && current_player == player.player_id
                 && state == GameState.Play && selector == SelectorType.None;
         }
 
         public virtual bool IsPlayerSelectorTurn(Player player)
         {
-            return player != null && selector_player_id == player.player_id 
+            return player != null && selector_player_id == player.player_id
                 && state == GameState.Play && selector != SelectorType.None;
         }
-        
+
         //Check if a card is allowed to be played on slot
         public virtual bool CanPlayCard(Card card, Slot slot, bool skip_cost = false)
         {
@@ -162,13 +162,13 @@ namespace TcgEngine
             if (slot_card != null)
                 return false; //Already a card there 那里已经有一张卡了
 
-            if(card.move_Range <= 0)
+            if (card.move_Range <= 0)
                 return false;
 
             //正方形网格移动范围计算    
             // if(Mathf.Abs(slot.x - card.slot.x) + Mathf.Abs(slot.y - card.slot.y) > card.move_Range)
             //     return false;
-            
+
             int dx = slot.x - card.slot.x;
             int dy = slot.y - card.slot.y;
             int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
@@ -225,7 +225,7 @@ namespace TcgEngine
 
             if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
                 return false; //Protected by adjacent card
-            
+
             int dx = target.slot.x - attacker.slot.x;
             int dy = target.slot.y - attacker.slot.y;
             int dz = (attacker.slot.x + attacker.slot.y) - (target.slot.x + target.slot.y);
@@ -475,7 +475,7 @@ namespace TcgEngine
             }
             return null;
         }
-        
+
         public virtual Player GetRandomPlayer(System.Random rand)
         {
             Player player = GetPlayer(rand.NextDouble() < 0.5 ? 1 : 0);
@@ -568,7 +568,7 @@ namespace TcgEngine
             if (dest.players == null)
             {
                 dest.players = new Player[source.players.Length];
-                for(int i=0; i< source.players.Length; i++)
+                for (int i = 0; i < source.players.Length; i++)
                     dest.players[i] = new Player(i);
             }
 
@@ -597,6 +597,24 @@ namespace TcgEngine
             dest.Clear();
             foreach (string str in source)
                 dest.Add(str);
+        }
+
+        public bool AllPlayersEndTurn()
+        {
+            foreach (Player player in players)
+            {
+                if (player.EndTurn == false)
+                    return false;
+            }
+            return true;
+        }
+
+        public void AllPlayersStartTurn()
+        {
+            foreach (Player player in players)
+            {
+                player.EndTurn = false;
+            }
         }
     }
 

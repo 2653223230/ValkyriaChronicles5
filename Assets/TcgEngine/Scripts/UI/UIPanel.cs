@@ -8,6 +8,7 @@ namespace TcgEngine.UI
 {
     /// <summary>
     /// Base class for UI panels that can be hidden or shown, with a fade-in fade-out effect
+    /// UI面板的基类，可以隐藏或显示，具有淡入淡出效果
     /// </summary>
 
     [RequireComponent(typeof(CanvasGroup))]
