@@ -33,6 +33,8 @@ namespace TcgEngine
         public Card hero = null;
 
         public List<Card> cards_deck = new List<Card>();    //Cards in the player's deck
+
+        public List<Card> monsters_deck = new List<Card>(); //玩家牌组中的英雄
         public List<Card> cards_hand = new List<Card>();    //Cards in the player's hand
         public List<Card> cards_board = new List<Card>();   //Cards on the board
         public List<Card> cards_equip = new List<Card>();   //Cards equipped by characters
@@ -70,6 +72,7 @@ namespace TcgEngine
         public virtual void RemoveCardFromAllGroups(Card card)
         {
             cards_deck.Remove(card);
+            monsters_deck.Remove(card);
             cards_hand.Remove(card);
             cards_board.Remove(card);
             cards_equip.Remove(card);
@@ -133,6 +136,16 @@ namespace TcgEngine
         public Card GetDeckCard(string uid)
         {
             foreach (Card card in cards_deck)
+            {
+                if (card.uid == uid)
+                    return card;
+            }
+            return null;
+        }
+
+        public Card GetDeckMonster(string uid)
+        {
+            foreach (Card card in monsters_deck)
             {
                 if (card.uid == uid)
                     return card;
@@ -596,6 +609,7 @@ namespace TcgEngine
             Card.CloneListRef(dest.cards_all, source.cards_equip, dest.cards_equip);
             Card.CloneListRef(dest.cards_all, source.cards_hand, dest.cards_hand);
             Card.CloneListRef(dest.cards_all, source.cards_deck, dest.cards_deck);
+            Card.CloneListRef(dest.cards_all, source.monsters_deck, dest.monsters_deck);
             Card.CloneListRef(dest.cards_all, source.cards_discard, dest.cards_discard);
             Card.CloneListRef(dest.cards_all, source.cards_secret, dest.cards_secret);
             Card.CloneListRef(dest.cards_all, source.cards_temp, dest.cards_temp);

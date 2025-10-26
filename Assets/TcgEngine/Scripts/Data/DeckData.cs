@@ -6,6 +6,7 @@ namespace TcgEngine
 {
     /// <summary>
     /// Defines all fixed deck data (for user custom decks, check UserData.cs)
+    /// 定义所有卡组数据
     /// </summary>
     
     [CreateAssetMenu(fileName = "DeckData", menuName = "TcgEngine/DeckData", order = 7)]
@@ -17,6 +18,7 @@ namespace TcgEngine
         public string title;
 
         [Header("Cards")]
+        public CardData[] monsters;
         public CardData hero;
         public CardData[] cards;
 

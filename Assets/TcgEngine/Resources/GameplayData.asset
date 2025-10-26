@@ -27,17 +27,11 @@ MonoBehaviour:
   ai_type: 10
   ai_level: 10
   free_decks:
-  - {fileID: 11400000, guid: 8aea02f8dfcc2834d8eeca8e259140ce, type: 2}
-  - {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
-  - {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
+  - {fileID: 11400000, guid: 72e2196a74fde3147aaef49e9d321193, type: 2}
   starter_decks:
-  - {fileID: 11400000, guid: 8aea02f8dfcc2834d8eeca8e259140ce, type: 2}
-  - {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
-  - {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
+  - {fileID: 11400000, guid: 72e2196a74fde3147aaef49e9d321193, type: 2}
   ai_decks:
-  - {fileID: 11400000, guid: 8aea02f8dfcc2834d8eeca8e259140ce, type: 2}
-  - {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
-  - {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
+  - {fileID: 11400000, guid: 72e2196a74fde3147aaef49e9d321193, type: 2}
   arena_list:
   - Game
   test_deck: {fileID: 11400000, guid: 0e6326c43c0688e40bbf592cf3ea6dec, type: 2}

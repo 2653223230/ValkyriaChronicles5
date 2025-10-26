@@ -457,11 +457,12 @@ namespace TcgEngine.Gameplay
         //--- Setup ------
 
         //Set deck using a Deck in Resources
-        //使用资源中的甲板设置甲板
+        //使用资源中的卡组设置卡组
         public virtual void SetPlayerDeck(Player player, DeckData deck)
         {
             player.cards_all.Clear();
             player.cards_deck.Clear();
+            player.monsters_deck.Clear();
             player.deck = deck.id;
             player.hero = null;
 
@@ -479,6 +480,18 @@ namespace TcgEngine.Gameplay
                     player.cards_deck.Add(acard);
                 }
             }
+            
+            if (deck.monsters != null)
+            {
+                foreach (CardData card in deck.monsters)
+                {
+                    if (card != null)
+                    {
+                        Card acard = Card.Create(card, variant, player);
+                        player.monsters_deck.Add(acard);
+                    }
+                }
+            }
 
             DeckPuzzleData puzzle = deck as DeckPuzzleData;
 
@@ -494,16 +507,18 @@ namespace TcgEngine.Gameplay
             }
 
             //Shuffle deck
+            //洗牌
             if (puzzle == null || !puzzle.dont_shuffle_deck)
                 ShuffleDeck(player.cards_deck);
         }
 
         //Set deck using custom deck in save file or database
-        //使用保存文件或数据库中的自定义甲板设置甲板
+        //使用保存文件或数据库中的自定义卡组设置卡组
         public virtual void SetPlayerDeck(Player player, UserDeckData deck)
         {
             player.cards_all.Clear();
             player.cards_deck.Clear();
+            player.monsters_deck.Clear();
             player.deck = deck.tid;
             player.hero = null;
 
@@ -530,6 +545,7 @@ namespace TcgEngine.Gameplay
             }
 
             //Shuffle deck
+            //洗牌
             ShuffleDeck(player.cards_deck);
         }
 
@@ -541,35 +557,42 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
+                //获取卡牌的所有玩家
                 Player player = game_data.GetPlayer(card.player_id);
 
                 //Cost
+                //成本
                 if (!skip_cost)
                     player.PayMana(card);
 
                 //Play card
+                //移除牌库中的卡牌
                 player.RemoveCardFromAllGroups(card);
 
                 //Add to board
                 CardData icard = card.CardData;
                 if (icard.IsBoardCard())
                 {
+                    //如果是棋盘卡牌
                     player.cards_board.Add(card);
                     card.slot = slot;
                     card.exhausted = true; //Cant attack first turn
                 }
                 else if (icard.IsEquipment())
                 {
+                    //如果是装备卡
                     Card bearer = game_data.GetSlotCard(slot);
                     EquipCard(bearer, card);
                     card.exhausted = true;
                 }
                 else if (icard.IsSecret())
                 {
+                    //如果是秘密卡
                     player.cards_secret.Add(card);
                 }
                 else
                 {
+                    //否则加入弃牌堆，并保存槽位
                     player.cards_discard.Add(card);
                     card.slot = slot; //Save slot in case spell has PlayTarget
                 }
