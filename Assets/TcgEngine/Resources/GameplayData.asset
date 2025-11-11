@@ -28,6 +28,7 @@ MonoBehaviour:
   ai_level: 10
   free_decks:
   - {fileID: 11400000, guid: 72e2196a74fde3147aaef49e9d321193, type: 2}
+  - {fileID: 11400000, guid: 3b0b9459367b7a045a557a81603c9de1, type: 2}
   starter_decks:
   - {fileID: 11400000, guid: 72e2196a74fde3147aaef49e9d321193, type: 2}
   ai_decks:

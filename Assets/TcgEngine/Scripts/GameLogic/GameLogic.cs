@@ -1462,7 +1462,8 @@ namespace TcgEngine.Gameplay
                 {
                     if (chain_ability != null)
                     {
-                        TriggerCardAbility(chain_ability, caster);
+                        // TriggerCardAbility(chain_ability, caster);lyp20251111，用于触发链式能力时候目可以，传入选中目标
+                        TriggerCardAbility(chain_ability, caster, game_data.GetCard(game_data.last_target));
                     }
                 }
             }
