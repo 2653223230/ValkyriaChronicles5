@@ -10,21 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: select_my_character
+  m_Name: spell_select_ally_damage_enemy
   m_EditorClassIdentifier: 
-  id: select_my_character
+  id: spell_select_ally_damage_enemy
   trigger: 10
-  conditions_trigger:
-  - {fileID: 0}
+  conditions_trigger: []
   target: 30
-  conditions_target: []
+  conditions_target:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
   filters_target: []
   effects: []
   status: []
   value: 0
   duration: 0
   chain_abilities:
-  - {fileID: 11400000, guid: 37839d1d16c973042babb48de1a5bdf6, type: 2}
+  - {fileID: 11400000, guid: 2fb8f467f05d0c44a9bb7d73f016f597, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
@@ -34,5 +35,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\u9009\u62E9\u4E00\u4E2A\u6211\u65B9\u968F\u4ECE"
+  title: "\u9009\u62E9\u6211\u65B9\u968F\u4ECE"
   desc: "\u9009\u62E9\u4E00\u4E2A\u6211\u65B9\u968F\u4ECE"
+

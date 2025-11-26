@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: select_my_character
+  m_Name: spell_damage_enemy_with_ally_attack
   m_EditorClassIdentifier: 
-  id: select_my_character
-  trigger: 10
-  conditions_trigger:
-  - {fileID: 0}
+  id: spell_damage_enemy_with_ally_attack
+  trigger: 0
+  conditions_trigger: []
   target: 30
-  conditions_target: []
+  conditions_target:
+  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 2558d4e4520b26b4da0383694181176d, type: 2}
   status: []
   value: 0
   duration: 0
-  chain_abilities:
-  - {fileID: 11400000, guid: 37839d1d16c973042babb48de1a5bdf6, type: 2}
+  chain_abilities: []
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
@@ -34,5 +34,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\u9009\u62E9\u4E00\u4E2A\u6211\u65B9\u968F\u4ECE"
-  desc: "\u9009\u62E9\u4E00\u4E2A\u6211\u65B9\u968F\u4ECE"
+  title: "\u5BF9\u654C\u4EBA\u9020\u6210\u4F24\u5BB3"
+  desc: "\u5BF9\u9009\u4E2D\u7684\u654C\u4EBA\u9020\u6210\u6211\u65B9\u968F\u4ECE\u653B\u51FB\u529B+1\u7684\u4F24\u5BB3"
+

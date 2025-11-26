@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eeab8a74c77b5194fb59d11a21c81c58, type: 3}
-  m_Name: effect_command_attack
+  m_Script: {fileID: 11500000, guid: 101d3c893adf9fb4da3f753bc4179adc, type: 3}
+  m_Name: effect_damage_from_target
   m_EditorClassIdentifier: 
-  attacker_type: 25
+  bonus_damage: {fileID: 0}
+  bonus_value: 1
+

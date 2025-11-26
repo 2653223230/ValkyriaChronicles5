@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: attack_ally_card
+  m_Name: spell_ally_attack_damage
   m_EditorClassIdentifier: 
-  id: attack_ally_card
-  title: "\u653B\u51FB"
-  art_full: {fileID: 21300000, guid: 70e5f6868c74f734d9d7d8d2580df2a5, type: 3}
+  id: spell_ally_attack_damage
+  title: "\u9ECF\u9ECF\u91CD\u51FB\uFF01"
+  art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  team: {fileID: 11400000, guid: 153b61109f8e25a40a61ca06e18ab072, type: 2}
+  team: {fileID: 11400000, guid: 6bbb96863ece0314fb318c0fce569afc, type: 2}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 1
   attack: 0
@@ -25,9 +25,9 @@ MonoBehaviour:
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: 98675e41c6713bf43a4718f955990602, type: 2}
-  text: "\u5BF9\u653B\u51FB\u8DDD\u79BB\u5185\u7684\u654C\u4EBA\u9020\u6210\u653B\u51FB\u529B\u7684\u4F24\u5BB3"
-  desc: "\u5BF9\u653B\u51FB\u8DDD\u79BB\u5185\u7684\u654C\u4EBA\u9020\u6210\u653B\u51FB\u529B\u7684\u4F24\u5BB3"
+  - {fileID: 11400000, guid: aa2f4442f349c1b46af3bf1ab72153ab, type: 2}
+  text: "\u9009\u62E9\u4E00\u4E2A\u6211\u65B9\u968F\u4ECE\uFF0C\u7136\u540E\u9009\u62E9\u4E00\u4E2A\u654C\u4EBA\u3002\u5BF9\u654C\u4EBA\u9020\u6210\u6211\u65B9\u968F\u4ECE\u653B\u51FB\u529B+1\u7684\u4F24\u5BB3\u3002"
+  desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
