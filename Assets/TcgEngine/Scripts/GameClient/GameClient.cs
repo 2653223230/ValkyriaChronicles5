@@ -170,7 +170,18 @@ namespace TcgEngine.Client
             //If not connected, start in test mode (this means game scene was launched directly from Unity)
             if (!Authenticator.Get().IsSignedIn())
             {
-                Authenticator.Get().LoginTest("Player");
+                // 本地测试模式：如果未登录，则为当前进程生成一个唯一的本地用户名
+                if (NetworkData.Get().auth_type == AuthenticatorType.LocalSave)
+                {
+                    string localName = "Local_" + Random.Range(0, 1000000);
+                    Authenticator.Get().LoginTest(localName);
+                    Debug.Log("[GameClient] Auto LocalSave login with name: " + localName);
+                }
+                else
+                {
+                    // 使用 API 模式但还没登录，这时不强行 LoginTest，只给个警告，避免和真实账号冲突
+                    Debug.LogWarning("[GameClient] Not signed-in while using Api auth_type. Please login from menu (e.g. TestP2P Login button).");
+                }
 
                 if (!player_settings.HasDeck())
                 {
@@ -460,6 +471,9 @@ namespace TcgEngine.Client
                 onConnectGame.Invoke();
 
             SendGameSettings();
+
+            // 调试信息：方便本地双开排查 host / join 的 player_id 和用户名是否正确区分
+            Debug.Log($"[GameClient] Connected to game '{game_settings.game_uid}'. Username={Authenticator.Get().Username}, PlayerID={player_id}, IsHost={IsHost}, IsObserve={observe_mode}");
         }
 
         protected virtual void OnPlayerReady(SerializedData sdata)

@@ -190,14 +190,13 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
 
             //Cards draw
-            //抽牌，当前不是第一回合或当前玩家不是先手玩家
-            if (game_data.turn_count > 1 || player.player_id != game_data.first_player)
+            //给所有玩家补充手牌到5张（包括第一回合的先手玩家）
+            foreach (Player aplayer in game_data.players)
             {
                 // 计算需要补卡的数量
-                int cardsNeeded = GameplayData.Get().cards_per_turn - player.cards_hand.Count;
+                int cardsNeeded = GameplayData.Get().cards_per_turn - aplayer.cards_hand.Count;
                 if (cardsNeeded > 0)
-                    DrawCard(player, cardsNeeded);
-
+                    DrawCard(aplayer, cardsNeeded);
             }
 
             //Mana 法力值

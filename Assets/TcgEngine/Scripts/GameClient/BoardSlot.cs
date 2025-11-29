@@ -67,9 +67,27 @@ namespace TcgEngine.Client
             color_b = 255;
             //Find target opacity value查找目标不透明度值
             target_alpha = 0f;
-            if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && gdata.CanPlayCard(dcard, slot))
+            // --- 调试随从不能打出到棋盘的问题 ---
+            if (your_turn && dcard != null && dcard.CardData.IsBoardCard())
             {
-                target_alpha = 1f; //hightlight when dragging a character or artifact拖动角色或工件时高亮显示
+                bool canPlay = gdata.CanPlayCard(dcard, slot);
+                if (canPlay)
+                {
+                    // 可以在该格子打出随从，高亮
+                    target_alpha = 1f; //hightlight when dragging a character or artifact拖动角色或工件时高亮显示
+                }
+                else
+                {
+                    // 不能在该格子打出随从，输出详细调试信息（仅在拖拽随从时触发）
+                    string cardId = dcard != null ? dcard.card_id : "null";
+                    string log = "[BoardSlot] Cannot play minion here. "
+                                 + "player_id=" + GameClient.Get().GetPlayerID()
+                                 + ", slot=(" + slot.x + "," + slot.y + "," + slot.p + ")"
+                                 + ", card=" + cardId
+                                 + ", your_turn=" + your_turn
+                                 + ", slot_has_card=" + (slot_card != null);
+                    Debug.Log(log);
+                }
             }
 
             if (your_turn && dcard != null && dcard.CardData.IsRequireTarget() && gdata.CanPlayCard(dcard, slot))

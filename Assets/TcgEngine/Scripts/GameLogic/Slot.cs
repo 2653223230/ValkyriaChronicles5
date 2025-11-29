@@ -23,7 +23,9 @@ namespace TcgEngine
         public static int y_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot) 不要改变这一点，应该从1开始（0,0,0表示无效插槽）
         public static int y_max = 5; //Set this to the number of rows/locations you want to have 将其设置为您想要的行数/位置数
 
-        public static bool ignore_p = true; //Set to true if you dont want to use P value 如果不想使用P值，请设置为true
+        // 在多人对战（特别是本地 P2P 两个玩家）里，需要根据 p 来区分双方的棋盘格，
+        // 否则第二个玩家永远被当成 p=0 侧，无法在自己那一侧落子。
+        public static bool ignore_p = false; //Set to true if you dont want to use P value 如果不想使用P值，请设置为true
 
         private static Dictionary<int, List<Slot>> player_slots = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();
