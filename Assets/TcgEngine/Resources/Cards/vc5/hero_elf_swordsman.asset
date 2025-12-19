@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: hero_elf_swordsman
+  m_EditorClassIdentifier: 
+  id: elf_swordsman
+  title: "\u7CBE\u7075\u5251\u58EB"
+  art_full: {fileID: 21300000, guid: d0c1872d81c18924daf5c7c17764de2b, type: 3}
+  art_board: {fileID: 21300000, guid: d0c1872d81c18924daf5c7c17764de2b, type: 3}
+  type: 10
+  team: {fileID: 11400000, guid: 153b61109f8e25a40a61ca06e18ab072, type: 2}
+  rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
+  mana: 1
+  attack: 2
+  hp: 5
+  move_Range: 5
+  attack_Range: 5
+  traits: []
+  stats: []
+  abilities:
+  - {fileID: 11400000, guid: c746d0d437183db4a9f1d48523a8c270, type: 2}
+  - {fileID: 11400000, guid: 918b676f98eaf36439b1f7c4f1e03249, type: 2}
+  text: "\u901A\u5E38\uFF1A\u5B66\u4F1A\u4E86\u5251\u672F\u7684\u7CBE\u7075\u3002\u4EE5\u5FEB\u901F\u7684\u653B\u51FB\u4F5C\u5F04\u654C\u4EBA\u3002 "
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 0
+  cost: 100
+  packs: []

@@ -145,6 +145,10 @@ namespace TcgEngine.Gameplay
 
             //Start state
             RefreshData();
+            
+            // 开局为每个玩家在最下方部署三个英雄棋子
+            DeployInitialHeroes();
+            
             onGameStart?.Invoke();
 
             StartTurn();
@@ -2058,6 +2062,108 @@ namespace TcgEngine.Gameplay
         public System.Random GetRandom()
         {
             return random;
+        }
+
+        /// <summary>
+        /// 开局为每个玩家在最下方部署三个英雄棋子（居中部署在2-4列）
+        /// </summary>
+        private void DeployInitialHeroes()
+        {
+            VariantData variant = VariantData.GetDefault();
+
+            // 为每个玩家部署三个英雄
+            foreach (Player player in game_data.players)
+            {
+                // 获取玩家的卡组配置
+                DeckData deck = DeckData.Get(player.deck);
+                if (deck == null)
+                {
+                    Debug.LogWarning($"玩家 {player.player_id} 的卡组 {player.deck} 不存在，无法部署英雄");
+                    continue;
+                }
+
+                // 获取三个英雄配置，如果未配置则使用精灵剑士作为默认值
+                CardData[] heroesToDeploy = new CardData[3];
+                bool hasConfiguredHeroes = deck.heroes != null && deck.heroes.Length == 3 && 
+                                          deck.heroes[0] != null && deck.heroes[1] != null && deck.heroes[2] != null;
+
+                if (hasConfiguredHeroes)
+                {
+                    heroesToDeploy = deck.heroes;
+                }
+                else
+                {
+                    // 如果未配置，使用精灵剑士作为默认值
+                    CardData defaultHero = CardData.Get("elf_swordsman");
+                    if (defaultHero == null)
+                    {
+                        defaultHero = Resources.Load<CardData>("Cards/vc5/hero_elf_swordsman");
+                    }
+                    if (defaultHero == null)
+                    {
+                        Debug.LogWarning($"无法加载默认英雄（精灵剑士），玩家 {player.player_id} 无法部署英雄");
+                        continue;
+                    }
+                    heroesToDeploy[0] = defaultHero;
+                    heroesToDeploy[1] = defaultHero;
+                    heroesToDeploy[2] = defaultHero;
+                    Debug.Log($"玩家 {player.player_id} 的卡组未配置三个英雄，使用默认英雄（精灵剑士）");
+                }
+
+                // 计算部署位置
+                // 棋盘是5列（x方向1-5），根据要求居中部署在2-4列
+                // 玩家0部署在 y_min（他的最下方）
+                // 玩家1部署在 y_max（他的最下方）
+                int deploy_y = player.player_id == 0 ? Slot.y_min : Slot.y_max;
+                int deploy_p = Slot.GetP(player.player_id);
+
+                // 在5列棋盘中，居中部署在2-4列
+                // 注意：如果棋盘使用了FlipX类型，玩家1的x坐标会被翻转
+                // 但我们的逻辑坐标始终使用2,3,4，通过p值区分玩家
+                // 这样无论是否有FlipX，都能确保在各自视角下居中显示
+                int[] deployColumns = { 2, 3, 4 };
+                
+                int deployedCount = 0;
+
+                for (int i = 0; i < 3 && i < heroesToDeploy.Length; i++)
+                {
+                    if (heroesToDeploy[i] == null)
+                        continue;
+
+                    int deploy_x = deployColumns[i];
+                    Slot deploy_slot = new Slot(deploy_x, deploy_y, deploy_p);
+
+                    // 检查槽位是否有效且未被占用
+                    if (!deploy_slot.IsValid())
+                    {
+                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 无效");
+                        continue;
+                    }
+
+                    if (game_data.GetSlotCard(deploy_slot) != null)
+                    {
+                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 已被占用，跳过部署");
+                        continue;
+                    }
+
+                    // 部署英雄
+                    Card deployed_card = SummonCard(player, heroesToDeploy[i], variant, deploy_slot);
+                    if (deployed_card != null)
+                    {
+                        deployedCount++;
+                        Debug.Log($"成功为玩家 {player.player_id} 在槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"无法为玩家 {player.player_id} 在槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}");
+                    }
+                }
+
+                if (deployedCount < 3)
+                {
+                    Debug.LogWarning($"玩家 {player.player_id} 只成功部署了 {deployedCount}/3 个英雄");
+                }
+            }
         }
 
         public Game GameData { get { return game_data; } }

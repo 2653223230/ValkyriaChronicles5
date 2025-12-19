@@ -149,47 +149,10 @@ namespace TcgEngine.Client
                 equipment.SetEquip(equip);
             }
 
-            //Ability buttons
+            //Ability buttons - 不再在棋子上显示技能按钮，改为在右下角面板显示
+            // 隐藏所有技能按钮（保留代码以防需要回退）
             foreach (AbilityButton button in buttons)
                 button.Hide();
-
-            if (selected && card.player_id == player.player_id)
-            {
-                int index = 0;
-                List<AbilityData> abilities = card.GetAbilities();
-                foreach (AbilityData iability in abilities)
-                {
-                    if (iability != null && iability.trigger == AbilityTrigger.Activate)
-                    {
-                        if (index < buttons.Length)
-                        {
-                            AbilityButton button = buttons[index];
-                            button.SetAbility(card, iability);
-                            button.SetInteractable(data.CanCastAbility(card, iability));
-                        }
-                        index++;
-                    }
-                }
-
-                Card equip = data.GetEquipCard(card.equipped_uid);
-                if (equip != null)
-                {
-                    List<AbilityData> equip_abilities = equip.GetAbilities();
-                    foreach (AbilityData iability in equip_abilities)
-                    {
-                        if (iability != null && iability.trigger == AbilityTrigger.Activate)
-                        {
-                            if (index < buttons.Length)
-                            {
-                                AbilityButton button = buttons[index];
-                                button.SetAbility(equip, iability);
-                                button.SetInteractable(data.CanCastAbility(equip, iability));
-                            }
-                            index++;
-                        }
-                    }
-                }
-            }
 
             //Status bar
             if (status_group != null)

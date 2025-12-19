@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,9 +30,19 @@ namespace TcgEngine.UI
         {
             button_list.Add(this);
             canvas_group = GetComponent<CanvasGroup>();
+            if (canvas_group == null)
+            {
+                canvas_group = gameObject.AddComponent<CanvasGroup>();
+            }
             canvas_group.alpha = 0f;
             if (focus_highlight != null)
                 focus_highlight.enabled = false;
+            
+            // 确保Text组件已初始化
+            if (text == null)
+            {
+                text = GetComponentInChildren<Text>(true);
+            }
         }
 
         private void OnDestroy()
@@ -51,13 +61,73 @@ namespace TcgEngine.UI
 
         public void SetAbility(Card card, AbilityData iability)
         {
+            // 确保canvas_group已初始化
+            if (canvas_group == null)
+                canvas_group = GetComponent<CanvasGroup>();
+            
+            // 确保text组件已初始化（包括未激活的子对象）
+            if (text == null)
+            {
+                text = GetComponentInChildren<Text>(true); // 包括未激活的子对象
+            }
+            
+            // 如果还是找不到，尝试从Button组件获取Text
+            if (text == null)
+            {
+                Button btn = GetComponent<Button>();
+                if (btn != null)
+                {
+                    text = btn.GetComponentInChildren<Text>(true);
+                }
+            }
+            
             this.card = card;
             this.iability = iability;
-            text.text = iability.title;
-            if (this.iability.mana_cost > 0)
-                text.text += " (" + this.iability.mana_cost + ")";
-            canvas_group.interactable = true;
-            canvas_group.blocksRaycasts = true;
+            
+            if (text != null && iability != null)
+            {
+                // 确保Text组件的GameObject是激活的
+                if (!text.gameObject.activeSelf)
+                {
+                    text.gameObject.SetActive(true);
+                }
+                
+                text.text = iability.title;
+                if (this.iability.mana_cost > 0)
+                    text.text += " (" + this.iability.mana_cost + ")";
+                
+                // 确保Text组件可见
+                text.enabled = true;
+                text.color = new Color(text.color.r, text.color.g, text.color.b, 1f); // 确保文字完全不透明
+                
+                // 确保Text的RectTransform正确设置
+                RectTransform text_rect = text.GetComponent<RectTransform>();
+                if (text_rect != null)
+                {
+                    text_rect.localScale = Vector3.one;
+                }
+                
+                Debug.Log($"[AbilityButton] SetAbility: 设置技能名称='{text.text}', text.enabled={text.enabled}, text.gameObject.activeSelf={text.gameObject.activeSelf}, color.a={text.color.a}");
+            }
+            else
+            {
+                if (text == null)
+                    Debug.LogWarning($"[AbilityButton] SetAbility: text组件为null！GameObject: {gameObject.name}");
+                if (iability == null)
+                    Debug.LogWarning("[AbilityButton] SetAbility: iability为null！");
+            }
+            
+            if (canvas_group == null)
+            {
+                canvas_group = gameObject.AddComponent<CanvasGroup>();
+            }
+            
+            if (canvas_group != null)
+            {
+                canvas_group.interactable = true;
+                canvas_group.blocksRaycasts = true;
+                canvas_group.alpha = 1f; // 立即设置为可见
+            }
             target_alpha = 1f;
         }
 

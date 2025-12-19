@@ -72,6 +72,8 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
+            move_Range = icard.move_Range;
+            attack_Range = icard.attack_Range;
             SetTraits(icard);
             SetAbilities(icard);
         }
@@ -557,6 +559,9 @@ namespace TcgEngine
             dest.mana_ongoing = source.mana_ongoing;
             dest.attack_ongoing = source.attack_ongoing;
             dest.hp_ongoing = source.hp_ongoing;
+
+            dest.move_Range = source.move_Range;
+            dest.attack_Range = source.attack_Range;
 
             dest.equipped_uid = source.equipped_uid;
 

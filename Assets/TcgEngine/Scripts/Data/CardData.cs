@@ -35,6 +35,10 @@ namespace TcgEngine
         public int mana;
         public int attack;
         public int hp;
+        [Tooltip("移动力：角色可以移动的最大距离")]
+        public int move_Range = 2;
+        [Tooltip("攻击距离：角色可以攻击的最大距离")]
+        public int attack_Range = 2;
 
         [Header("Traits")]
         public TraitData[] traits;

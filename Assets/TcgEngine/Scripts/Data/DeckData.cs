@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,10 @@ namespace TcgEngine
         public CardData[] monsters;
         public CardData hero;
         public CardData[] cards;
+
+        [Header("Heroes")]
+        [Tooltip("开局时部署的三个英雄棋子，将部署在棋盘最底部的2-4列（居中）")]
+        public CardData[] heroes = new CardData[3];
 
         public static List<DeckData> deck_list = new List<DeckData>();
 

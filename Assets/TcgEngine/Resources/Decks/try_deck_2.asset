@@ -14,10 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: try_deck_2
   title: Try  Starter 2
-  monsters:
-  - {fileID: 11400000, guid: b569a315f1cdcf54a916d23219da8233, type: 2}
-  - {fileID: 11400000, guid: b569a315f1cdcf54a916d23219da8233, type: 2}
-  - {fileID: 11400000, guid: b569a315f1cdcf54a916d23219da8233, type: 2}
+  monsters: []
   hero: {fileID: 11400000, guid: cf170aea7ffb041428f37608f1561058, type: 2}
   cards:
   - {fileID: 11400000, guid: b569a315f1cdcf54a916d23219da8233, type: 2}
@@ -40,3 +37,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fd0d452b4aedb4d45ba9d94420f8a26f, type: 2}
   - {fileID: 11400000, guid: ec098c75a48c8ce4086e5df9470ff1ee, type: 2}
   - {fileID: 11400000, guid: ec098c75a48c8ce4086e5df9470ff1ee, type: 2}
+  heroes:
+  - {fileID: 11400000, guid: 1d631871c409b9642a968bbb7b0b6b0c, type: 2}
+  - {fileID: 11400000, guid: 1d631871c409b9642a968bbb7b0b6b0c, type: 2}
+  - {fileID: 11400000, guid: 1d631871c409b9642a968bbb7b0b6b0c, type: 2}
