@@ -72,8 +72,8 @@ namespace TcgEngine.UI
                 pname.text = player.username;
                 mana_bar.value = player.mana;
                 mana_bar.max_value = player.mana_max;
-                hp_txt.text = prev_hp.ToString();
-                hp_max_txt.text = "/" + player.hp_max.ToString();
+                hp_txt.text = player.kill_count.ToString();
+                hp_max_txt.text = "/9";
 
                 AvatarData adata = AvatarData.Get(player.avatar);
                 if (avatar != null && adata != null && !killed)

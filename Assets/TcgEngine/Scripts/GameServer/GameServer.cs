@@ -155,16 +155,9 @@ namespace TcgEngine.Server
             if (is_dedicated_server && !HasGameEnded() && IsWinExpired())
                 EndExpiredGame();
 
-            //Timer during game
-            if (game_data.state == GameState.Play && !gameplay.IsResolving())
-            {
-                game_data.turn_timer -= Time.deltaTime;
-                if (game_data.turn_timer <= 0f)
-                {
-                    //Time expired during turn
-                    gameplay.NextStep();
-                }
-            }
+            // VC5: no turn time limit. Keep the server from auto-ending phases.
+            if (game_data.state == GameState.Play)
+                game_data.turn_timer = 999f;
 
             //Start Game when ready
             if (game_data.state == GameState.Connecting)

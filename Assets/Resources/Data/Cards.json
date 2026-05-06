@@ -1,0 +1,109 @@
+{
+  "items": [
+    {
+      "id": "card_slime_heavy_hit",
+      "name": "黏黏重击",
+      "cardType": "Attack",
+      "subType": "Slime",
+      "team": "slime",
+      "rarity": "common",
+      "manaCost": 0,
+      "costLife": 2,
+      "attack": 0,
+      "hp": 0,
+      "moveRange": 0,
+      "attackRange": 1,
+      "tags": [
+        "黏黏",
+        "重击"
+      ],
+      "skills": [
+        "skill_slime_heavy_hit"
+      ],
+      "text": "造成2+攻击力伤害；黏黏使用则附加1层粘液",
+      "desc": "攻击距离内对1单位造成伤害，若使用者带标签Slime则额外+1层粘液",
+      "pack": "Vol.01",
+      "associatedHero": "",
+      "art": "art/slime_heavy_hit",
+      "boardArt": ""
+    },
+    {
+      "id": "card_slime_combo",
+      "name": "黏黏连打",
+      "cardType": "Attack",
+      "subType": "Slime",
+      "team": "slime",
+      "rarity": "common",
+      "manaCost": 1,
+      "costLife": 0,
+      "attack": 0,
+      "hp": 0,
+      "moveRange": 0,
+      "attackRange": 1,
+      "tags": [
+        "黏黏"
+      ],
+      "skills": [
+        "skill_slime_combo"
+      ],
+      "text": "造成1+攻击力伤害；若为黏黏则再结算一次",
+      "desc": "黏黏使用可连打2次，基础攻击1则至少4点总伤害",
+      "pack": "Vol.01",
+      "associatedHero": "",
+      "art": "art/slime_combo",
+      "boardArt": ""
+    },
+    {
+      "id": "card_slime_spray",
+      "name": "粘液喷射",
+      "cardType": "Spell",
+      "subType": "Slime",
+      "team": "slime",
+      "rarity": "common",
+      "manaCost": 1,
+      "costLife": 0,
+      "attack": 0,
+      "hp": 0,
+      "moveRange": 0,
+      "attackRange": 2,
+      "tags": [
+        "粘液"
+      ],
+      "skills": [
+        "skill_slime_spray"
+      ],
+      "text": "对距离+1单位施加2层粘液；若己方黏黏则改为恢复3生命",
+      "desc": "可对敌或己方黏黏使用，敌方附加粘液，己方治疗",
+      "pack": "Vol.01",
+      "associatedHero": "",
+      "art": "art/slime_spray",
+      "boardArt": ""
+    },
+    {
+      "id": "card_warrior_strike",
+      "name": "战士重击",
+      "cardType": "Attack",
+      "subType": "Warrior",
+      "team": "warrior",
+      "rarity": "common",
+      "manaCost": 1,
+      "costLife": 0,
+      "attack": 0,
+      "hp": 0,
+      "moveRange": 0,
+      "attackRange": 1,
+      "tags": [
+        "战士"
+      ],
+      "skills": [
+        "skill_warrior_bleed_strike"
+      ],
+      "text": "造成1+攻击力伤害；若战士使用则附加1层流血",
+      "desc": "基础战士输出卡，带流血附加效果",
+      "pack": "Vol.02",
+      "associatedHero": "",
+      "art": "art/warrior_strike",
+      "boardArt": ""
+    }
+  ]
+}

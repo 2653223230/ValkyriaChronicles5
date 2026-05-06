@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -102,6 +102,8 @@ namespace TcgEngine
                 return false;
 
             Player player = GetPlayer(card.player_id);
+            if (!skip_cost && player.main_action_used && !card.CardData.fast_action && !IsVc5TestMode(player))
+                return false; //Main action already used
             if (!skip_cost && !player.CanPayMana(card))
                 return false; //Cant pay mana
             if (!player.HasCard(player.cards_hand, card))
@@ -160,9 +162,20 @@ namespace TcgEngine
 
             Card slot_card = GetSlotCard(slot);
             if (slot_card != null)
-                return false; //Already a card there 那里已经有一张卡了
+            {
+                bool can_consume_spawn = slot_card.player_id == card.player_id && slot_card.HasTrait("slime_spawn");
+                if (!can_consume_spawn)
+                    return false; //Already a card there 那里已经有一张卡了
+            }
 
-            if (card.move_Range <= 0)
+            int effective_move = card.move_Range;
+            if (card.HasStatus(StatusType.Slime))
+            {
+                int opponent = (card.player_id + 1) % players.Length;
+                if (PlayerHasTraitOnBoard(opponent, "slime_corrosive"))
+                    effective_move = Mathf.Max(effective_move - 1, 0);
+            }
+            if (effective_move <= 0)
                 return false;
 
             //正方形网格移动范围计算    
@@ -173,10 +186,25 @@ namespace TcgEngine
             int dy = slot.y - card.slot.y;
             int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
             int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-            if (hexDistance > card.move_Range)
+            if (hexDistance > effective_move)
                 return false;
 
             return true;
+        }
+
+        public bool PlayerHasTraitOnBoard(int player_id, string trait_id)
+        {
+            if (player_id < 0 || player_id >= players.Length)
+                return false;
+            Player player = players[player_id];
+            if (player.hero != null && player.hero.HasTrait(trait_id))
+                return true;
+            foreach (Card card in player.cards_board)
+            {
+                if (card.HasTrait(trait_id))
+                    return true;
+            }
+            return false;
         }
 
         //Check if a card is allowed to attack a player
@@ -220,6 +248,9 @@ namespace TcgEngine
             if (!attacker.CardData.IsCharacter() || !target.CardData.IsBoardCard())
                 return false; //Only character can attack
 
+            if (target.card_id == "vc5_slime_pool")
+                return false; //粘液池不可被攻击
+
             if (target.HasStatus(StatusType.Stealth))
                 return false; //Stealth cant be attacked
 
@@ -245,13 +276,27 @@ namespace TcgEngine
                 return false; //Not an activated ability
 
             Player player = GetPlayer(card.player_id);
+            if (player.main_action_used && !ability.fast_action && !IsVc5TestMode(player))
+                return false; //Main action already used
             if (!player.CanPayAbility(card, ability))
                 return false; //Cant pay for ability
+            if (card.IsAbilityOnCooldown(ability))
+                return false; //Ability uses exhausted
 
             if (!ability.AreTriggerConditionsMet(this, card))
                 return false; //Conditions not met
 
             return true;
+        }
+
+        public bool IsVc5TestMode(Player player)
+        {
+            return player != null && IsVc5TestDeck(player.deck);
+        }
+
+        public static bool IsVc5TestDeck(string deckId)
+        {
+            return deckId == "deck_slime_vol01_test";
         }
 
         //For choice selector

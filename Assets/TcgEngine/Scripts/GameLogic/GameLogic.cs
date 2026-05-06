@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -54,6 +54,12 @@ namespace TcgEngine.Gameplay
         private ResolveQueue resolve_queue;
         private bool is_ai_predict = false;
 
+        private const string TraitSlime = "slime";
+        private const string TraitSlimeBlood = "slime_blood";
+        private const string TraitSlimeCorrosive = "slime_corrosive";
+        private const string TraitSlimeHard = "slime_hard";
+        private const string TraitSlimeSpawn = "slime_spawn";
+
         private System.Random random = new System.Random();
 
         private ListSwap<Card> card_array = new ListSwap<Card>();
@@ -61,6 +67,9 @@ namespace TcgEngine.Gameplay
         private ListSwap<Slot> slot_array = new ListSwap<Slot>();
         private ListSwap<CardData> card_data_array = new ListSwap<CardData>();
         private List<Card> cards_to_clear = new List<Card>();
+        private HashSet<string> pending_play_cards = new HashSet<string>();
+        private Dictionary<string, List<Card>> pending_play_discards = new Dictionary<string, List<Card>>();
+        private HashSet<string> pending_play_main_action = new HashSet<string>();
 
         public GameLogic(bool is_ai)
         {
@@ -127,10 +136,17 @@ namespace TcgEngine.Gameplay
                 player.hp = pdeck != null ? pdeck.start_hp : GameplayData.Get().hp_start;
                 player.mana_max = pdeck != null ? pdeck.start_mana : GameplayData.Get().mana_start;
                 player.mana = player.mana_max;
+                if (game_data.IsVc5TestMode(player))
+                {
+                    player.mana_max = 99;
+                    player.mana = 99;
+                }
 
                 //Draw starting cards
                 //绘制起始牌
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
+                if (game_data.IsVc5TestMode(player))
+                    dcards = player.cards_deck.Count;
                 DrawCard(player, dcards);
 
                 //Add coin second player
@@ -166,9 +182,10 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             Player player = game_data.GetActivePlayer();
+            player.ResetMainAction();
 
-            //Turn timer and history 回合状态重置
-            game_data.turn_timer = GameplayData.Get().turn_duration;
+            // VC5: no turn countdown.
+            game_data.turn_timer = 999f;
             player.history_list.Clear();
 
             if (player.hero != null)
@@ -190,6 +207,11 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             game_data.AllPlayersStartTurn();
+            foreach (Player aplayer in game_data.players)
+            {
+                aplayer.ResetMainAction();
+                aplayer.ResetAbilityUses();
+            }
 
             Player player = game_data.GetActivePlayer();
 
@@ -209,10 +231,15 @@ namespace TcgEngine.Gameplay
                 playerMana.mana_max += GameplayData.Get().mana_per_turn;
                 playerMana.mana_max = Mathf.Min(playerMana.mana_max, GameplayData.Get().mana_max);
                 playerMana.mana = playerMana.mana_max;   
+                if (game_data.IsVc5TestMode(playerMana))
+                {
+                    playerMana.mana_max = 99;
+                    playerMana.mana = 99;
+                }
             }
 
-            //Turn timer and history 回合状态重置
-            game_data.turn_timer = GameplayData.Get().turn_duration;
+            // VC5: no turn countdown.
+            game_data.turn_timer = 999f;
             player.history_list.Clear();
 
             //Player poison 状态效果处理
@@ -319,6 +346,8 @@ namespace TcgEngine.Gameplay
                 game_data.selector = SelectorType.None;
                 game_data.phase = GamePhase.EndTurn;
 
+                RestoreMoveRangesForAllPlayers();
+
                 //Reduce status effects with duration
                 //减少持续时间对状态的影响
                 foreach (Player aplayer in game_data.players)
@@ -420,7 +449,7 @@ namespace TcgEngine.Gameplay
             Player alive = null;
             foreach (Player player in game_data.players)
             {
-                if (player.hp >= 9)
+                if (player.kill_count >= 9)
                 {
                     alive = player;
                     count_alive++;
@@ -455,6 +484,62 @@ namespace TcgEngine.Gameplay
             game_data.selected_value = 0;
             game_data.ability_played.Clear();
             game_data.cards_attacked.Clear();
+            pending_play_cards.Clear();
+            pending_play_discards.Clear();
+            pending_play_main_action.Clear();
+        }
+
+        private void PayCardCost(Player player, Card card)
+        {
+            if (player == null || card == null)
+                return;
+
+            pending_play_discards.Remove(card.uid);
+
+            if (!card.CardData.IsDynamicManaCost())
+                player.mana -= card.GetMana();
+
+            player.hp -= card.CardData.hp_cost;
+            if (player.hp < 0)
+                player.hp = 0;
+
+            List<Card> discarded = null;
+            for (int i = 0; i < card.CardData.discard_cost; i++)
+            {
+                if (player.cards_hand.Count == 0)
+                    break;
+                int idx = random.Next(0, player.cards_hand.Count);
+                Card to_discard = player.cards_hand[idx];
+                if (to_discard.uid == card.uid && player.cards_hand.Count > 1)
+                    idx = (idx + 1) % player.cards_hand.Count;
+                to_discard = player.cards_hand[idx];
+                player.cards_hand.RemoveAt(idx);
+                player.cards_discard.Add(to_discard);
+
+                if (discarded == null)
+                    discarded = new List<Card>();
+                discarded.Add(to_discard);
+            }
+
+            if (discarded != null)
+                pending_play_discards[card.uid] = discarded;
+        }
+
+        private void RestoreMoveRangesForAllPlayers()
+        {
+            foreach (Player aplayer in game_data.players)
+            {
+                RestoreMoveRange(aplayer.hero);
+                foreach (Card card in aplayer.cards_board)
+                    RestoreMoveRange(card);
+            }
+        }
+
+        private void RestoreMoveRange(Card card)
+        {
+            if (card == null || card.CardData == null)
+                return;
+            card.move_Range = card.CardData.move_Range;
         }
 
         //--- Setup ------
@@ -562,11 +647,22 @@ namespace TcgEngine.Gameplay
             {
                 //获取卡牌的所有玩家
                 Player player = game_data.GetPlayer(card.player_id);
+                if (!skip_cost && !card.CardData.fast_action)
+                {
+                    if (!game_data.IsVc5TestMode(player))
+                    {
+                        player.main_action_used = true;
+                        pending_play_main_action.Add(card.uid);
+                    }
+                }
 
                 //Cost
                 //成本
                 if (!skip_cost)
-                    player.PayMana(card);
+                {
+                    pending_play_cards.Add(card.uid);
+                    PayCardCost(player, card);
+                }
 
                 //Play card
                 //移除牌库中的卡牌
@@ -632,6 +728,12 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
+                Card slot_card = game_data.GetSlotCard(slot);
+                if (slot_card != null && slot_card.player_id == card.player_id && slot_card.HasTrait(TraitSlimeSpawn))
+                {
+                    DiscardCard(slot_card);
+                    HealCard(card, 1);
+                }
                 int dx = slot.x - card.slot.x;
                 int dy = slot.y - card.slot.y;
                 int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
@@ -669,6 +771,9 @@ namespace TcgEngine.Gameplay
             if (game_data.CanCastAbility(card, iability))
             {
                 Player player = game_data.GetPlayer(card.player_id);
+                if (!iability.fast_action && !game_data.IsVc5TestMode(player))
+                    player.main_action_used = true;
+                card.IncrementAbilityUse(iability.id);
                 if (!is_ai_predict && iability.target != AbilityTarget.SelectTarget)
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
@@ -764,7 +869,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
         {
-            if (attacker == null || target == null)
+            if (target == null)
                 return;
 
             if (!game_data.CanAttackTarget(attacker, target, skip_cost))
@@ -877,7 +982,7 @@ namespace TcgEngine.Gameplay
         {
             for (int i = 0; i < nb; i++)
             {
-                if (player.cards_deck.Count > 0 && player.cards_hand.Count < GameplayData.Get().cards_max)
+            if (player.cards_deck.Count > 0 && (player.cards_hand.Count < GameplayData.Get().cards_max || game_data.IsVc5TestMode(player)))
                 {
                     Card card = player.cards_deck[0];
                     player.cards_deck.RemoveAt(0);
@@ -1057,14 +1162,14 @@ namespace TcgEngine.Gameplay
             onCardDamaged?.Invoke(target, value);
 
             if (target.GetHP() <= 0)
-                DiscardCard(target);
+                KillCard(null, target);
         }
 
         //Damage a card with attacker/caster
         //用攻击者/施法者损坏卡片
         public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false)
         {
-            if (attacker == null || target == null)
+            if (target == null)
                 return;
 
             if (target.HasStatus(StatusType.Invincibility))
@@ -1079,6 +1184,17 @@ namespace TcgEngine.Gameplay
             {
                 target.RemoveStatus(StatusType.Shell);
                 return;
+            }
+
+            //Slime guard reduce damage (hard slime passive)
+            if (target.HasStatus(StatusType.Slime) && game_data.PlayerHasTraitOnBoard(target.player_id, TraitSlimeHard))
+            {
+                int reduce = Mathf.Min(value, target.GetStatusValue(StatusType.Slime));
+                if (reduce > 0)
+                {
+                    value -= reduce;
+                    target.ConsumeStatus(StatusType.Slime, reduce);
+                }
             }
 
             //Armor
@@ -1107,6 +1223,13 @@ namespace TcgEngine.Gameplay
             //Callback
             onCardDamaged?.Invoke(target, value);
 
+            //Blood slime passive heal
+            if (value > 0 && attacker.HasTrait(TraitSlime) && target.HasStatus(StatusType.Slime)
+                && game_data.PlayerHasTraitOnBoard(attacker.player_id, TraitSlimeBlood))
+            {
+                HealCard(attacker, 1);
+            }
+
             //Deathtouch
             //死亡触摸
             if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Character)
@@ -1122,7 +1245,7 @@ namespace TcgEngine.Gameplay
         //杀死另一张牌的牌
         public virtual void KillCard(Card attacker, Card target)
         {
-            if (attacker == null || target == null)
+            if (target == null)
                 return;
 
             if (!game_data.IsOnBoard(target) && !game_data.IsEquipped(target))
@@ -1131,22 +1254,26 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Invincibility))
                 return; //Cant be killed 不能被杀死
 
-            Player att_pattacker = game_data.GetPlayer(attacker.player_id);
-            Player tar_pattacker = game_data.GetPlayer(target.player_id);
-            if (attacker.player_id != target.player_id)
-            {
-                att_pattacker.kill_count++;
-                att_pattacker.hp += 3;
-            }
-            else
-            {
-                tar_pattacker.kill_count++;
-                tar_pattacker.hp += 3;
-            }
+            AwardScoreForDeath(target);
             
             DiscardCard(target);
 
-            TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+            if (attacker != null && target.HasTrait(TraitSlimeSpawn))
+                attacker.AddStatus(StatusType.Slime, 1, 0);
+
+            if (attacker != null)
+                TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+        }
+
+        private void AwardScoreForDeath(Card deadCard)
+        {
+            if (deadCard == null || game_data.players == null || game_data.players.Length < 2)
+                return;
+
+            int opponentId = (deadCard.player_id + 1) % game_data.players.Length;
+            Player opponent = game_data.GetPlayer(opponentId);
+            if (opponent != null)
+                opponent.kill_count += 3;
         }
 
         //Send card into discard
@@ -1451,6 +1578,18 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.Activate || iability.trigger == AbilityTrigger.None)
             {
                 player.mana -= iability.mana_cost;
+                player.hp -= iability.hp_cost;
+                if (player.hp < 0)
+                    player.hp = 0;
+                for (int i = 0; i < iability.discard_cost; i++)
+                {
+                    if (player.cards_hand.Count == 0)
+                        break;
+                    int idx = random.Next(0, player.cards_hand.Count);
+                    Card to_discard = player.cards_hand[idx];
+                    player.cards_hand.RemoveAt(idx);
+                    player.cards_discard.Add(to_discard);
+                }
                 caster.exhausted = caster.exhausted || iability.exhaust;
             }
 
@@ -1465,8 +1604,9 @@ namespace TcgEngine.Gameplay
                 {
                     if (chain_ability != null)
                     {
-                        // TriggerCardAbility(chain_ability, caster);lyp20251111，用于触发链式能力时候目可以，传入选中目标
-                        TriggerCardAbility(chain_ability, caster, game_data.GetCard(game_data.last_target));
+                        // 链式能力的目标可用 LastTargeted 读取；triggerer 必须沿用最初选择的释放者，
+                        // 否则“连打”等后续段会错误使用被攻击者的攻击力计算伤害。
+                        TriggerCardAbility(chain_ability, caster, game_data.GetCard(game_data.ability_triggerer));
                     }
                 }
             }
@@ -1579,7 +1719,7 @@ namespace TcgEngine.Gameplay
                     {
                         Card card = player.cards_board[i];
                         if (card.GetHP() <= 0)
-                            DiscardCard(card);
+                            KillCard(null, card);
                     }
                 }
                 for (int i = player.cards_equip.Count - 1; i >= 0; i--)
@@ -1588,7 +1728,7 @@ namespace TcgEngine.Gameplay
                     {
                         Card card = player.cards_equip[i];
                         if (card.GetHP() <= 0)
-                            DiscardCard(card);
+                            KillCard(null, card);
                         Card bearer = player.GetBearerCard(card);
                         if (bearer == null)
                             DiscardCard(card);
@@ -1725,6 +1865,8 @@ namespace TcgEngine.Gameplay
                 card.hp_ongoing += status.value;
             if (status.type == StatusType.AddManaCost)
                 card.mana_ongoing += status.value;
+            if (status.type == StatusType.Sharp)
+                card.attack_ongoing += status.value;
         }
 
         //---- Secrets ------------
@@ -1961,14 +2103,21 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.selector != SelectorType.None)
             {
-                //Return card to hand if was selecting cost
-                if (game_data.selector == SelectorType.SelectorCost)
+                // Return card to hand if this selector came from a card just played from hand.
+                if (IsPendingPlayedCard(game_data.selector_caster_uid))
                     CancelPlayCard();
 
                 //End selection
                 game_data.selector = SelectorType.None;
                 RefreshData();
             }
+        }
+
+        private bool IsPendingPlayedCard(string uid)
+        {
+            if (string.IsNullOrEmpty(uid))
+                return false;
+            return pending_play_cards.Contains(uid);
         }
 
         public void CancelPlayCard()
@@ -1980,12 +2129,61 @@ namespace TcgEngine.Gameplay
                 if (card.CardData.IsDynamicManaCost())
                     player.mana += game_data.selected_value;
                 else
-                    player.mana += card.CardData.cost;
+                    player.mana += card.GetMana();
+
+                player.hp += card.CardData.hp_cost;
+                if (player.hp > player.hp_max)
+                    player.hp = player.hp_max;
+
+                if (pending_play_discards.TryGetValue(card.uid, out List<Card> discarded))
+                {
+                    foreach (Card dcard in discarded)
+                    {
+                        player.cards_discard.Remove(dcard);
+                        if (!player.cards_hand.Contains(dcard))
+                            player.cards_hand.Add(dcard);
+                    }
+                    pending_play_discards.Remove(card.uid);
+                }
+
+                pending_play_cards.Remove(card.uid);
+                if (pending_play_main_action.Remove(card.uid))
+                    player.main_action_used = false;
+
+                RefundSelectedCardHpCost(card);
 
                 player.RemoveCardFromAllGroups(card);
                 player.AddCard(player.cards_hand, card);
                 card.Clear();
             }
+        }
+
+        private void RefundSelectedCardHpCost(Card playedCard)
+        {
+            if (playedCard == null)
+                return;
+
+            Card hpPayer = game_data.GetCard(game_data.ability_triggerer);
+            if (hpPayer == null || hpPayer.uid == playedCard.uid || !hpPayer.CardData.IsCharacter())
+                return;
+
+            int hpCost = GetPlayedCardSelectedHpCost(playedCard.card_id);
+            if (hpCost <= 0)
+                return;
+
+            hpPayer.damage = Mathf.Max(0, hpPayer.damage - hpCost);
+        }
+
+        private int GetPlayedCardSelectedHpCost(string cardId)
+        {
+            if (cardId == "vc5_slime_heavy_strike")
+            {
+                AbilityData pick = AbilityData.Get("vc5_slime_heavy_pick");
+                if (pick != null && pick.effects != null && pick.effects.Length > 0 && pick.effects[0] is EffectStoreTargetStatsToCaster store)
+                    return store.hp_cost_from_target;
+                return 2;
+            }
+            return 0;
         }
 
         //-----Trigger Selector-----
@@ -2065,16 +2263,16 @@ namespace TcgEngine.Gameplay
         }
 
         /// <summary>
-        /// 开局为每个玩家在最下方部署三个英雄棋子（居中部署在2-4列）
+        /// 开局为每名玩家在“自己视角靠近底边”的三角形三格部署三个英雄。
+        /// 由于 `Game.unity` 的棋盘格使用的是自方相对坐标，双方都必须落在同一组逻辑格上，
+        /// 这样 host / join 两端都会把自己的三个英雄显示在己方底边附近。
         /// </summary>
         private void DeployInitialHeroes()
         {
             VariantData variant = VariantData.GetDefault();
 
-            // 为每个玩家部署三个英雄
             foreach (Player player in game_data.players)
             {
-                // 获取玩家的卡组配置
                 DeckData deck = DeckData.Get(player.deck);
                 if (deck == null)
                 {
@@ -2082,9 +2280,8 @@ namespace TcgEngine.Gameplay
                     continue;
                 }
 
-                // 获取三个英雄配置，如果未配置则使用精灵剑士作为默认值
                 CardData[] heroesToDeploy = new CardData[3];
-                bool hasConfiguredHeroes = deck.heroes != null && deck.heroes.Length == 3 && 
+                bool hasConfiguredHeroes = deck.heroes != null && deck.heroes.Length == 3 &&
                                           deck.heroes[0] != null && deck.heroes[1] != null && deck.heroes[2] != null;
 
                 if (hasConfiguredHeroes)
@@ -2093,12 +2290,9 @@ namespace TcgEngine.Gameplay
                 }
                 else
                 {
-                    // 如果未配置，使用精灵剑士作为默认值
                     CardData defaultHero = CardData.Get("elf_swordsman");
                     if (defaultHero == null)
-                    {
                         defaultHero = Resources.Load<CardData>("Cards/vc5/hero_elf_swordsman");
-                    }
                     if (defaultHero == null)
                     {
                         Debug.LogWarning($"无法加载默认英雄（精灵剑士），玩家 {player.player_id} 无法部署英雄");
@@ -2110,52 +2304,49 @@ namespace TcgEngine.Gameplay
                     Debug.Log($"玩家 {player.player_id} 的卡组未配置三个英雄，使用默认英雄（精灵剑士）");
                 }
 
-                // 计算部署位置
-                // 棋盘是5列（x方向1-5），根据要求居中部署在2-4列
-                // 玩家0部署在 y_min（他的最下方）
-                // 玩家1部署在 y_max（他的最下方）
-                int deploy_y = player.player_id == 0 ? Slot.y_min : Slot.y_max;
                 int deploy_p = Slot.GetP(player.player_id);
+                // `Game.unity` 里的棋盘格全部是 `BoardSlotType.PlayerSelf`，
+                // 所以这里必须使用“自方相对坐标”，不能再按 player_id 做上下镜像。
+                // 这组三角形正对应测试图里两个客户端各自底边附近的三个红叉位置。
+                SlotXY[] deploy_slots = new SlotXY[]
+                {
+                    new SlotXY { x = 3, y = 2 }, // 左上
+                    new SlotXY { x = 2, y = 4 }, // 右上
+                    new SlotXY { x = 2, y = 3 }, // 下方中心
+                };
 
-                // 在5列棋盘中，居中部署在2-4列
-                // 注意：如果棋盘使用了FlipX类型，玩家1的x坐标会被翻转
-                // 但我们的逻辑坐标始终使用2,3,4，通过p值区分玩家
-                // 这样无论是否有FlipX，都能确保在各自视角下居中显示
-                int[] deployColumns = { 2, 3, 4 };
-                
                 int deployedCount = 0;
 
-                for (int i = 0; i < 3 && i < heroesToDeploy.Length; i++)
+                for (int i = 0; i < deploy_slots.Length && i < heroesToDeploy.Length; i++)
                 {
                     if (heroesToDeploy[i] == null)
                         continue;
 
-                    int deploy_x = deployColumns[i];
-                    Slot deploy_slot = new Slot(deploy_x, deploy_y, deploy_p);
+                    int deploy_x_i = deploy_slots[i].x;
+                    int deploy_y_i = deploy_slots[i].y;
+                    Slot deploy_slot = new Slot(deploy_x_i, deploy_y_i, deploy_p);
 
-                    // 检查槽位是否有效且未被占用
                     if (!deploy_slot.IsValid())
                     {
-                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 无效");
+                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x_i}, {deploy_y_i}, {deploy_p}) 无效");
                         continue;
                     }
 
                     if (game_data.GetSlotCard(deploy_slot) != null)
                     {
-                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 已被占用，跳过部署");
+                        Debug.LogWarning($"玩家 {player.player_id} 的槽位 ({deploy_x_i}, {deploy_y_i}, {deploy_p}) 已被占用，跳过部署");
                         continue;
                     }
 
-                    // 部署英雄
                     Card deployed_card = SummonCard(player, heroesToDeploy[i], variant, deploy_slot);
                     if (deployed_card != null)
                     {
                         deployedCount++;
-                        Debug.Log($"成功为玩家 {player.player_id} 在槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}");
+                        Debug.Log($"成功为玩家 {player.player_id} 在槽位 ({deploy_x_i}, {deploy_y_i}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}，移动={deployed_card.move_Range}，攻距={deployed_card.attack_Range}");
                     }
                     else
                     {
-                        Debug.LogWarning($"无法为玩家 {player.player_id} 在槽位 ({deploy_x}, {deploy_y}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}");
+                        Debug.LogWarning($"无法为玩家 {player.player_id} 在槽位 ({deploy_x_i}, {deploy_y_i}, {deploy_p}) 部署英雄: {heroesToDeploy[i].title}");
                     }
                 }
 

@@ -155,6 +155,8 @@ namespace TcgEngine.Client
                 button.Hide();
 
             //Status bar
+            if (!focus)
+                ShowPersistentStatusBar(card);
             if (status_group != null)
                 status_group.alpha = Mathf.MoveTowards(status_group.alpha, status_alpha_target, 5f * Time.deltaTime);
         }
@@ -175,7 +177,38 @@ namespace TcgEngine.Client
                 return targ_pos;
             }
 
+            if (TryGetMirroredOpponentPos(card, out Vector3 mirrored_pos))
+                return mirrored_pos;
+
             return transform.position;
+        }
+
+        // `Game.unity` 当前只有一套 `PlayerSelf` 棋盘格。
+        // 当敌方卡牌找不到对应的 BSlot 时，用“己方同坐标格子”绕棋盘中心做镜像，
+        // 让双方都能在自己的视角中看到对手单位落在上半区对应位置。
+        private bool TryGetMirroredOpponentPos(Card card, out Vector3 mirrored_pos)
+        {
+            mirrored_pos = Vector3.zero;
+
+            if (card == null)
+                return false;
+
+            int local_player_id = GameClient.Get().GetPlayerID();
+            if (card.player_id == local_player_id)
+                return false;
+
+            Slot local_equivalent = new Slot(card.slot.x, card.slot.y, Slot.GetP(local_player_id));
+            BSlot local_slot = BSlot.Get(local_equivalent);
+            if (local_slot == null)
+                return false;
+
+            Vector3 self_pos = local_slot.GetPosition(local_equivalent);
+            Vector3 board_center = GameBoard.Get() != null ? GameBoard.Get().transform.position : Vector3.zero;
+            mirrored_pos = new Vector3(
+                board_center.x * 2f - self_pos.x,
+                board_center.y * 2f - self_pos.y,
+                self_pos.z);
+            return true;
         }
 
         public void SetCard(Card card)
@@ -276,6 +309,24 @@ namespace TcgEngine.Client
             status_alpha_target = show_status ? 1f : 0f;
         }
 
+        private void ShowPersistentStatusBar(Card card)
+        {
+            if (status_text == null || destroyed)
+                return;
+
+            string status = card != null ? GetStatusText() : "";
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                status_text.text = status;
+                status_alpha_target = 1f;
+            }
+            else
+            {
+                status_text.text = "";
+                status_alpha_target = 0f;
+            }
+        }
+
         public string GetStatusText()
         {
             Card card = GetCard();
@@ -339,12 +390,16 @@ namespace TcgEngine.Client
 
             focus = true;
             ShowStatusBar();
+            Card c = GetFocusCard();
+            if (c != null)
+                CardDetailPreview.ShowCard(c);
         }
 
         public void OnMouseExit()
         {
             focus = false;
-            status_alpha_target = 0f;
+            ShowPersistentStatusBar(GetCard());
+            CardDetailPreview.Hide();
         }
 
         public void OnMouseDown()
@@ -359,6 +414,10 @@ namespace TcgEngine.Client
                 focus = true;
                 ShowStatusBar();
             }
+
+            Card c = GetFocusCard();
+            if (c != null)
+                CardDetailPreview.ShowCard(c);
         }
 
         public void OnMouseUp()

@@ -1,0 +1,16 @@
+﻿effect_set_id,order,effect_key,param_int_a,param_int_b,param_int_c,param_str_a
+eff_store_triggerer,1,store_target_as_triggerer,0,0,0,
+eff_slime_heavy_hit,1,damage_from_triggerer_attack_plus_base,2,0,0,
+eff_apply_slime_1,1,apply_status,1,0,0,Slime
+eff_slime_combo_hit,1,damage_from_triggerer_attack_plus_base,1,0,0,
+eff_slime_combo_extra,1,damage_from_triggerer_attack_plus_base,1,0,0,
+eff_slime_spray_apply_or_heal,1,apply_slime_or_heal_by_target_trait,2,3,0,slime
+eff_slime_pool_summon,1,summon_with_duration,2,1,0,vc5_slime_pool
+eff_slime_attach_status,1,apply_status_pair_or_sharp_by_trait,1,1,2,slime
+eff_slime_split_summon,1,summon_from_target_status,2,1,0,vc5_slime_spawn
+eff_slime_merge,1,merge_summons,0,0,0,slime_spawn
+eff_slime_boom_explode,1,explode_by_current_hp,1,0,0,slime_spawn
+eff_slime_boom_random_slime,1,apply_status_random_by_cached_hp,1,0,0,Slime
+eff_slime_sharpen,1,sharpen_slime,2,2,2,Slime
+eff_slime_run_move,1,move_triggerer_to_target,2,0,0,slime_spawn
+eff_slime_detonate,1,damage_repeat_consume_status,1,1,0,Slime

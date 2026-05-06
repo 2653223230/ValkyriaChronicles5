@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
@@ -44,6 +44,7 @@ namespace TcgEngine
             DeckData.Load();
             AbilityData.Load();
             StatusData.Load();
+            Vc5SlimeBootstrap.Register();
             AvatarData.Load();
             CardbackData.Load();
             RewardData.Load();
@@ -121,6 +122,8 @@ namespace TcgEngine
         private void CheckDeckData()
         {
             GameplayData gdata = GameplayData.Get();
+            if (gdata == null)
+                return;
             CheckDeckArray(gdata.ai_decks);
             CheckDeckArray(gdata.free_decks);
             CheckDeckArray(gdata.starter_decks);
@@ -148,6 +151,8 @@ namespace TcgEngine
 
         private void CheckDeckArray(DeckData[] decks)
         {
+            if (decks == null)
+                return;
             foreach (DeckData deck in decks)
             {
                 if (deck == null)

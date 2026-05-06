@@ -1,0 +1,85 @@
+{
+  "items": [
+    {
+      "id": "hero_bloody_slime",
+      "name": "血腥黏黏",
+      "team": "slime",
+      "rarity": "rare",
+      "type": "Hero",
+      "attack": 1,
+      "hp": 12,
+      "moveRange": 3,
+      "attackRange": 1,
+      "manaCost": 0,
+      "costLife": 0,
+      "tags": [
+        "粘液",
+        "治疗"
+      ],
+      "skills": [
+        "skill_slime_lifesteal",
+        "skill_slime_awaken_spread"
+      ],
+      "passive": "被动：己方黏黏对带粘液的敌人伤害时自愈1",
+      "awakeningCondition": "任一敌人粘液层数>=4",
+      "awakeningEffect": "对所有带粘液敌人造成(1+层数/2)并清空粘液",
+      "desc": "核心机制粘液",
+      "art": "slime/bloody/full",
+      "boardArt": "slime/bloody/board"
+    },
+    {
+      "id": "hero_corrosion_slime",
+      "name": "腐蚀黏黏",
+      "team": "slime",
+      "rarity": "rare",
+      "type": "Hero",
+      "attack": 1,
+      "hp": 14,
+      "moveRange": 3,
+      "attackRange": 1,
+      "manaCost": 0,
+      "costLife": 0,
+      "tags": [
+        "粘液",
+        "减速"
+      ],
+      "skills": [
+        "skill_slime_slow",
+        "skill_slime_awaken_multi_apply"
+      ],
+      "passive": "被动：带粘液敌人移动力-1（不叠加）",
+      "awakeningCondition": "每回合一次（冷却1回合）",
+      "awakeningEffect": "向任意单位连续施放4次粘液，可分配目标",
+      "desc": "核心机制粘液",
+      "art": "slime/corrosion/full",
+      "boardArt": "slime/corrosion/board"
+    },
+    {
+      "id": "hero_warrior_berserker",
+      "name": "狂战士",
+      "team": "warrior",
+      "rarity": "epic",
+      "type": "Hero",
+      "attack": 1,
+      "hp": 12,
+      "moveRange": 3,
+      "attackRange": 2,
+      "manaCost": 0,
+      "costLife": 0,
+      "tags": [
+        "战士",
+        "尖锐"
+      ],
+      "skills": [
+        "skill_warrior_sharp_persist",
+        "skill_warrior_awaken_blast"
+      ],
+      "passive": "被动：自身获得的尖锐不会因时间减少",
+      "awakeningCondition": "生命值<3时",
+      "awakeningEffect": "对攻击距离内所有敌人造成攻击力伤害，然后自尽（不可免疫）",
+      "desc": "核心机制流血/尖锐",
+      "art": "warrior/berserker/full",
+      "boardArt": "warrior/berserker/board"
+    }
+  ]
+}

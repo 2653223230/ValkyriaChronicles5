@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Gameplay;
@@ -35,7 +35,11 @@ namespace TcgEngine
 
         [Header("Activated Ability")]
         public int mana_cost;                   //Mana cost for  activated abilities
+        public int hp_cost;
+        public int discard_cost;
         public bool exhaust;                    //Action cost for activated abilities
+        public bool fast_action;
+        public int uses_per_turn;
 
         [Header("FX")]
         public GameObject board_fx;

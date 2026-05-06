@@ -1,0 +1,6 @@
+﻿id,name,core_tag,attack,hp,move_range,attack_range,traits,fields,ability_ids,notes
+vc5_hero_slime_blood,血腥黏黏,粘液,1,12,3,1,slime|slime_blood,黏黏,vc5_blood_slime_skill|vc5_blood_slime_awake,对带粘液目标造成伤害可回血
+vc5_hero_slime_corrosive,腐蚀黏黏,粘液,1,14,3,1,slime|slime_corrosive,黏黏,vc5_corrosive_slime_awake,持有粘液的敌人移动-1（不叠加）
+vc5_hero_slime_giant,巨臂黏黏,粘液,1,11,3,2,slime,黏黏,vc5_giant_slime_move|vc5_giant_slime_awake,位移距离受粘液层数影响
+vc5_hero_slime_hard,坚硬黏黏,粘液,0,15,2,1,slime|slime_hard,黏黏,vc5_hard_slime_awake,粘液护盾减伤并消耗层数
+vc5_hero_slime_hard2,坚硬黏黏2,粘液,1,13,3,2,slime|slime_hard,黏黏,vc5_hard2_slime_skill,弃牌伤害并召唤幼崽

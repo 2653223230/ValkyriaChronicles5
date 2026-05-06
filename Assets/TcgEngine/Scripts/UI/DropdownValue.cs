@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -29,7 +29,8 @@ namespace TcgEngine.UI
         void Awake()
         {
             dropdown = GetComponent<Dropdown>();
-            dropdown.onValueChanged.AddListener(OnChangeValue);
+            if (dropdown != null)
+                dropdown.onValueChanged.AddListener(OnChangeValue);
         }
 
         private void Start()
@@ -39,6 +40,11 @@ namespace TcgEngine.UI
 
         public void AddOption(string id, string text)
         {
+            if (dropdown == null)
+                dropdown = GetComponent<Dropdown>();
+            if (dropdown == null)
+                return;
+
             Dropdown.OptionData option = new Dropdown.OptionData(text);
             dropdown.options.Add(option);
             DropdownValueItem item = new DropdownValueItem();
@@ -51,11 +57,20 @@ namespace TcgEngine.UI
         public void ClearOptions()
         {
             values.Clear();
+            if (dropdown == null)
+                dropdown = GetComponent<Dropdown>();
+            if (dropdown == null)
+                return;
             dropdown.ClearOptions();
         }
 
         public void SetValue(string value)
         {
+            if (dropdown == null)
+                dropdown = GetComponent<Dropdown>();
+            if (dropdown == null)
+                return;
+
             int index = 0;
             foreach (DropdownValueItem item in values)
             {
@@ -67,6 +82,8 @@ namespace TcgEngine.UI
 
         private void OnChangeValue(int selected_index)
         {
+            if (dropdown == null)
+                return;
             if (selected_index >= 0 && selected_index < values.Count)
             {
                 DropdownValueItem value = values[selected_index];
@@ -77,6 +94,10 @@ namespace TcgEngine.UI
 
         public DropdownValueItem GetSelected()
         {
+            if (dropdown == null)
+                dropdown = GetComponent<Dropdown>();
+            if (dropdown == null)
+                return null;
             if (dropdown.value >= 0 && dropdown.value < values.Count)
             {
                 DropdownValueItem item = values[dropdown.value];
@@ -103,14 +124,20 @@ namespace TcgEngine.UI
 
         public bool interactable
         {
-            get { return dropdown.interactable; }
-            set { dropdown.interactable = value; }
+            get { return dropdown != null && dropdown.interactable; }
+            set { if (dropdown != null) dropdown.interactable = value; }
         }
 
         public int value
         {
-            get { return dropdown.value; }
-            set { dropdown.value = value; dropdown.RefreshShownValue(); }
+            get { return dropdown != null ? dropdown.value : 0; }
+            set
+            {
+                if (dropdown == null)
+                    return;
+                dropdown.value = value;
+                dropdown.RefreshShownValue();
+            }
         }
     }
 }

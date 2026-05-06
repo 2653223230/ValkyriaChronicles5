@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,6 +28,7 @@ namespace TcgEngine
         public int mana_max = 0;
         public int kill_count = 0;
         public bool EndTurn = false;
+        public bool main_action_used = false;
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
         public Card hero = null;
@@ -555,19 +556,53 @@ namespace TcgEngine
         {
             if (card.CardData.IsDynamicManaCost())
                 return true;
-            return mana >= card.GetMana();
+            if (mana < card.GetMana())
+                return false;
+            if (card.CardData.hp_cost > 0 && hp <= card.CardData.hp_cost)
+                return false;
+            if (cards_hand.Count < card.CardData.discard_cost + 1)
+                return false;
+            return true;
         }
 
         public virtual void PayMana(Card card)
         {
             if (!card.CardData.IsDynamicManaCost())
                 mana -= card.GetMana();
+            hp -= card.CardData.hp_cost;
+            if (hp < 0)
+                hp = 0;
+            for (int i = 0; i < card.CardData.discard_cost; i++)
+            {
+                if (cards_hand.Count == 0)
+                    break;
+                int idx = UnityEngine.Random.Range(0, cards_hand.Count);
+                Card to_discard = cards_hand[idx];
+                if (to_discard.uid == card.uid && cards_hand.Count > 1)
+                    idx = (idx + 1) % cards_hand.Count;
+                cards_hand.RemoveAt(idx);
+                cards_discard.Add(to_discard);
+            }
         }
 
         public virtual bool CanPayAbility(Card card, AbilityData ability)
         {
             bool exhaust = !card.exhausted || !ability.exhaust;
-            return exhaust && mana >= ability.mana_cost;
+            bool mana_ok = mana >= ability.mana_cost;
+            bool hp_ok = ability.hp_cost <= 0 || hp > ability.hp_cost;
+            bool discard_ok = cards_hand.Count >= ability.discard_cost;
+            return exhaust && mana_ok && hp_ok && discard_ok;
+        }
+
+        public void ResetMainAction()
+        {
+            main_action_used = false;
+        }
+
+        public void ResetAbilityUses()
+        {
+            foreach (Card card in cards_all.Values)
+                card.ResetAbilityUses();
         }
 
         //我死了
@@ -602,6 +637,7 @@ namespace TcgEngine
             dest.mana = source.mana;
             dest.mana_max = source.mana_max;
             dest.kill_count = source.kill_count;
+            dest.main_action_used = source.main_action_used;
 
             Card.CloneNull(source.hero, ref dest.hero);
             Card.CloneDict(source.cards_all, dest.cards_all);

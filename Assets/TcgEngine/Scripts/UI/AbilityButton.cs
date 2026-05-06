@@ -152,6 +152,20 @@ namespace TcgEngine.UI
         {
             if (card != null && iability != null)
             {
+                Game gdata = GameClient.Get().GetGameData();
+                Player player = GameClient.Get().GetPlayer();
+                if (gdata == null || player == null || !gdata.CanCastAbility(card, iability))
+                {
+                    if (card.IsAbilityOnCooldown(iability))
+                        WarningText.ShowCooldown();
+                    else if (player != null && player.main_action_used && !iability.fast_action && !gdata.IsVc5TestMode(player))
+                        WarningText.ShowMainActionUsed();
+                    else if (player != null && !player.CanPayAbility(card, iability))
+                        WarningText.ShowNoMana();
+                    else
+                        WarningText.ShowExhausted();
+                    return;
+                }
                 GameClient.Get().CastAbility(card, iability);
                 PlayerControls.Get().UnselectAll();
             }

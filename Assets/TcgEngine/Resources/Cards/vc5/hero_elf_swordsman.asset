@@ -21,9 +21,9 @@ MonoBehaviour:
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 1
   attack: 2
-  hp: 5
-  move_Range: 5
-  attack_Range: 5
+  hp: 20
+  move_Range: 2
+  attack_Range: 1
   traits: []
   stats: []
   abilities:

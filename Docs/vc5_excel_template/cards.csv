@@ -1,0 +1,12 @@
+﻿id,name,card_type,mana_cost,hp_cost,discard_cost,fast_action,fields,ability_ids,text
+vc5_slime_heavy_strike,黏黏重击,Spell,0,2,0,0,黏黏|重击,vc5_slime_heavy_pick,造成2+攻击力伤害并附加1层粘液
+vc5_slime_combo_strike,黏黏连打,Spell,1,0,0,0,黏黏,vc5_slime_combo_pick,造成1+攻击力伤害；黏黏触发额外一次
+vc5_slime_pool_spell,粘液池,Spell,1,0,0,0,粘液,vc5_slime_pool_play,召唤粘液池（腐蚀黏黏时持续+1）
+vc5_slime_spray,粘液喷射,Spell,1,0,0,0,粘液,vc5_slime_spray_pick,施加2层粘液
+vc5_slime_attach,粘液附着,Spell,0,0,0,1,粘液|快速行动,vc5_slime_attach_pick,施加粘液并禁移1阶段
+vc5_slime_split_card,黏黏分裂,Spell,1,0,0,0,黏黏,vc5_slime_split,按粘液层数召唤幼崽
+vc5_slime_merge_card,黏黏合体,Spell,1,0,0,0,黏黏,vc5_slime_merge,合并幼崽属性
+vc5_slime_boom_card,黏黏爆炸,Spell,0,0,0,0,黏黏,vc5_slime_boom,按生命值爆炸并可连锁幼崽
+vc5_slime_sharpen,黏黏磨刀,Spell,1,0,0,1,黏黏|快速行动,vc5_slime_sharpen_pick,本回合攻击增伤
+vc5_slime_run,黏黏快跑,Spell,1,0,0,0,黏黏,vc5_slime_run_pick,移动2格
+vc5_slime_detonate_card,粘液引爆,Spell,2,0,0,0,粘液,vc5_slime_detonate,消耗粘液层数重复伤害

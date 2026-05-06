@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.AI;
@@ -67,9 +67,17 @@ namespace TcgEngine
             return "";
         }
 
+        private static GameplayData resourceFallback;
+
         public static GameplayData Get()
         {
-            return DataLoader.Get().data;
+            DataLoader loader = DataLoader.Get();
+            if (loader != null && loader.data != null)
+                return loader.data;
+
+            if (resourceFallback == null)
+                resourceFallback = Resources.Load<GameplayData>("GameplayData");
+            return resourceFallback;
         }
     }
 }

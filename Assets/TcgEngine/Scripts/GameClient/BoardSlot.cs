@@ -67,6 +67,24 @@ namespace TcgEngine.Client
             color_b = 255;
             //Find target opacity value查找目标不透明度值
             target_alpha = 0f;
+
+            BoardCard focus_card = BoardCard.GetFocus();
+            Card hover_card = focus_card != null ? focus_card.GetCard() : null;
+            if (hover_card != null && hover_card.CardData.IsCharacter() && slot.p == hover_card.slot.p)
+            {
+                int dx = slot.x - hover_card.slot.x;
+                int dy = slot.y - hover_card.slot.y;
+                int dz = (hover_card.slot.x + hover_card.slot.y) - (slot.x + slot.y);
+                int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
+                if (hexDistance > 0 && hexDistance <= hover_card.attack_Range)
+                {
+                    target_alpha = 1f;
+                    color_r = 255;
+                    color_g = 0;
+                    color_b = 0;
+                }
+            }
+
             // --- 调试随从不能打出到棋盘的问题 ---
             if (your_turn && dcard != null && dcard.CardData.IsBoardCard())
             {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TcgEngine
@@ -33,6 +33,8 @@ namespace TcgEngine
         public TeamData team;
         public RarityData rarity;
         public int mana;
+        public int hp_cost;
+        public int discard_cost;
         public int attack;
         public int hp;
         [Tooltip("移动力：角色可以移动的最大距离")]
@@ -43,6 +45,9 @@ namespace TcgEngine
         [Header("Traits")]
         public TraitData[] traits;
         public TraitStat[] stats;
+        [Header("Fields")]
+        public TraitData[] fields;
+        public bool fast_action;
 
         [Header("Abilities")]
         public AbilityData[] abilities;
@@ -103,6 +108,16 @@ namespace TcgEngine
         public string GetText()
         {
             return text;
+        }
+
+        /// <summary>
+        /// 卡面/预览区展示用：优先 text（规则简述），否则 desc（长说明）。
+        /// </summary>
+        public string GetDisplayText()
+        {
+            if (!string.IsNullOrWhiteSpace(text))
+                return text.Trim();
+            return desc != null ? desc.Trim() : "";
         }
 
         public string GetDesc()

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -56,9 +56,29 @@ namespace TcgEngine.UI
             ShowText("No more action");
         }
 
+        public static void ShowCooldown()
+        {
+            ShowText("Skill cooling down");
+        }
+
+        public static void ShowMainActionUsed()
+        {
+            ShowText("Main action already used");
+        }
+
         public static void ShowNoMana()
         {
             ShowText("Not enough mana");
+        }
+
+        public static void ShowNoHP()
+        {
+            ShowText("Not enough HP");
+        }
+
+        public static void ShowNoDiscard()
+        {
+            ShowText("Not enough cards");
         }
 
         public static void ShowSpellImmune()

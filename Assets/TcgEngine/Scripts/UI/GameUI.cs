@@ -73,29 +73,23 @@ namespace TcgEngine.UI
                 return;
 
             bool yourturn = GameClient.Get().IsYourTurn();
+            if (data != null && data.selector != SelectorType.None && data.selector_player_id == GameClient.Get().GetPlayerID()
+                && Input.GetMouseButtonDown(1) && !IsOverUI())
+            {
+                GameClient.Get().CancelSelection();
+            }
+
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
             end_turn_button.interactable = yourturn && end_turn_timer > 1f;
             end_turn_timer += Time.deltaTime;
             selector_timer += Time.deltaTime;
 
-            //Timer
-            turn_count.text = "Turn " + data.turn_count.ToString();
-            turn_timer.enabled = data.turn_timer > 0f;
-            turn_timer.text = Mathf.RoundToInt(data.turn_timer).ToString();
-            turn_timer.enabled = data.turn_timer < 999f;
-
-            //Simulate timer
-            if (data.state == GameState.Play && data.turn_timer > 0f)
-                data.turn_timer -= Time.deltaTime;
-
-            //Timer warning
-            if (data.state == GameState.Play)
+            // VC5: no countdown timer; use the turn area to show whose turn it is.
+            turn_count.text = yourturn ? "我方回合" : "对手行动中";
+            if (turn_timer != null)
             {
-                int val = Mathf.RoundToInt(data.turn_timer);
-                int tick_val = 10;
-                if (val < prev_time_val && val <= tick_val)
-                    PulseFX();
-                prev_time_val = val;
+                turn_timer.enabled = true;
+                turn_timer.text = "第 " + data.turn_count.ToString() + " 回合";
             }
 
             //Show selector panels

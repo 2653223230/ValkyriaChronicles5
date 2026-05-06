@@ -49,7 +49,7 @@ namespace TcgEngine.UI
         {
             if (!string.IsNullOrWhiteSpace(effect.desc))
             {
-                title.text = effect.GetTitle();
+                title.text = effect.GetTitle() + " " + value + "层";
                 desc.text = effect.GetDesc(value);
                 gameObject.SetActive(true);
                 timer = 0f;

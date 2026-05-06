@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
@@ -240,8 +240,12 @@ namespace TcgEngine.Client
         {
             foreach (GroupSlot spos in group_slots)
             {
-                // 同样只根据 x、y 匹配，忽略 p（玩家侧），确保两边玩家都能正确找到格子位置
-                if (spos.slot.x == slot.x && spos.slot.y == slot.y)
+                if (Slot.ignore_p)
+                {
+                    if (spos.slot.x == slot.x && spos.slot.y == slot.y)
+                        return true;
+                }
+                else if (spos.slot == slot)
                     return true;
             }
             return false;

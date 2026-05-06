@@ -1,0 +1,177 @@
+{
+  "items": [
+    {
+      "id": "skill_slime_heavy_hit",
+      "name": "黏黏重击",
+      "trigger": "OnPlay",
+      "target": "Enemy",
+      "effectType": "Damage",
+      "value": 2,
+      "duration": 0,
+      "range": 1,
+      "stacks": 1,
+      "status": "",
+      "tags": [],
+      "extraJson": "{\\scaleWithAttack\\\":true",
+      "text": "\\\"extraOnTag\\\":\\\"Slime\\\"",
+      "null": [
+        "\\\"extraStatus\\\":\\\"slime\\\"",
+        "\\\"extraStacks\\\":1}\"",
+        "伤害=2+攻击；若使用者带黏黏标签，额外附加1层粘液"
+      ]
+    },
+    {
+      "id": "skill_slime_combo",
+      "name": "黏黏连打",
+      "trigger": "OnPlay",
+      "target": "Enemy",
+      "effectType": "Damage",
+      "value": 1,
+      "duration": 0,
+      "range": 1,
+      "stacks": 2,
+      "status": "",
+      "tags": [],
+      "extraJson": "{\\scaleWithAttack\\\":true",
+      "text": "\\\"repeatIfTag\\\":\\\"Slime\\\"}\"",
+      "null": [
+        "伤害=1+攻击，若使用者为黏黏再结算一次"
+      ]
+    },
+    {
+      "id": "skill_slime_spray",
+      "name": "粘液喷射",
+      "trigger": "OnPlay",
+      "target": "Enemy",
+      "effectType": "ApplyStack",
+      "value": 2,
+      "duration": 0,
+      "range": 2,
+      "stacks": 0,
+      "status": "slime",
+      "tags": [],
+      "extraJson": "{\\allyAsHeal\\\":3}\"",
+      "text": "敌方：附加2层粘液；己方黏黏：改为治疗3"
+    },
+    {
+      "id": "skill_slime_lifesteal",
+      "name": "血腥粘液被动",
+      "trigger": "Passive",
+      "target": "Self",
+      "effectType": "ApplyStack",
+      "value": 0,
+      "duration": 0,
+      "range": 0,
+      "stacks": 0,
+      "status": "slime",
+      "tags": [],
+      "extraJson": "{\\lifestealOnSlimeHit\\\":1}\"",
+      "text": "己方黏黏对带粘液敌人造成伤害时，自愈1"
+    },
+    {
+      "id": "skill_slime_awaken_spread",
+      "name": "觉醒扩散",
+      "trigger": "OnAwaken",
+      "target": "EnemiesInRange",
+      "effectType": "Damage",
+      "value": 1,
+      "duration": 0,
+      "range": 99,
+      "stacks": 0,
+      "status": "",
+      "tags": [
+        "{\\scaleWithStacks\\\":\\\"slime\\\""
+      ],
+      "extraJson": "\\\"half\\\":true",
+      "text": "\\\"cleanseStacks\\\":true}\"",
+      "null": [
+        "对带粘液敌人造成(1+层数/2)，结算后清空粘液"
+      ]
+    },
+    {
+      "id": "skill_slime_slow",
+      "name": "腐蚀减速",
+      "trigger": "Passive",
+      "target": "Enemy",
+      "effectType": "AddStatus",
+      "value": 1,
+      "duration": 0,
+      "range": 0,
+      "stacks": 0,
+      "status": "slow",
+      "tags": [],
+      "extraJson": "{\\requiresStatus\\\":\\\"slime\\\"",
+      "text": "\\\"nonStack\\\":true",
+      "null": [
+        "\\\"applyField\\\":\\\"move\\\"}\"",
+        "带粘液敌人移动力-1，效果不叠加"
+      ]
+    },
+    {
+      "id": "skill_slime_awaken_multi_apply",
+      "name": "觉醒多重投掷",
+      "trigger": "OnAwaken",
+      "target": "Enemy",
+      "effectType": "ApplyStack",
+      "value": 1,
+      "duration": 0,
+      "range": 5,
+      "stacks": 4,
+      "status": "slime",
+      "tags": [],
+      "extraJson": "{}",
+      "text": "每回合一次，对任意单位投掷粘液4次，可分配目标"
+    },
+    {
+      "id": "skill_warrior_sharp_persist",
+      "name": "尖锐常驻",
+      "trigger": "Passive",
+      "target": "Self",
+      "effectType": "AddStatus",
+      "value": 0,
+      "duration": 0,
+      "range": 0,
+      "stacks": 0,
+      "status": "sharp",
+      "tags": [],
+      "extraJson": "{\\durationFrozen\\\":true}\"",
+      "text": "获得的尖锐不会因时间减少"
+    },
+    {
+      "id": "skill_warrior_awaken_blast",
+      "name": "狂战爆破",
+      "trigger": "OnAwaken",
+      "target": "EnemiesInRange",
+      "effectType": "Damage",
+      "value": 1,
+      "duration": 0,
+      "range": 2,
+      "stacks": 0,
+      "status": "",
+      "tags": [
+        "{\\scaleWithAttack\\\":true"
+      ],
+      "extraJson": "\\\"selfKill\\\":true}\"",
+      "text": "对攻击距离内所有敌人造成攻击力伤害，然后自尽"
+    },
+    {
+      "id": "skill_warrior_bleed_strike",
+      "name": "战士重击",
+      "trigger": "OnPlay",
+      "target": "Enemy",
+      "effectType": "Damage",
+      "value": 1,
+      "duration": 0,
+      "range": 1,
+      "stacks": 1,
+      "status": "bleed",
+      "tags": [],
+      "extraJson": "{\\scaleWithAttack\\\":true",
+      "text": "\\\"extraStacks\\\":1",
+      "null": [
+        "\\\"extraOnTag\\\":\\\"Warrior\\\"}\"",
+        "造成1+攻击力伤害；若为战士则附加1层流血"
+      ]
+    }
+  ]
+}

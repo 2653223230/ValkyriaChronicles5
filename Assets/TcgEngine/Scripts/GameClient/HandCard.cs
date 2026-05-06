@@ -1,4 +1,4 @@
-﻿using TcgEngine.Client;
+using TcgEngine.Client;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -82,6 +82,7 @@ namespace TcgEngine.Client
 
             if (IsDrag())
             {
+                CardDetailPreview.Hide();
                 target_position = GetTargetPosition();
                 target_size = start_scale * 0.75f;
                 Vector3 dir = card_transform.position - prev_pos;
@@ -172,12 +173,16 @@ namespace TcgEngine.Client
                 return;
 
             focus = true;
+            Card c = GetCard();
+            if (c != null && !drag)
+                CardDetailPreview.ShowCard(c);
         }
 
         public void OnMouseExitCard()
         {
             focus = false;
             focus_timer = -0.2f;
+            CardDetailPreview.Hide();
         }
 
         public void OnMouseDownCard()
@@ -189,6 +194,9 @@ namespace TcgEngine.Client
             drag = true;
             selected = true;
             PlayerControls.Get().UnselectAll();
+            Card c = GetCard();
+            if (c != null)
+                CardDetailPreview.ShowCard(c);
             AudioTool.Get().PlaySFX("hand_card", AssetData.Get().hand_card_click_audio);
         }
 
@@ -201,6 +209,8 @@ namespace TcgEngine.Client
             else if (!GameTool.IsMobile())
                 HandCardArea.Get().SortCards();
             drag = false;
+            if (IsFocus() && GetCard() != null)
+                CardDetailPreview.ShowCard(GetCard());
         }
 
         public void TryPlayCard(Vector3 board_pos)
@@ -230,9 +240,19 @@ namespace TcgEngine.Client
                 return;
             }
 
-            if (!player.CanPayMana(card))
+            if (!card.CardData.IsDynamicManaCost() && player.mana < card.GetMana())
             {
                 WarningText.ShowNoMana();
+                return;
+            }
+            if (card.CardData.hp_cost > 0 && player.hp <= card.CardData.hp_cost)
+            {
+                WarningText.ShowNoHP();
+                return;
+            }
+            if (player.cards_hand.Count < card.CardData.discard_cost + 1)
+            {
+                WarningText.ShowNoDiscard();
                 return;
             }
 

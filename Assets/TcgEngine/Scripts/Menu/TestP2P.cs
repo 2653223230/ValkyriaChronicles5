@@ -30,8 +30,10 @@ namespace TcgEngine
             GameClient.player_settings = PlayerSettings.Default;
             GameClient.game_settings.game_uid = "test_p2p";
 
-            deck_selector.onChange += OnChangeDeck;
-            error.text = "";
+            if (deck_selector != null)
+                deck_selector.onChange += OnChangeDeck;
+            if (error != null)
+                error.text = "";
         }
 
         void Update()
@@ -68,15 +70,23 @@ namespace TcgEngine
 
         public void RefreshDeckList()
         {
+            if (deck_selector == null)
+                return;
+
             deck_selector.RefreshDeckList();
-            deck_selector.SelectDeck(GameClient.player_settings.deck.tid);
+            UserDeckData psDeck = GameClient.player_settings.deck;
+            if (psDeck != null && !string.IsNullOrEmpty(psDeck.tid))
+                deck_selector.SelectDeck(psDeck.tid);
             RefreshDeck(deck_selector.GetDeckID());
         }
 
         private void RefreshDeck(string tid)
         {
+            if (deck_preview == null)
+                return;
+
             UserData user = Authenticator.Get().UserData;
-            UserDeckData udeck = user.GetDeck(tid);
+            UserDeckData udeck = user != null ? user.GetDeck(tid) : null;
             DeckData ddeck = DeckData.Get(tid);
             if (udeck != null)
                 deck_preview.SetDeck(udeck);

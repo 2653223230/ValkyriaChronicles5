@@ -78,10 +78,10 @@ namespace TcgEngine.Client
 
         public virtual bool HasSlot(Slot slot)
         {
-            // 只根据 x、y 匹配棋盘格位置，忽略 p（玩家侧），
-            // 这样无论 slot.p 是 0 还是 1，都能找到对应的可视化格子
             Slot aslot = GetSlot();
-            return aslot.x == slot.x && aslot.y == slot.y;
+            if (Slot.ignore_p)
+                return aslot.x == slot.x && aslot.y == slot.y;
+            return aslot.x == slot.x && aslot.y == slot.y && aslot.p == slot.p;
         }
 
         public virtual bool IsPlayer()

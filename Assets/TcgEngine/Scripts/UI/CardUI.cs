@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -80,7 +80,7 @@ namespace TcgEngine.UI
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
             if (card_text != null)
-                card_text.text = card.GetText();
+                card_text.text = card.GetDisplayText();
 
             if (attack_icon != null)
                 attack_icon.enabled = card.IsCharacter();

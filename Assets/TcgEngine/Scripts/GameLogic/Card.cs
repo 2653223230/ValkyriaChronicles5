@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,6 +40,7 @@ namespace TcgEngine
 
         public List<string> abilities = new List<string>();
         public List<string> abilities_ongoing = new List<string>();
+        public List<CardAbilityUse> ability_uses = new List<CardAbilityUse>();
 
         [System.NonSerialized] private int hash = 0;
         [System.NonSerialized] private CardData data = null;
@@ -83,6 +84,11 @@ namespace TcgEngine
             traits.Clear();
             foreach (TraitData trait in icard.traits)
                 SetTrait(trait.id, 0);
+            if (icard.fields != null)
+            {
+                foreach (TraitData field in icard.fields)
+                    SetTrait(field.id, 0);
+            }
             if (icard.stats != null)
             {
                 foreach (TraitStat stat in icard.stats)
@@ -277,6 +283,22 @@ namespace TcgEngine
             }
         }
 
+        public int ConsumeStatus(StatusType type, int amount)
+        {
+            if (amount <= 0)
+                return 0;
+
+            CardStatus status = GetStatus(type);
+            if (status == null)
+                return 0;
+
+            int consumed = Mathf.Min(status.value, amount);
+            status.value -= consumed;
+            if (status.value <= 0)
+                RemoveStatus(type);
+            return consumed;
+        }
+
         public List<CardStatus> GetAllStatus()
         {
             List<CardStatus> all_status = new List<CardStatus>();
@@ -463,6 +485,8 @@ namespace TcgEngine
             //   return false;
             //if (!skip_cost && exhausted)
             //    return false; //no more action
+            if (HasStatus(StatusType.Rooted))
+                return false;
             return true; 
         }
 
@@ -486,6 +510,41 @@ namespace TcgEngine
         public virtual bool CanDoAnyAction()
         {
             return CanAttack() || CanMove() || CanDoActivatedAbilities();
+        }
+
+        public int GetAbilityUses(string ability_id)
+        {
+            foreach (CardAbilityUse use in ability_uses)
+            {
+                if (use.ability_id == ability_id)
+                    return use.used;
+            }
+            return 0;
+        }
+
+        public void IncrementAbilityUse(string ability_id)
+        {
+            foreach (CardAbilityUse use in ability_uses)
+            {
+                if (use.ability_id == ability_id)
+                {
+                    use.used += 1;
+                    return;
+                }
+            }
+            ability_uses.Add(new CardAbilityUse(ability_id, 1));
+        }
+
+        public void ResetAbilityUses()
+        {
+            ability_uses.Clear();
+        }
+
+        public bool IsAbilityOnCooldown(AbilityData ability)
+        {
+            if (ability == null || ability.uses_per_turn <= 0)
+                return false;
+            return GetAbilityUses(ability.id) >= ability.uses_per_turn;
         }
 
         //----------------
@@ -572,6 +631,7 @@ namespace TcgEngine
             GameTool.CloneList(source.abilities, dest.abilities); 
             GameTool.CloneList(source.abilities_ongoing, dest.abilities_ongoing); 
             GameTool.CloneListRefNull(source.abilities_data, ref dest.abilities_data); //No need to deep copy since AbilityData doesn't change dynamically, its just a reference
+            CardAbilityUse.CloneList(source.ability_uses, dest.ability_uses);
         }
 
         //Clone a var that could be null
@@ -684,6 +744,39 @@ namespace TcgEngine
                     Clone(source[i], dest[i]);
                 else
                     dest.Add(CloneNew(source[i]));
+            }
+
+            if (dest.Count > source.Count)
+                dest.RemoveRange(source.Count, dest.Count - source.Count);
+        }
+    }
+
+    [System.Serializable]
+    public class CardAbilityUse
+    {
+        public string ability_id;
+        public int used;
+
+        public CardAbilityUse(string ability_id, int used)
+        {
+            this.ability_id = ability_id;
+            this.used = used;
+        }
+
+        public static void Clone(CardAbilityUse source, CardAbilityUse dest)
+        {
+            dest.ability_id = source.ability_id;
+            dest.used = source.used;
+        }
+
+        public static void CloneList(List<CardAbilityUse> source, List<CardAbilityUse> dest)
+        {
+            for (int i = 0; i < source.Count; i++)
+            {
+                if (i < dest.Count)
+                    Clone(source[i], dest[i]);
+                else
+                    dest.Add(new CardAbilityUse(source[i].ability_id, source[i].used));
             }
 
             if (dest.Count > source.Count)

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,7 +20,8 @@ namespace TcgEngine.UI
 
         void Start()
         {
-            deck_dropdown.onValueChanged += OnChange;
+            if (deck_dropdown != null)
+                deck_dropdown.onValueChanged += OnChange;
         }
 
         void Update()
@@ -30,12 +31,23 @@ namespace TcgEngine.UI
 
         public void RefreshDeckList()
         {
+            if (deck_dropdown == null)
+            {
+                Debug.LogError("DeckSelector: assign deck_dropdown (DropdownValue).");
+                return;
+            }
+
             deck_dropdown.ClearOptions();
 
-            //Add standard decks
-            foreach (DeckData deck in GameplayData.Get().free_decks)
+            GameplayData gdata = GameplayData.Get();
+            if (gdata != null && gdata.free_decks != null)
             {
-                deck_dropdown.AddOption(deck.id, deck.title);
+                foreach (DeckData deck in gdata.free_decks)
+                {
+                    if (deck == null || string.IsNullOrEmpty(deck.id))
+                        continue;
+                    deck_dropdown.AddOption(deck.id, string.IsNullOrEmpty(deck.title) ? deck.id : deck.title);
+                }
             }
 
             UserData udata = Authenticator.Get().UserData;
@@ -85,33 +97,38 @@ namespace TcgEngine.UI
 
         public void Lock()
         {
-            deck_dropdown.interactable = false;
+            if (deck_dropdown != null)
+                deck_dropdown.interactable = false;
         }
 
         public void Unlock()
         {
-            deck_dropdown.interactable = true;
+            if (deck_dropdown != null)
+                deck_dropdown.interactable = true;
         }
 
         public void SetLocked(bool locked)
         {
-            deck_dropdown.interactable = !locked;
+            if (deck_dropdown != null)
+                deck_dropdown.interactable = !locked;
         }
 
         private void OnChange(int i, string val)
         {
+            if (deck_dropdown == null)
+                return;
             string value = deck_dropdown.GetSelectedValue();
             onChange?.Invoke(value);
         }
 
         public string GetDeckID()
         {
-            return deck_dropdown.GetSelectedValue();
+            return deck_dropdown != null ? deck_dropdown.GetSelectedValue() : "";
         }
 
         public string GetDeckTitle()
         {
-            return deck_dropdown.GetSelectedText();
+            return deck_dropdown != null ? deck_dropdown.GetSelectedText() : "";
         }
 
         public UserDeckData GetDeck()

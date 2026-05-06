@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,6 +32,11 @@ namespace TcgEngine
         Paralysed = 32,     //Cant do any actions for X turns
         Poisoned = 34,     //Lose hp each start of turn
         Sleep = 36,         //Doesnt untap at the start of turn
+
+        Slime = 50,         //Stacking slime layers
+        Sharp = 52,         //Add attack per stack
+        Rooted = 54,        //Cannot move
+        GiantArmAwakened = 56, //Custom flag for VC5 slime awakening
 
 
     }
