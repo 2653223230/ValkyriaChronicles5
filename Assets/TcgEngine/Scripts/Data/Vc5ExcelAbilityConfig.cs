@@ -15,6 +15,8 @@ namespace TcgEngine
         public class CardRow
         {
             public string card_id;
+            /// <summary>策划表「系列」列。</summary>
+            public string series;
             public string display_name;
             public string fields;
             public int cost_mana;
@@ -67,6 +69,7 @@ namespace TcgEngine
         public class HeroRow
         {
             public string hero_id;
+            public string series;
             public int attack;
             public int hp;
             public int move_Range;
@@ -142,6 +145,7 @@ namespace TcgEngine
                 CardRow row = new CardRow
                 {
                     card_id = cid,
+                    series = Get(r, "系列", ""),
                     display_name = Get(r, "名称", ""),
                     fields = Get(r, "字段", ""),
                     cost_mana = ParseInt(Get(r, "cost_mana", "0")),
@@ -171,6 +175,7 @@ namespace TcgEngine
                 HeroRow row = new HeroRow
                 {
                     hero_id = hid,
+                    series = Get(r, "系列", ""),
                     attack = ParseInt(Get(r, "攻击力", "0")),
                     hp = ParseInt(Get(r, "生命值", "0")),
                     move_Range = ParseInt(Get(r, "移动力", "0")),

@@ -1,0 +1,115 @@
+﻿﻿enabled,id,title,series,type,mana,hp_cost,discard_cost,attack,hp,move_Range,attack_Range,fast_action,deckbuilding,text,source,asset_path,notes
+1,armored_beast,Armored Beast,,Character,4,0,0,3,6,2,2,0,1,Taunt,asset,Assets/TcgEngine/Resources/Cards/Forest/armored_beast.asset,
+1,ashes_snake,Ashes Snake,,Character,5,0,0,6,4,2,2,0,1,测试用白板,asset,Assets/TcgEngine/Resources/Cards/Fire/ashes_snake.asset,
+1,attack_ally_card,攻击,,Spell,1,0,0,0,0,2,2,0,1,对攻击距离内的敌人造成攻击力的伤害,asset,Assets/TcgEngine/Resources/Cards/vc5/art/attack_ally_card.asset,
+1,bay,Bay,,Artifact,2,0,0,0,5,2,2,0,1,"When a blue creature you own dies, draw a card.",asset,Assets/TcgEngine/Resources/Cards/Water/bay.asset,
+1,bear,Bear,,Character,5,0,0,4,5,2,2,0,1,<b>Play:</b> Gain Taunt or Fury,asset,Assets/TcgEngine/Resources/Cards/Forest/bear.asset,
+1,bull_heat,Heat Bull,,Character,3,0,0,2,5,2,2,0,1,Spell damage +1.,asset,Assets/TcgEngine/Resources/Cards/Fire/bull_heat.asset,
+1,cave,Cave,,Artifact,2,0,0,0,5,2,2,0,1,"All red creatures gain: ""Take 1 damage to gain +1 attack"".",asset,Assets/TcgEngine/Resources/Cards/Fire/cave.asset,
+1,coin,Coin,,Spell,0,0,0,0,0,2,2,0,0,Gain 1 mana.,asset,Assets/TcgEngine/Resources/Cards/Summon/coin.asset,
+1,crab_mana,Mana Crab,,Character,2,0,0,3,1,2,2,0,1,"When attacking a player, gain 2 mana.",asset,Assets/TcgEngine/Resources/Cards/Water/crab_mana.asset,
+1,dark_stallion,Dark Stallion,,Character,4,0,0,4,5,2,2,0,1,"<b>Cast (2):</b> Roll a D6, on 4+ return target to hand.",asset,Assets/TcgEngine/Resources/Cards/Fire/dark_stallion.asset,
+1,dragon_blue,Blue Dragon,,Character,7,0,0,8,8,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Water/dragon_blue.asset,
+1,dragon_egg,Dragon Egg,,Spell,2,0,0,0,0,2,2,0,1,Discover a Dragon.,asset,Assets/TcgEngine/Resources/Cards/Summon/dragon_egg.asset,
+1,dragon_green,Green Dragon,,Character,7,0,0,7,9,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Forest/dragon_green.asset,
+1,dragon_red,Red Dragon,,Character,7,0,0,9,7,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Fire/dragon_red.asset,
+1,eel,Electric Eel,,Character,4,0,0,5,2,2,2,0,1,<b>Play:</b> Target character's attack is reduced to 1.,asset,Assets/TcgEngine/Resources/Cards/Water/eel.asset,
+1,elf_swordsman,精灵剑士,,Character,1,0,0,2,20,2,1,0,0,通常：学会了剑术的精灵。以快速的攻击作弄敌人。 ,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_elf_swordsman.asset,
+1,equip_ring,Mana Ring,,Equipment,1,0,0,0,3,2,2,0,1,Gain 2 extra mana per turn for 3 turns.,asset,Assets/TcgEngine/Resources/Cards/Water/equip_ring.asset,
+1,equip_shield,Wooden Shield,,Equipment,2,0,0,0,2,2,2,0,1,Bearer gains 2 armor and taunt.,asset,Assets/TcgEngine/Resources/Cards/Forest/equip_shield.asset,
+1,equip_sword,Fire Sword,,Equipment,2,0,0,0,2,2,2,0,1,"Attack +1.
+Bearer receives no damage when attacking.",asset,Assets/TcgEngine/Resources/Cards/Fire/equip_sword.asset,
+1,fire_chicken,Roasted Chicken,,Character,2,0,0,1,1,2,2,0,1,<b>Death:</b> Summon an egg.,asset,Assets/TcgEngine/Resources/Cards/Fire/fire_chicken.asset,
+1,fire_element,Fire Element,,Character,5,0,0,7,3,2,2,0,1,<b>Play:</b> Damage all by 2.,asset,Assets/TcgEngine/Resources/Cards/Fire/fire_element.asset,
+1,firefox,Firefox,,Character,4,0,0,4,4,2,2,0,1,<b>Cast (2):</b> Return a spell to your hand.,asset,Assets/TcgEngine/Resources/Cards/Fire/firefox.asset,
+1,fish,Fish,,Character,1,0,0,1,1,2,2,0,1,<b>Death:</b> Draw a card.,asset,Assets/TcgEngine/Resources/Cards/Water/fish.asset,
+1,flame_eagle,Flame Eagle,,Character,1,0,0,1,1,2,2,0,0,"Flying
+Haste",asset,Assets/TcgEngine/Resources/Cards/Summon/flame_eagle.asset,
+1,gorilla,Gorilla,,Character,4,0,0,0,6,2,2,0,1,<b>Play:</b> Roll a D6 to know your attack.,asset,Assets/TcgEngine/Resources/Cards/Forest/gorilla.asset,
+1,hell_hound,Hell Hound,,Character,4,0,0,4,2,2,2,0,1,Fury,asset,Assets/TcgEngine/Resources/Cards/Fire/hell_hound.asset,
+1,imp,Imp,,Character,2,0,0,2,1,2,2,0,1,<b>Play:</b> Deal 1 damage.,asset,Assets/TcgEngine/Resources/Cards/Fire/imp.asset,
+1,killer_whale,Killer Whale,,Character,5,0,0,5,4,2,2,0,1,<b>Play:</b> Destroy a character with 4 or less attack.,asset,Assets/TcgEngine/Resources/Cards/Water/killer_whale.asset,
+1,kraken,Kraken,,Character,6,0,0,5,5,2,2,0,1,Haste,asset,Assets/TcgEngine/Resources/Cards/Water/kraken.asset,
+1,lava_beast,Lava Beast,,Character,3,0,0,2,3,2,2,0,1,"After playing a spell, gain +2 attack.",asset,Assets/TcgEngine/Resources/Cards/Fire/lava_beast.asset,
+1,mammoth,Mammoth,,Character,6,0,0,7,6,2,2,0,1,Trample,asset,Assets/TcgEngine/Resources/Cards/Forest/mammoth.asset,
+1,null,白板,,Character,0,0,0,1,1,2,2,0,0,测试用白板,asset,Assets/TcgEngine/Resources/Cards/Monster/monster_null.asset,
+1,octopus,Octopus,,Character,4,0,0,2,5,2,2,0,1,"When attacking, roll a D6. On 4+ gain +6 attack.",asset,Assets/TcgEngine/Resources/Cards/Water/octopus.asset,
+1,owl,Owl,,Character,3,0,0,2,3,2,2,0,1,Silence target card.,asset,Assets/TcgEngine/Resources/Cards/Forest/owl.asset,
+1,phoenix,Phoenix,,Character,6,0,0,6,6,2,2,0,1,"<b>Cast (3):</b> Deal 2 damage.
+<b>Death:</b> Summon an egg.",asset,Assets/TcgEngine/Resources/Cards/Fire/phoenix.asset,
+1,phoenix_egg,Phoenix Egg,,Artifact,0,0,0,0,3,2,2,0,0,"After 3 turns, transforms into a Phoenix.",asset,Assets/TcgEngine/Resources/Cards/Summon/phoenix_egg.asset,
+1,poison_frog,Poison Frog,,Character,3,0,0,2,2,2,2,0,1,Deathtouch,asset,Assets/TcgEngine/Resources/Cards/Water/poison_frog.asset,
+1,potion_blue,Blue Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains shell and fully heals.,asset,Assets/TcgEngine/Resources/Cards/Water/potion_blue.asset,
+1,potion_green,Green Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains 2 HP and Taunt.,asset,Assets/TcgEngine/Resources/Cards/Forest/potion_green.asset,
+1,potion_red,Red Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains 1 attack and fury.,asset,Assets/TcgEngine/Resources/Cards/Fire/potion_red.asset,
+1,pufferfish,Pufferfish,,Character,3,0,0,2,5,2,2,0,1,Has +3 attack during the opponent's turn.,asset,Assets/TcgEngine/Resources/Cards/Water/pufferfish.asset,
+1,raccoon,Raccoon,,Character,2,0,0,2,3,2,2,0,1,<b>Play:</b> Return a character to your hand.,asset,Assets/TcgEngine/Resources/Cards/Forest/raccoon.asset,
+1,reaper,Hell Reaper,,Character,6,0,0,6,6,2,2,0,1,<b>Each turn:</b> Kill characters with the lowest attack.,asset,Assets/TcgEngine/Resources/Cards/Fire/reaper.asset,
+1,sasquatch,Sasquatch,,Character,5,0,0,6,4,2,2,0,1,<b>End Turn:</b> Go in stealth if you have other characters.,asset,Assets/TcgEngine/Resources/Cards/Forest/sasquatch.asset,
+1,sea_monster,Sea Monster,,Character,6,0,0,4,7,2,2,0,1,"Enemy characters have -1 attack.
+<b>Action:</b> +1 attack to allies.",asset,Assets/TcgEngine/Resources/Cards/Water/sea_monster.asset,
+1,seagull,Seagull,,Character,2,0,0,2,2,2,2,0,1,Flying,asset,Assets/TcgEngine/Resources/Cards/Water/seagull.asset,
+1,shark,Shark,,Character,4,0,0,4,4,2,2,0,1,"Whenever another character dies, draw 1 card.",asset,Assets/TcgEngine/Resources/Cards/Water/shark.asset,
+1,snake_venom,Viper,,Character,2,0,0,1,3,2,2,0,1,<b>Attack:</b> Poison.,asset,Assets/TcgEngine/Resources/Cards/Forest/snake_venom.asset,
+1,spell_aerial_strike,Aerial Strike,,Spell,3,0,0,0,0,2,2,0,1,Summon 3 eagles into your hand.,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_aerial_strike.asset,
+1,spell_ally_attack_damage,黏黏重击！,,Spell,1,0,0,0,0,2,2,0,1,选择一个我方随从，然后选择一个敌人。对敌人造成我方随从攻击力+1的伤害。,asset,Assets/TcgEngine/Resources/Cards/vc5/spell_ally_attack_damage.asset,
+1,spell_armageddon,Armageddon,,Spell,5,0,0,0,0,2,2,0,1,Destroy all creatures on the board,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_armageddon.asset,
+1,spell_burn,Burn,,Spell,4,0,0,0,0,2,2,0,1,Destroy target.,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_burn.asset,
+1,spell_extinct,Extinct,,Spell,2,0,0,0,0,2,2,0,1,"Target card gains ""When an allied character enters play, destroy this"".",asset,Assets/TcgEngine/Resources/Cards/Forest/spell_extinct.asset,
+1,spell_flood,Flood,,Spell,3,0,0,0,0,2,2,0,1,Reduce the hp of all characters to 1.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_flood.asset,
+1,spell_growth,Growth,,Spell,5,0,0,0,0,2,2,0,1,All allied characters gain +2/2,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_growth.asset,
+1,spell_hibernate,Hibernate,,Spell,3,0,0,0,0,2,2,0,1,Target gains +4/4 and goes to sleep for the next 2 turns.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_hibernate.asset,
+1,spell_projectiles,Projectiles,,Spell,999,0,0,0,0,2,2,0,1,"Deal 1 damage to a random card.
+Repeat X times.",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_projectiles.asset,
+1,spell_roots,Roots,,Spell,3,0,0,0,0,2,2,0,1,Paralyse target for 3 turns.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_roots.asset,
+1,spell_split,Ground Split,,Spell,2,0,0,0,0,2,2,0,1,"Target creature gains ""Suffer 3 damage before attacking"".",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_split.asset,
+1,spell_stomp,Stomp,,Spell,2,0,0,0,0,2,2,0,1,Destroy the character with the lowest HP.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_stomp.asset,
+1,spell_stones,Hot Stones,,Spell,2,0,0,0,0,2,2,0,1,"Deal 1 damage.
+Draw a card.",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_stones.asset,
+1,spell_storm,Sea Storm,,Spell,5,0,0,0,0,2,2,0,1,All cards return to their owner's hand.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_storm.asset,
+1,spell_submerge,Submerge,,Spell,2,0,0,0,0,2,2,0,1,"Target card gains ""When attacked, opponent must discard 1 random card"".",asset,Assets/TcgEngine/Resources/Cards/Water/spell_submerge.asset,
+1,spell_treasure,Lost Treasure,,Spell,3,0,0,0,0,2,2,0,1,"Look at the next 7 cards in your deck, and choose two.",asset,Assets/TcgEngine/Resources/Cards/Water/spell_treasure.asset,
+1,spell_wave,Wave,,Spell,3,0,0,0,0,2,2,0,1,Return target to owner's hand.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_wave.asset,
+1,town_forest,Forest Town,,Artifact,3,0,0,0,7,2,2,0,1,All green cards have +2 HP.,asset,Assets/TcgEngine/Resources/Cards/Forest/town_forest.asset,
+1,town_underwater,Underwater Town,,Artifact,3,0,0,0,7,2,2,0,1,All blue cards cost 1 less.,asset,Assets/TcgEngine/Resources/Cards/Water/town_underwater.asset,
+1,town_volcano,Volcano Town,,Artifact,3,0,0,0,7,2,2,0,1,All red creatures have +2 attack.,asset,Assets/TcgEngine/Resources/Cards/Fire/town_volcano.asset,
+1,trap_explosive,Bomb Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Damage all by 2.,asset,Assets/TcgEngine/Resources/Cards/Fire/trap_explosive.asset,
+1,trap_fish,Fish Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Transform into fish.,asset,Assets/TcgEngine/Resources/Cards/Water/trap_fish.asset,
+1,trap_spike,Spike Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Paralyse the next attacker.,asset,Assets/TcgEngine/Resources/Cards/Forest/trap_spike.asset,
+1,tree_angry,Angry Tree,,Character,3,0,0,3,5,2,2,0,1,Regeneration,asset,Assets/TcgEngine/Resources/Cards/Forest/tree_angry.asset,
+1,turtle,Turtle,,Character,3,0,0,2,3,2,2,0,1,"Taunt
+Shell",asset,Assets/TcgEngine/Resources/Cards/Water/turtle.asset,
+1,unicorn,Unicorn,,Character,6,0,0,5,6,2,2,0,1,"<b>Play:</b> Give +2/2.
+<b>Action:</b> Charge.",asset,Assets/TcgEngine/Resources/Cards/Forest/unicorn.asset,
+1,vc5_slime_attach,粘液附着,黏黏,Spell,0,0,0,0,0,0,0,1,1,"【效果】对攻击距离+1内任意单位施加1层粘液，并无法移动，持续1阶段。
+【特殊效果】可对己方黏黏使用，效果变为获得1层尖锐，持续2阶段。",runtime_vc5,,
+1,vc5_slime_boom_card,黏黏爆炸,黏黏,Spell,0,0,0,0,0,0,0,0,1,"【效果】以己方1个单位为对象发动，使用后该单位死亡，对周围1格内所有单位造成其当前生命值伤害；对黏黏幼崽使用时可同时引爆所有幼崽。
+【特殊效果】若使用者为黏黏，对场上随机存活敌人附加粘液，重复次数等于该单位生命值。",runtime_vc5,,
+1,vc5_slime_combo_strike,黏黏连打,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离内的一个任意单位造成1+攻击力的伤害。
+【特殊效果】若本卡由黏黏使用，额外释放一次。",runtime_vc5,,
+1,vc5_slime_detonate_card,粘液引爆,黏黏,Spell,2,0,0,0,0,0,0,0,1,"【效果】对任意单位造成1伤害。
+【特殊效果】若目标身上存在粘液，消耗1层粘液，再次执行该效果，直到无法继续。",runtime_vc5,,
+1,vc5_slime_heavy_strike,黏黏重击,黏黏,Spell,0,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离内的一个任意敌人造成2+攻击力的伤害。
+【特殊效果】若本卡由黏黏使用，额外附加1层粘液。",runtime_vc5,,
+1,vc5_slime_merge_card,黏黏合体,黏黏,Spell,1,0,0,0,0,0,0,0,1,【效果】以己方1只黏黏幼崽为对象，消灭其余黏黏幼崽，将被消灭幼崽的属性以加法叠加至对象身上。,runtime_vc5,,
+1,vc5_slime_pool,粘液池,,Artifact,0,0,0,0,1,0,0,0,0,"【效果】召唤粘液池，不可被攻击，持续若干回合。
+【特殊效果】若己方存在腐蚀黏黏，持续回合+1。",runtime_vc5,,
+1,vc5_slime_pool_spell,粘液池,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】在己方任意角色2格范围内无单位的格子召唤粘液池，不可被攻击，持续2回合。
+【特殊效果】若己方存在腐蚀黏黏，持续回合+1。",runtime_vc5,,
+1,vc5_slime_run,黏黏快跑,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】移动2格。
+【特殊效果】若使用者为黏黏，可直接移动到场上任意黏黏幼崽所在格。",runtime_vc5,,
+1,vc5_slime_sharpen,黏黏磨刀,黏黏,Spell,1,0,0,0,0,0,0,1,1,"【效果】使用者本回合造成伤害+2。
+【特殊效果】若使用者为黏黏，额外消耗随机2层粘液，本回合造成伤害再+2。",runtime_vc5,,
+1,vc5_slime_spawn,黏黏幼崽,,Character,0,0,0,1,1,1,1,0,0,"【效果】1血1攻，敌方不可通过；友方可通过，若停留其上可吞噬并回复1生命。
+【特殊效果】无",runtime_vc5,,
+1,vc5_slime_split_card,黏黏分裂,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】消耗所有附着有粘液的角色身上的粘液，每消耗2层粘液，在其周围可召唤格召唤1只黏黏幼崽（至少1只）。
+【特殊效果】幼崽死亡时为击杀者附加1层粘液。",runtime_vc5,,
+1,vc5_slime_spray,粘液喷射,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离+1内的一个任意单位施加2层粘液。
+【特殊效果】可对己方黏黏使用，效果变为恢复3生命。",runtime_vc5,,
+1,wolf_alpha,Alpha Wolf,,Character,3,0,0,3,2,2,2,0,1,"<b>Play</b>: Summon a baby wolf.
+All Wolves +1 attack.",asset,Assets/TcgEngine/Resources/Cards/Forest/wolf_alpha.asset,
+1,wolf_baby,Baby Wolf,,Character,1,0,0,1,1,2,2,0,0,,asset,Assets/TcgEngine/Resources/Cards/Summon/wolf_baby.asset,
+1,wolf_furious,Furious Wolf,,Character,5,0,0,3,4,2,2,0,1,"Fury
+Each turn, gain +1 attack.",asset,Assets/TcgEngine/Resources/Cards/Fire/wolf_furious.asset,
+1,wolf_stalker,Wolf Stalker,,Character,3,0,0,4,2,2,2,0,1,Stealth,asset,Assets/TcgEngine/Resources/Cards/Forest/wolf_stalker.asset,
+1,woodland,Woodland,,Artifact,2,0,0,0,5,2,2,0,1,<b>Start of turn: </b>All green cards heal by 3.,asset,Assets/TcgEngine/Resources/Cards/Forest/woodland.asset,

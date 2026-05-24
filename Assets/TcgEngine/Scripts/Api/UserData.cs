@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -326,6 +326,8 @@ namespace TcgEngine
         public string tid;
         public string title;
         public UserCardData hero;
+        /// <summary>出战的三名英雄棋子（引擎内 <see cref="CardData.id"/>）。</summary>
+        public UserCardData[] heroes_deploy;
         public UserCardData[] cards;
 
         public UserDeckData() {}
@@ -348,6 +350,28 @@ namespace TcgEngine
             {
                 cards[i] = new UserCardData(deck.cards[i], VariantData.GetDefault());
             }
+
+            heroes_deploy = new UserCardData[3];
+            VariantData defv = VariantData.GetDefault();
+            if (deck.heroes != null && deck.heroes.Length == 3
+                && deck.heroes[0] != null && deck.heroes[1] != null && deck.heroes[2] != null)
+            {
+                for (int i = 0; i < 3; i++)
+                    heroes_deploy[i] = new UserCardData(deck.heroes[i], defv);
+            }
+            else if (deck.hero != null)
+            {
+                UserCardData h = new UserCardData(deck.hero, defv);
+                heroes_deploy[0] = h;
+                heroes_deploy[1] = new UserCardData(deck.hero, defv);
+                heroes_deploy[2] = new UserCardData(deck.hero, defv);
+            }
+            else
+            {
+                heroes_deploy[0] = new UserCardData();
+                heroes_deploy[1] = new UserCardData();
+                heroes_deploy[2] = new UserCardData();
+            }
         }
 
         public int GetQuantity()
@@ -358,9 +382,21 @@ namespace TcgEngine
             return count;
         }
 
+        public bool HeroesReady()
+        {
+            if (heroes_deploy != null && heroes_deploy.Length >= 3)
+            {
+                return !string.IsNullOrEmpty(heroes_deploy[0].tid)
+                    && !string.IsNullOrEmpty(heroes_deploy[1].tid)
+                    && !string.IsNullOrEmpty(heroes_deploy[2].tid);
+            }
+
+            return hero != null && !string.IsNullOrEmpty(hero.tid);
+        }
+
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && GetQuantity() >= GameplayData.Get().deck_size;
+            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && HeroesReady() && GetQuantity() >= GameplayData.Get().deck_size;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -369,6 +405,13 @@ namespace TcgEngine
             serializer.SerializeValue(ref title);
             serializer.SerializeValue(ref hero);
             NetworkTool.NetSerializeArray(serializer, ref cards);
+            if (heroes_deploy == null || heroes_deploy.Length != 3)
+            {
+                heroes_deploy = new UserCardData[3];
+                for (int i = 0; i < 3; i++)
+                    heroes_deploy[i] = new UserCardData();
+            }
+            NetworkTool.NetSerializeArray(serializer, ref heroes_deploy);
         }
 
         public static UserDeckData Default
@@ -378,9 +421,10 @@ namespace TcgEngine
                 UserDeckData deck = new UserDeckData();
                 deck.tid = "";
                 deck.title = "";
-                deck.hero = new UserCardData();
-                deck.cards = new UserCardData[0];
-                return deck;
+                    deck.hero = new UserCardData();
+                    deck.cards = new UserCardData[0];
+                    deck.heroes_deploy = new UserCardData[0];
+                    return deck;
             }
         }
     }

@@ -11,6 +11,12 @@ namespace TcgEngine
     {
         private static bool loaded = false;
 
+        /// <summary>编辑器导出/应用注册表前重置，以便重新 Register。</summary>
+        public static void ResetForDataReload()
+        {
+            loaded = false;
+        }
+
         private static TeamData team;
         private static RarityData rarity;
 
@@ -197,6 +203,7 @@ namespace TcgEngine
             dest.deckbuilding = src.deckbuilding;
             dest.cost = src.cost;
             dest.packs = src.packs;
+            dest.series = src.series;
         }
 
         private static CardData BaseCard(string id, string title, CardType type, int mana, int atk, int hp, int move, int range)
@@ -217,6 +224,7 @@ namespace TcgEngine
             card.stats = new TraitStat[0];
             card.fields = new TraitData[0];
             card.packs = new PackData[0];
+            card.series = "";
             card.deckbuilding = true;
             return card;
         }
@@ -312,6 +320,8 @@ namespace TcgEngine
             if (row.opt_attack_Range.HasValue)
                 card.attack_Range = row.opt_attack_Range.Value;
 
+            if (!string.IsNullOrWhiteSpace(row.series))
+                card.series = row.series.Trim();
             TraitData[] parsedFields = ParseFieldTraits(row.fields);
             if (parsedFields.Length > 0)
                 card.fields = parsedFields;
@@ -345,6 +355,8 @@ namespace TcgEngine
             card.attack_Range = h.attack_Range;
             if (!string.IsNullOrWhiteSpace(h.player_read_text))
                 card.text = h.player_read_text.Trim();
+            if (!string.IsNullOrWhiteSpace(h.series))
+                card.series = h.series.Trim();
             Debug.Log($"[VC5 CSV] 英雄 {heroCsvId}->{card.id} 已应用 CSV 数值：攻={card.attack}, 血={card.hp}, 移动={card.move_Range}, 攻距={card.attack_Range}");
         }
 
@@ -904,7 +916,7 @@ namespace TcgEngine
             AbilityData sharpenPick = BaseAbility("vc5_slime_sharpen_pick", "选择单位", AbilityTrigger.OnPlay, AbilityTarget.SelectTarget);
             sharpenPick.conditions_target = AllyCardConds();
             EffectSharpenSlime sharpenEff = ScriptableObject.CreateInstance<EffectSharpenSlime>();
-            sharpenEff.buff_status = StatusType.AddAttack;
+            sharpenEff.buff_status = StatusType.Vc5DealDamageBonus;
             sharpenEff.base_value = 2;
             sharpenEff.bonus_value = 2;
             sharpenEff.duration = 1;

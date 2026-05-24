@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -333,13 +333,9 @@ namespace TcgEngine.Client
             string txt = "";
             foreach (CardStatus astatus in card.GetAllStatus())
             {
-                StatusData istats = StatusData.Get(astatus.type);
-                if (istats != null && !string.IsNullOrEmpty(istats.title))
-                {
-                    int ival = Mathf.Max(astatus.value, Mathf.CeilToInt(astatus.duration / 2f));
-                    string sval = ival > 1 ? " " + ival : "";
-                    txt += istats.GetTitle() + sval + ", ";
-                }
+                string seg = Vc5StatusDisplay.FormatSingle(astatus);
+                if (!string.IsNullOrEmpty(seg))
+                    txt += seg + ", ";
             }
             if (txt.Length > 2)
                 txt = txt.Substring(0, txt.Length - 2);

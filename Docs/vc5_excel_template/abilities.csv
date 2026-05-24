@@ -1,4 +1,4 @@
-﻿ability_id,card_id,trigger,target_rule,value,mana_cost,hp_cost,discard_cost,uses_per_turn,effect_set_id,condition_triggerer_trait,condition_triggerer_trait_value,chain_next,status_type,status_value,status_duration
+ability_id,card_id,trigger,target_rule,value,mana_cost,hp_cost,discard_cost,uses_per_turn,effect_set_id,condition_triggerer_trait,condition_triggerer_trait_value,chain_next,status_type,status_value,status_duration
 vc5_slime_heavy_pick,card_slime_heavy,OnPlay,SelectAllyHero,0,0,0,0,0,eff_store_triggerer,,,vc5_slime_heavy_hit,,0,0
 vc5_slime_heavy_hit,card_slime_heavy,None,SelectEnemyInTriggererRange,2,0,0,0,0,eff_slime_heavy_hit,,,vc5_slime_heavy_extra,,0,0
 vc5_slime_heavy_extra,card_slime_heavy,None,LastTargeted,1,0,0,0,0,eff_apply_slime_1,slime,1,,Slime,1,0
@@ -15,7 +15,7 @@ vc5_slime_merge,card_slime_merge,OnPlay,SelectAllySlimeSpawn,0,0,0,0,0,eff_slime
 vc5_slime_boom_pick,card_slime_boom,OnPlay,SelectAllyHero,0,0,0,0,0,eff_store_triggerer,,,vc5_slime_boom,,0,0
 vc5_slime_boom,card_slime_boom,None,SelectAllyCard,0,0,0,0,0,eff_slime_boom_explode,,,vc5_slime_boom_extra,,0,0
 vc5_slime_boom_extra,card_slime_boom,None,LastTargeted,0,0,0,0,0,eff_slime_boom_random_slime,slime,1,,,0,0
-vc5_slime_sharpen_pick,card_slime_sharpen,OnPlay,SelectAllyCard,0,0,0,0,0,eff_slime_sharpen,,,,AddAttack,2,1
+vc5_slime_sharpen_pick,card_slime_sharpen,OnPlay,SelectAllyCard,0,0,0,0,0,eff_slime_sharpen,,,,Vc5DealDamageBonus,2,1
 vc5_slime_run_pick,card_slime_run,OnPlay,SelectAllyHero,0,0,0,0,0,eff_store_triggerer,,,vc5_slime_run_move,,0,0
 vc5_slime_run_move,card_slime_run,None,SelectEmptySlotRange2OrAllySpawnIfSlime,0,0,0,0,0,eff_slime_run_move,,,,,0,0
 vc5_slime_detonate,card_slime_detonate,OnPlay,SelectAnyCard,1,0,0,0,0,eff_slime_detonate,,,,,0,0
@@ -40,7 +40,7 @@ vc5_slime_attach_hit,粘液附着,None,SelectTarget,0,0,0,1,0,effect_apply_slime
 vc5_slime_split,黏黏分裂,OnPlay,SelectTarget,0,0,0,0,0,effect_summon_from_target_slime_div2_min1,,,,,any_card|status_slime_ge_1,
 vc5_slime_merge,黏黏合体,OnPlay,SelectTarget,0,0,0,0,0,effect_merge_all_slime_spawn,,,,,ally_card|trait_slime_spawn,
 vc5_slime_boom,黏黏爆炸,OnPlay,SelectTarget,0,0,0,0,0,effect_explode_by_current_hp_r1|effect_random_apply_slime_by_target_hp,,,,,ally_card,
-vc5_slime_sharpen_pick,选择单位,OnPlay,SelectTarget,0,0,0,1,0,,add_attack,2,1,,ally_card,
+vc5_slime_sharpen_pick,选择单位,OnPlay,SelectTarget,0,0,0,1,0,,vc5_damage_bonus_per_hit,2,1,,ally_card,
 vc5_slime_run_pick,选择我方单位,OnPlay,SelectTarget,0,0,0,0,0,effect_store_selected_unit_stats,,,,,ally_card,vc5_slime_run_move
 vc5_slime_run_move,移动2格,None,SelectTarget,0,0,0,0,0,effect_move_triggerer_to_slot,,,,,empty_slot|range_from_triggerer_2,
 vc5_slime_detonate,粘液引爆,OnPlay,SelectTarget,0,0,0,0,0,effect_damage_repeat_consume_slime_1,,,,,any_card,

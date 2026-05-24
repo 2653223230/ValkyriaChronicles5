@@ -1,7 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace TcgEngine.UI
 {
@@ -69,6 +70,9 @@ namespace TcgEngine.UI
 
         private List<UserCardData> deck_cards = new List<UserCardData>();
 
+        /// <summary>正在选择英雄的槽位 0–2；-1 为正常编辑卡牌。</summary>
+        private int picking_hero_slot = -1;
+
         private static CollectionPanel instance;
 
         protected override void Awake()
@@ -91,25 +95,83 @@ namespace TcgEngine.UI
                 button.onClick += OnClickTeam;
         }
 
+        private void SetupDeckbuilderHeroSlots()
+        {
+            if (hero_powers == null)
+                return;
+            for (int i = 0; i < hero_powers.Length; i++)
+            {
+                int idx = i;
+                hero_powers[i].group = "vc5_db_hero_" + i;
+                hero_powers[i].onClick += (IconButton _) => { picking_hero_slot = idx; };
+            }
+        }
+
+        private void RefreshDeckbuilderHeroButton(int slot)
+        {
+            if (hero_powers == null || slot < 0 || slot >= hero_powers.Length)
+                return;
+            IconButton btn = hero_powers[slot];
+            CardData icard = CardData.Get(btn.value);
+            HoverTargetUI hover = btn.GetComponent<HoverTargetUI>();
+
+            if (icard != null && btn.disabled_img != null)
+            {
+                VariantData dv = VariantData.GetDefault();
+                Sprite s = icard.GetBoardArt(dv);
+                if (s == null)
+                    s = icard.art_board;
+                if (s == null)
+                    s = icard.art_full;
+                btn.disabled_img.sprite = s;
+
+                AbilityData pow = icard.GetAbility(AbilityTrigger.Activate);
+                if (hover != null)
+                {
+                    string color = icard.team != null ? ColorUtility.ToHtmlStringRGBA(icard.team.color) : "ffffff";
+                    if (pow != null)
+                    {
+                        hover.text = "<b><color=#" + color + ">英雄棋子 " + (slot + 1) + "：</color>";
+                        hover.text += icard.title + "</b>\n " + pow.GetDesc(icard);
+                        if (pow.mana_cost > 0)
+                            hover.text += " <size=16>Mana: " + pow.mana_cost + "</size>";
+                    }
+                    else
+                    {
+                        hover.text = "<b><color=#" + color + ">英雄棋子 " + (slot + 1) + "：</color>" + icard.title + "</b>";
+                    }
+                }
+            }
+            else if (hover != null)
+            {
+                hover.text = "<b>英雄 " + (slot + 1) + "</b>\n点击此方格后在左侧列表选择一张「棋子」卡牌。";
+            }
+        }
+
+        private void RefreshAllDeckbuilderHeroSlots()
+        {
+            if (hero_powers == null)
+                return;
+            for (int i = 0; i < hero_powers.Length; i++)
+                RefreshDeckbuilderHeroButton(i);
+        }
+
+        private bool DeckbuilderHasThreeHeroes()
+        {
+            if (hero_powers == null || hero_powers.Length < 3)
+                return false;
+            return !string.IsNullOrEmpty(hero_powers[0].value)
+                && !string.IsNullOrEmpty(hero_powers[1].value)
+                && !string.IsNullOrEmpty(hero_powers[2].value);
+        }
+
         protected override void Start()
         {
             base.Start();
 
-            //Set power abilities hover text
-            foreach (IconButton btn in hero_powers)
-            {
-                CardData icard = CardData.Get(btn.value);
-                HoverTargetUI hover = btn.GetComponent<HoverTargetUI>();
-                AbilityData iability = icard?.GetAbility(AbilityTrigger.Activate);
-                if (icard != null && hover != null && iability != null)
-                {
-                    string color = ColorUtility.ToHtmlStringRGBA(icard.team.color);
-                    hover.text = "<b><color=#" + color + ">Hero Power: </color>";
-                    hover.text += icard.title + "</b>\n " + iability.GetDesc(icard);
-                    if (iability.mana_cost > 0)
-                        hover.text += " <size=16>Mana: " + iability.mana_cost + "</size>";
-                }
-            }
+            SetupDeckbuilderHeroSlots();
+
+            RefreshAllDeckbuilderHeroSlots();
         }
 
         protected override void Update()
@@ -216,6 +278,33 @@ namespace TcgEngine.UI
             deck_list_panel.Hide();
             card_list_panel.Show();
         }
+
+        private static string SeriesSortKey(string series)
+        {
+            if (string.IsNullOrWhiteSpace(series))
+                return "\u9FFF";
+            return series.Trim();
+        }
+
+        private void SortAllCardsBySeriesAndDropdown(List<CardDataQ> all_cards)
+        {
+            all_cards.Sort((CardDataQ a, CardDataQ b) =>
+            {
+                int sr = string.Compare(SeriesSortKey(a.card.series), SeriesSortKey(b.card.series), StringComparison.OrdinalIgnoreCase);
+                if (sr != 0)
+                    return sr;
+
+                if (filter_dropdown == 0) //Name
+                    return a.card.title.CompareTo(b.card.title);
+                if (filter_dropdown == 1) //Attack
+                    return b.card.attack == a.card.attack ? b.card.hp.CompareTo(a.card.hp) : b.card.attack.CompareTo(a.card.attack);
+                if (filter_dropdown == 2) //hp
+                    return b.card.hp == a.card.hp ? b.card.attack.CompareTo(a.card.attack) : b.card.hp.CompareTo(a.card.hp);
+                if (filter_dropdown == 3) //Cost
+                    return b.card.mana == a.card.mana ? a.card.title.CompareTo(b.card.title) : a.card.mana.CompareTo(b.card.mana);
+                return string.Compare(a.card.title, b.card.title, StringComparison.OrdinalIgnoreCase);
+            });
+        }
         
         public void RefreshCards()
         {
@@ -245,14 +334,7 @@ namespace TcgEngine.UI
                 all_cards.Add(card);
             }
 
-            if (filter_dropdown == 0) //Name
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return a.card.title.CompareTo(b.card.title); });
-            if (filter_dropdown == 1) //Attack
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.attack == a.card.attack ? b.card.hp.CompareTo(a.card.hp) : b.card.attack.CompareTo(a.card.attack); });
-            if (filter_dropdown == 2) //hp
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.hp == a.card.hp ? b.card.attack.CompareTo(a.card.attack) : b.card.hp.CompareTo(a.card.hp); });
-            if (filter_dropdown == 3) //Cost
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.mana == a.card.mana ? a.card.title.CompareTo(b.card.title) : a.card.mana.CompareTo(b.card.mana); });
+            SortAllCardsBySeriesAndDropdown(all_cards);
 
             foreach (CardDataQ card in all_cards)
             {
@@ -380,10 +462,26 @@ namespace TcgEngine.UI
                 deck_title.text = deck.title;
                 current_deck_tid = deck.tid;
 
-                foreach (IconButton btn in hero_powers)
+                if (hero_powers != null)
                 {
-                    if (deck.hero != null && btn.value == deck.hero.tid)
-                        btn.Activate();
+                    for (int i = 0; i < hero_powers.Length && i < 3; i++)
+                    {
+                        string tid = "";
+                        if (deck.heroes_deploy != null && i < deck.heroes_deploy.Length
+                            && deck.heroes_deploy[i] != null && !string.IsNullOrEmpty(deck.heroes_deploy[i].tid))
+                        {
+                            tid = deck.heroes_deploy[i].tid;
+                        }
+                        else if (deck.hero != null && !string.IsNullOrEmpty(deck.hero.tid))
+                        {
+                            tid = deck.hero.tid;
+                        }
+
+                        hero_powers[i].value = tid;
+                        if (!string.IsNullOrEmpty(tid))
+                            hero_powers[i].Activate();
+                    }
+                    RefreshAllDeckbuilderHeroSlots();
                 }
                 
                 for (int i = 0; i < deck.cards.Length; i++)
@@ -517,15 +615,36 @@ namespace TcgEngine.UI
             return null;
         }
 
+        private int GetDeckCardsQuantityTotal()
+        {
+            int count = 0;
+            foreach (UserCardData ucard in deck_cards)
+                count += ucard.quantity;
+            return count;
+        }
+
         private void SaveDeck()
         {
             UserData udata = Authenticator.Get().UserData;
             UserDeckData udeck = new UserDeckData();
             udeck.tid = current_deck_tid;
             udeck.title = deck_title.text;
+            VariantData defv = VariantData.GetDefault();
+
+            udeck.heroes_deploy = new UserCardData[3];
+            for (int i = 0; i < 3; i++)
+            {
+                UserCardData h = new UserCardData();
+                h.tid = hero_powers[i].value;
+                h.variant = defv.id;
+                h.quantity = 1;
+                udeck.heroes_deploy[i] = h;
+            }
+
             udeck.hero = new UserCardData();
-            udeck.hero.tid = GetSelectedHeroId();
-            udeck.hero.variant = VariantData.GetDefault().id;
+            udeck.hero.tid = hero_powers[0].value;
+            udeck.hero.variant = defv.id;
+
             udeck.cards = deck_cards.ToArray();
             saving = true;
 
@@ -624,6 +743,19 @@ namespace TcgEngine.UI
 
             CardData icard = card.GetCard();
             VariantData variant = card.GetVariant();
+            if (icard != null && picking_hero_slot >= 0 && icard.type == CardType.Character)
+            {
+                UserData uhero = Authenticator.Get().UserData;
+                if (!IsCardOwned(uhero, icard, variant, 1))
+                    return;
+
+                if (hero_powers != null && picking_hero_slot < hero_powers.Length)
+                    hero_powers[picking_hero_slot].value = icard.id;
+                picking_hero_slot = -1;
+                RefreshAllDeckbuilderHeroSlots();
+                return;
+            }
+
             if (icard != null)
             {
                 int in_deck = CountDeckCards(icard, variant);
@@ -682,6 +814,17 @@ namespace TcgEngine.UI
         {
             if (!saving)
             {
+                if (!DeckbuilderHasThreeHeroes())
+                {
+                    Debug.LogWarning("组卡未保存：请先在右侧三个英雄槽中各选择一枚棋子（Character）卡牌。");
+                    return;
+                }
+                int need = GameplayData.Get().deck_size;
+                if (GetDeckCardsQuantityTotal() < need)
+                {
+                    Debug.LogWarning("组卡未保存：卡组至少需要 " + need + " 张牌（当前 " + GetDeckCardsQuantityTotal() + "）。");
+                    return;
+                }
                 SaveDeck();
             }
         }
@@ -737,16 +880,6 @@ namespace TcgEngine.UI
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)
         {
             return udata.GetCardQuantity(card, variant) >= quantity;
-        }
-
-        private string GetSelectedHeroId()
-        {
-            foreach (IconButton btn in hero_powers)
-            {
-                if (btn.IsActive())
-                    return btn.value;
-            }
-            return "";
         }
 
         //-----

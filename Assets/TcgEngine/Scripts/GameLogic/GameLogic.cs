@@ -562,7 +562,7 @@ namespace TcgEngine.Gameplay
 
             foreach (CardData card in deck.cards)
             {
-                if (card != null)
+                if (card != null && !Vc5CardRegistry.IsDisabled(card.id))
                 {
                     Card acard = Card.Create(card, variant, player);
                     player.cards_deck.Add(acard);
@@ -573,7 +573,7 @@ namespace TcgEngine.Gameplay
             {
                 foreach (CardData card in deck.monsters)
                 {
-                    if (card != null)
+                    if (card != null && !Vc5CardRegistry.IsDisabled(card.id))
                     {
                         Card acard = Card.Create(card, variant, player);
                         player.monsters_deck.Add(acard);
@@ -609,6 +609,7 @@ namespace TcgEngine.Gameplay
             player.monsters_deck.Clear();
             player.deck = deck.tid;
             player.hero = null;
+            player.vc5_deploy_hero_ids = null;
 
             if (deck.hero != null)
             {
@@ -617,6 +618,8 @@ namespace TcgEngine.Gameplay
                 if (hdata != null && hvariant != null)
                     player.hero = Card.Create(hdata, hvariant, player);
             }
+
+            FillDeployHeroIdsFromUserDeck(player, deck);
 
             foreach (UserCardData card in deck.cards)
             {
@@ -635,6 +638,35 @@ namespace TcgEngine.Gameplay
             //Shuffle deck
             //洗牌
             ShuffleDeck(player.cards_deck);
+        }
+
+        private void FillDeployHeroIdsFromUserDeck(Player player, UserDeckData deck)
+        {
+            player.vc5_deploy_hero_ids = new string[3];
+
+            UserCardData[] deploy = deck != null ? deck.heroes_deploy : null;
+            if (deploy != null && deploy.Length >= 3 &&
+                deploy[0] != null && deploy[1] != null && deploy[2] != null &&
+                !string.IsNullOrEmpty(deploy[0].tid) &&
+                !string.IsNullOrEmpty(deploy[1].tid) &&
+                !string.IsNullOrEmpty(deploy[2].tid))
+            {
+                for (int i = 0; i < 3; i++)
+                    player.vc5_deploy_hero_ids[i] = Vc5CsvIdMaps.GetEngineHeroId(deploy[i].tid.Trim());
+                return;
+            }
+
+            UserCardData h = deck != null ? deck.hero : null;
+            if (h != null && !string.IsNullOrEmpty(h.tid))
+            {
+                string hid = Vc5CsvIdMaps.GetEngineHeroId(h.tid.Trim());
+                player.vc5_deploy_hero_ids[0] = hid;
+                player.vc5_deploy_hero_ids[1] = hid;
+                player.vc5_deploy_hero_ids[2] = hid;
+                return;
+            }
+
+            player.vc5_deploy_hero_ids = null;
         }
 
         //---- Gameplay Actions --------------
@@ -1177,6 +1209,14 @@ namespace TcgEngine.Gameplay
 
             if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Character)
                 return; //Spell immunity
+
+            // VC5：黏黏磨刀等——按「每一次伤害结算」附加，与同回合内多次伤害（连打额外段等）分别叠加。
+            if (attacker != null && value > 0)
+            {
+                int db = attacker.GetStatusValue(StatusType.Vc5DealDamageBonus);
+                if (db > 0)
+                    value += db;
+            }
 
             //Shell
             bool doublelife = target.HasStatus(StatusType.Shell);
@@ -2273,14 +2313,34 @@ namespace TcgEngine.Gameplay
 
             foreach (Player player in game_data.players)
             {
+                CardData[] heroesToDeploy = new CardData[3];
+                bool fromUserDeck = player.vc5_deploy_hero_ids != null &&
+                                    player.vc5_deploy_hero_ids.Length >= 3 &&
+                                    !string.IsNullOrEmpty(player.vc5_deploy_hero_ids[0]) &&
+                                    !string.IsNullOrEmpty(player.vc5_deploy_hero_ids[1]) &&
+                                    !string.IsNullOrEmpty(player.vc5_deploy_hero_ids[2]);
+
+                if (fromUserDeck)
+                {
+                    heroesToDeploy[0] = CardData.Get(player.vc5_deploy_hero_ids[0]);
+                    heroesToDeploy[1] = CardData.Get(player.vc5_deploy_hero_ids[1]);
+                    heroesToDeploy[2] = CardData.Get(player.vc5_deploy_hero_ids[2]);
+                    if (heroesToDeploy[0] == null || heroesToDeploy[1] == null || heroesToDeploy[2] == null)
+                    {
+                        Debug.LogWarning($"玩家 {player.player_id} 卡组英雄 id 有误，改用 DeckData 或默认英雄");
+                        fromUserDeck = false;
+                    }
+                }
+
                 DeckData deck = DeckData.Get(player.deck);
+                if (!fromUserDeck)
+                {
                 if (deck == null)
                 {
                     Debug.LogWarning($"玩家 {player.player_id} 的卡组 {player.deck} 不存在，无法部署英雄");
                     continue;
                 }
 
-                CardData[] heroesToDeploy = new CardData[3];
                 bool hasConfiguredHeroes = deck.heroes != null && deck.heroes.Length == 3 &&
                                           deck.heroes[0] != null && deck.heroes[1] != null && deck.heroes[2] != null;
 
@@ -2304,6 +2364,8 @@ namespace TcgEngine.Gameplay
                     Debug.Log($"玩家 {player.player_id} 的卡组未配置三个英雄，使用默认英雄（精灵剑士）");
                 }
 
+                }
+
                 int deploy_p = Slot.GetP(player.player_id);
                 // `Game.unity` 里的棋盘格全部是 `BoardSlotType.PlayerSelf`，
                 // 所以这里必须使用“自方相对坐标”，不能再按 player_id 做上下镜像。
@@ -2319,7 +2381,7 @@ namespace TcgEngine.Gameplay
 
                 for (int i = 0; i < deploy_slots.Length && i < heroesToDeploy.Length; i++)
                 {
-                    if (heroesToDeploy[i] == null)
+                    if (heroesToDeploy[i] == null || Vc5CardRegistry.IsDisabled(heroesToDeploy[i].id))
                         continue;
 
                     int deploy_x_i = deploy_slots[i].x;

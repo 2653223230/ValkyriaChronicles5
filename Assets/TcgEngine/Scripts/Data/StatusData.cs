@@ -37,6 +37,8 @@ namespace TcgEngine
         Sharp = 52,         //Add attack per stack
         Rooted = 54,        //Cannot move
         GiantArmAwakened = 56, //Custom flag for VC5 slime awakening
+        /// <summary>VC5 黏黏磨刀等：每次结算伤害时由攻击/施法来源附加的额外伤害（非攻击力加成）。</summary>
+        Vc5DealDamageBonus = 57,
 
 
     }

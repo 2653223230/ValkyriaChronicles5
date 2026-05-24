@@ -1,7 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TcgEngine;
 using TcgEngine.Client;
 
 namespace TcgEngine.UI
@@ -272,6 +273,91 @@ namespace TcgEngine.UI
         public void OnClickPlayCode()
         {
             JoinCodePanel.Get().Show();
+        }
+
+        /// <summary>打开局域网对战面板（需在菜单场景中放置带 Vc5LanBattlePanel 的面板并注册单例）。</summary>
+        public void OnClickOpenLanLobby()
+        {
+            if (!Authenticator.Get().IsConnected())
+            {
+                FadeToScene("LoginMenu");
+                return;
+            }
+
+            Vc5LanBattlePanel lan = Vc5LanBattlePanel.Get();
+            if (lan != null)
+                lan.Show();
+            else
+                Debug.LogWarning("未找到 Vc5LanBattlePanel：请在 Menu 场景中添加带该组件的 UIPanel。");
+        }
+
+        /// <summary>作为主机开始局域网对战（HostP2P）。</summary>
+        public bool TryStartLanBattleHost(out string errmsg)
+        {
+            errmsg = "";
+            if (!Authenticator.Get().IsConnected())
+            {
+                errmsg = "请先登录。";
+                return false;
+            }
+
+            UserDeckData deck = deck_selector.GetDeck();
+            if (deck == null || !deck.IsValid())
+            {
+                errmsg = "卡组无效：请先在收藏中凑满卡组张数，并为三个英雄槽选好棋子（Character）。";
+                return false;
+            }
+
+            GameClient.player_settings.deck = deck_selector.GetDeck();
+            GameClient.player_settings.deck.tid = deck_selector.GetDeckID();
+            PlayerPrefs.SetString("tcg_deck_" + Authenticator.Get().Username, deck_selector.GetDeckID());
+
+            GameClient.game_settings.game_type = GameType.HostP2P;
+            GameClient.game_settings.game_mode = GameMode.Casual;
+            GameClient.game_settings.server_url = "";
+            GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
+
+            StartGame(GameTool.GenerateRandomID());
+            return true;
+        }
+
+        /// <summary>使用主机 IP（或可被解析的主机名）加入局域网对战。</summary>
+        public bool TryStartLanBattleJoin(string hostRaw, out string errmsg)
+        {
+            errmsg = "";
+            if (!Authenticator.Get().IsConnected())
+            {
+                errmsg = "请先登录。";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(hostRaw))
+            {
+                errmsg = "请输入主机地址（例如局域网 IP 或本机调试用 127.0.0.1）。";
+                return false;
+            }
+
+            UserDeckData deck = deck_selector.GetDeck();
+            if (deck == null || !deck.IsValid())
+            {
+                errmsg = "卡组无效：请先在收藏中凑满卡组张数，并为三个英雄槽选好棋子（Character）。";
+                return false;
+            }
+
+            string ip = NetworkTool.HostToIP(hostRaw.Trim());
+            if (string.IsNullOrWhiteSpace(ip))
+                ip = hostRaw.Trim();
+
+            GameClient.player_settings.deck = deck_selector.GetDeck();
+            GameClient.player_settings.deck.tid = deck_selector.GetDeckID();
+            PlayerPrefs.SetString("tcg_deck_" + Authenticator.Get().Username, deck_selector.GetDeckID());
+
+            GameClient.game_settings.game_type = GameType.Multiplayer;
+            GameClient.game_settings.game_mode = GameMode.Casual;
+            GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
+
+            StartGame(GameTool.GenerateRandomID(), ip);
+            return true;
         }
         
         public void OnClickCancelMatch()

@@ -15,6 +15,8 @@ namespace TcgEngine
         public string avatar;
         public string cardback;
         public string deck;
+        /// <summary>由 <see cref="UserDeckData.heroes_deploy"/> 解析的对局开始时部署的三名英雄卡牌 id。</summary>
+        public string[] vc5_deploy_hero_ids;
 
         public bool is_ai = false;
         public int ai_level;

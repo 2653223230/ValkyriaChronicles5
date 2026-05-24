@@ -7,7 +7,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/VC5/SharpenSlime", order = 10)]
     public class EffectSharpenSlime : EffectData
     {
-        public StatusType buff_status = StatusType.AddAttack;
+        public StatusType buff_status = StatusType.Vc5DealDamageBonus;
         public int base_value = 2;
         public int bonus_value = 2;
         public int duration = 1;
@@ -20,6 +20,7 @@ namespace TcgEngine
             if (target == null)
                 return;
 
+            // 加到结算伤害而非攻击力；同回合内每次 DamageCard 各加一次 buff_status.value。
             target.AddStatus(buff_status, base_value, duration);
             if (required_trait == null || !target.HasTrait(required_trait.id))
                 return;

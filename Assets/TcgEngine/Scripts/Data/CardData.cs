@@ -25,6 +25,8 @@ namespace TcgEngine
 
         [Header("Display")]
         public string title;
+        /// <summary>卡组系列（如 CSV「系列」列），用于收藏/组卡界面按系列聚拢排序。</summary>
+        public string series = "";
         public Sprite art_full;
         public Sprite art_board;
 
@@ -88,6 +90,23 @@ namespace TcgEngine
                 foreach (CardData card in card_list)
                     card_dict.Add(card.id, card);
             }
+        }
+
+        /// <summary>清空并重新从 Resources 加载（编辑器重载注册表前使用）。</summary>
+        public static void Reload(string folder = "")
+        {
+            card_list.Clear();
+            card_dict.Clear();
+            Load(folder);
+        }
+
+        /// <summary>从运行时列表移除（注册表 enabled=0 时使用，不删除磁盘 .asset）。</summary>
+        public static bool Unregister(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return false;
+            card_dict.Remove(id);
+            return card_list.RemoveAll(c => c != null && c.id == id) > 0;
         }
 
         public Sprite GetBoardArt(VariantData variant)
@@ -298,6 +317,8 @@ namespace TcgEngine
         public static CardData Get(string id)
         {
             if (id == null)
+                return null;
+            if (Vc5CardRegistry.IsDisabled(id))
                 return null;
             bool success = card_dict.TryGetValue(id, out CardData card);
             if (success)

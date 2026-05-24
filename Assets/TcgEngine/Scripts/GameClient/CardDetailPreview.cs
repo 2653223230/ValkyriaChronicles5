@@ -262,12 +262,9 @@ namespace TcgEngine.Client
             string txt = "";
             foreach (CardStatus status in runtimeCard.GetAllStatus())
             {
-                StatusData sdata = StatusData.Get(status.type);
-                if (sdata == null || string.IsNullOrWhiteSpace(sdata.title))
-                    continue;
-
-                int value = Mathf.Max(status.value, Mathf.CeilToInt(status.duration / 2f));
-                txt += sdata.GetTitle() + " " + value + "层, ";
+                string seg = Vc5StatusDisplay.FormatSingle(status);
+                if (!string.IsNullOrEmpty(seg))
+                    txt += seg + ", ";
             }
 
             if (txt.Length > 2)
