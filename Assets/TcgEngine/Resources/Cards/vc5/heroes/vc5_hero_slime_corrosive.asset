@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: vc5_hero_slime_corrosive
+  m_EditorClassIdentifier: 
+  id: vc5_hero_slime_corrosive
+  title: "腐蚀黏黏"
+  series: "黏黏(栗子球)"
+  art_full: {fileID: 0}
+  art_board: {fileID: 0}
+  type: 10
+  team: {fileID: 11400000, guid: 153b61109f8e25a40a61ca06e18ab072, type: 2}
+  rarity: {fileID: 11400000, guid: 13b592f40b7cd424c966f5d7eef425aa, type: 2}
+  mana: 0
+  hp_cost: 0
+  discard_cost: 0
+  attack: 1
+  hp: 14
+  move_Range: 3
+  attack_Range: 1
+  traits: [{fileID: 11400000, guid: 2be68ae9f58344abbea18f7130abbd99, type: 2}, {fileID: 11400000, guid: 15640fdadbed4058abc76178b858ad40, type: 2}]
+  stats: []
+  fields: [{fileID: 11400000, guid: 9cfdba30c7af48888c5cf200fe9393dc, type: 2}]
+  fast_action: 0
+  abilities: [{fileID: 11400000, guid: 1f2c708c26d940bfb5d0731478f315ea, type: 2}]
+  text: "【被动】身上处于【粘液】状态下的敌方单位移动力-1（不叠加，无论多少层【粘液】都只-1）。\n【觉醒】消耗1法力，每回合1次：重复4次向任意单位施加1层【粘液】（每次可选不同目标）。"
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 1
+  cost: 100
+  packs: []

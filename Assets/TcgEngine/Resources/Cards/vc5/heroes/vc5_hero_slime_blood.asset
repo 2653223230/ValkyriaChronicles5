@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: vc5_hero_slime_blood
+  m_EditorClassIdentifier: 
+  id: vc5_hero_slime_blood
+  title: "血腥黏黏"
+  series: "黏黏(栗子球)"
+  art_full: {fileID: 0}
+  art_board: {fileID: 0}
+  type: 10
+  team: {fileID: 11400000, guid: 153b61109f8e25a40a61ca06e18ab072, type: 2}
+  rarity: {fileID: 11400000, guid: 13b592f40b7cd424c966f5d7eef425aa, type: 2}
+  mana: 0
+  hp_cost: 0
+  discard_cost: 0
+  attack: 1
+  hp: 12
+  move_Range: 3
+  attack_Range: 1
+  traits: [{fileID: 11400000, guid: 2be68ae9f58344abbea18f7130abbd99, type: 2}, {fileID: 11400000, guid: 8dc28e32dda04e8fa5db147d2d272408, type: 2}]
+  stats: []
+  fields: [{fileID: 11400000, guid: 9cfdba30c7af48888c5cf200fe9393dc, type: 2}]
+  fast_action: 0
+  abilities: [{fileID: 11400000, guid: 8410804ddc8943939f25e5ad2439677d, type: 2}, {fileID: 11400000, guid: 8fa3309c2bf5496eb49aa1d41cf5a14a, type: 2}]
+  text: "【被动】我方的【黏黏】英雄对身上处于【粘液】状态下的敌方单位造成伤害时，恢复1点生命值。\n【技能】消耗1法力，每回合1次：对攻击距离内的一名敌人造成1+（其身上【粘液】层数/2，向下取整）的伤害。\n【觉醒】场上存在至少一名敌人带有4层及以上【粘液】时可发动：对所有满足条件的敌人造成1+（其【粘液】层数/2，向下取整）的伤害，并移除其全部【粘液】。"
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 1
+  cost: 100
+  packs: []
