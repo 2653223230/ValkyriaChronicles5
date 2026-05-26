@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d61fa5b5a3f14f4096b5c60989f7fe9, type: 3}
+  m_Name: hero_vc5_rune_blade
+  m_EditorClassIdentifier: 
+  id: hero_vc5_rune_blade
+  title: 符文剑士
+  archetype: vc5
+  type: 10
+  team: rune
+  rarity: 5
+  mana: 0
+  attack: 2
+  hp: 13
+  move_range: 4
+  attack_range: 1
+  abilities: []
+  traits: []
+  effects: []
+  cardback: 
+  description: 
