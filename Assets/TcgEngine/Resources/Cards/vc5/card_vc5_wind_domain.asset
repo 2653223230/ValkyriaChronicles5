@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u98ce\u4e4b\u9886\u57df"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 3
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u98ce\u4e4b\u9886\u57df"
+  abilities:
+  - {fileID: 11400000, guid: b119bdfe9c3a4fecbb02d0b1d2eaba3e, type: 2}
+  text: 创建风墙（持续2回合）流风≥15时持续3回合，获得2层流风
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

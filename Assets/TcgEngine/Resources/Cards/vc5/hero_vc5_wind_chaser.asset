@@ -26,8 +26,9 @@ MonoBehaviour:
   attack_Range: 1
   traits: []
   stats: []
-  abilities: []
-  text: "\u8ffd\u98ce"
+  abilities:
+  - {fileID: 11400000, guid: cada6df8233d447eaf9115d542564e58, type: 2}
+  text: 流风+连续移动+位置控制
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

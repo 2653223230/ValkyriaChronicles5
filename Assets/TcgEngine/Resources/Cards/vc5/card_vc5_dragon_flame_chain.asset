@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u70c8\u7130\u8fde\u9501"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 3
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u70c8\u7130\u8fde\u9501"
+  abilities:
+  - {fileID: 11400000, guid: ae88f62ba6534d59821c07ff896c7a2e, type: 2}
+  text: 对攻击距离内所有敌人造成1+攻击力伤害并附加1层龙焰，每击中1个敌人获得1层龙息
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

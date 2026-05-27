@@ -26,8 +26,9 @@ MonoBehaviour:
   attack_Range: 2
   traits: []
   stats: []
-  abilities: []
-  text: "\u5de8\u81c2\u9ecf\u9ecf"
+  abilities:
+  - {fileID: 11400000, guid: 93b57be1e6ef45a4a41d99ad222e8c7a, type: 2}
+  text: 粘液+位移控制
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

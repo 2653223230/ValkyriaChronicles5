@@ -26,8 +26,9 @@ MonoBehaviour:
   attack_Range: 2
   traits: []
   stats: []
-  abilities: []
-  text: "\u72c2\u9f99"
+  abilities:
+  - {fileID: 11400000, guid: ce61acd7d4224e7f9072b3abcda54189, type: 2}
+  text: 龙息+尖锐+爆发
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

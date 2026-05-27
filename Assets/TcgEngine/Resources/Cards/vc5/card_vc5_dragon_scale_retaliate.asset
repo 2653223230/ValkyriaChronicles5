@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u9f99\u9cde\u53cd\u51fb"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 4
+  type: 40
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u9f99\u9cde\u53cd\u51fb"
+  abilities:
+  - {fileID: 11400000, guid: db2a5992859e4ad3a9bef58195669551, type: 2}
+  text: 受到伤害时对攻击者造成龙息层数/2的伤害，消耗2层龙息
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

@@ -26,8 +26,9 @@ MonoBehaviour:
   attack_Range: 1
   traits: []
   stats: []
-  abilities: []
-  text: "\u63a0\u98ce"
+  abilities:
+  - {fileID: 11400000, guid: 0072f3aa37434547a2f41f35a4991197, type: 2}
+  text: 流风+风之击退+战场控制
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

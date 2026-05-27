@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u9f99\u606f\u704c\u6ce8"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u9f99\u606f\u704c\u6ce8"
+  abilities:
+  - {fileID: 11400000, guid: a2a13b905a504d3ab8b59d0755d2d4d2, type: 2}
+  text: 本回合攻击力+龙息层数/2，消耗4层龙息
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

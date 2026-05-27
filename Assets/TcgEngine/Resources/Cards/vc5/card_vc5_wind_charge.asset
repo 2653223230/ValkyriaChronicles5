@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u98ce\u4e4b\u51b2\u950b"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u98ce\u4e4b\u51b2\u950b"
+  abilities:
+  - {fileID: 11400000, guid: ca0f781a82444625a4e01fdd0b64cdd6, type: 2}
+  text: 向某方向移动2格对路径敌人造成1风伤，风灵使用获得3层流风
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

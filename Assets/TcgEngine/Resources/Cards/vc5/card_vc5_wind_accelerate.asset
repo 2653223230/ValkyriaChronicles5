@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u98ce\u4e4b\u52a0\u901f"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 1
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u98ce\u4e4b\u52a0\u901f"
+  abilities:
+  - {fileID: 11400000, guid: 6b90ba89b3dd4ae8a93af39795a04fe5, type: 2}
+  text: 本回合可移动2次，消耗5层流风
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

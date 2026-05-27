@@ -26,8 +26,9 @@ MonoBehaviour:
   attack_Range: 1
   traits: []
   stats: []
-  abilities: []
-  text: "\u796d\u9f99"
+  abilities:
+  - {fileID: 11400000, guid: cd0441c2a1084069ae2eb3982d27bb8b, type: 2}
+  text: 龙息+生命消耗+辅助
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

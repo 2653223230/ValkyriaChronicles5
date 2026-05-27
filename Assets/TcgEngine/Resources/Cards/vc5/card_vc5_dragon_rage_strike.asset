@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u6012\u51fb"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 2
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u6012\u51fb"
+  abilities:
+  - {fileID: 11400000, guid: a99b44c8d2bb44489df5419885507b9b, type: 2}
+  text: 消耗生命造成额外伤害
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

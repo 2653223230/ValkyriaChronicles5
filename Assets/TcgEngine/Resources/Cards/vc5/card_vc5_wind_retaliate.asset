@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u98ce\u4e4b\u53cd\u51fb"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 4
+  type: 40
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u98ce\u4e4b\u53cd\u51fb"
+  abilities:
+  - {fileID: 11400000, guid: e975b92a97d4499290aeaa23b26b6c46, type: 2}
+  text: 受到攻击时移动1格并造成1点风伤，消耗4层流风
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

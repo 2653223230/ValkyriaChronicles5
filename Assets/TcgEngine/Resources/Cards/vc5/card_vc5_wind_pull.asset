@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u98ce\u4e4b\u62c9\u62fd"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u98ce\u4e4b\u62c9\u62fd"
+  abilities:
+  - {fileID: 11400000, guid: b8a5345fc07c478595b53d0ad07d71a9, type: 2}
+  text: 将1个敌人向自己方向位移2格，流风≥10时位移3格消耗3层流风
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

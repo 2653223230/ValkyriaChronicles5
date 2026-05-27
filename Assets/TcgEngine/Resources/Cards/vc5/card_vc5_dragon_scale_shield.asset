@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u9f99\u9cde\u76fe"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 4
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u9f99\u9cde\u76fe"
+  abilities:
+  - {fileID: 11400000, guid: df1d59dea84948008c56395b0a45cc8f, type: 2}
+  text: 获得等同于龙息层数/2的护盾，不消耗龙息
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

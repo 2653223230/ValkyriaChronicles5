@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u65a9\u51fb"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 2
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 1
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u65a9\u51fb"
+  abilities:
+  - {fileID: 11400000, guid: 1f00b31b2fbc4e36b2a8a89547e663e7, type: 2}
+  text: 对范围内敌人造成伤害
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

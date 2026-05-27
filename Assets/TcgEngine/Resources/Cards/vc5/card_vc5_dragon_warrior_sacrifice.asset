@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u6218\u58eb\u796d\u732e"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 1
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u6218\u58eb\u796d\u732e"
+  abilities:
+  - {fileID: 11400000, guid: 67b90b1cb56840b9ae29b3ae834d1968, type: 2}
+  text: 牺牲自身为友军提供增益
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

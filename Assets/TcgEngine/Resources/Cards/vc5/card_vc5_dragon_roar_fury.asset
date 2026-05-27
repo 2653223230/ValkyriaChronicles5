@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u9f99\u543c\u4e4b\u6012"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 1
+  type: 20
   team: {fileID: 0}
   rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 3
@@ -24,8 +24,9 @@ MonoBehaviour:
   hp: 0
   traits: []
   stats: []
-  abilities: []
-  text: "\u9f99\u543c\u4e4b\u6012"
+  abilities:
+  - {fileID: 11400000, guid: 648b6fafc0a84e8cb6f1a7119ad3827d, type: 2}
+  text: 造成2+攻击力伤害，龙息≥8时眩晕目标，获得2层龙息
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
