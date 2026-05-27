@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
@@ -486,7 +486,7 @@ namespace TcgEngine
             if (ability == null || logic == null) return;
 
             // 使用 GameLogic 的能力触发机制
-            logic.TriggerAbility(ability, hero);
+            logic.TriggerAwakeningAbility(ability, hero);
         }
 
         // ========== 辅助方法 ==========
