@@ -1,0 +1,40 @@
+enabled,id,title,series,type,mana,hp_cost,discard_cost,attack,hp,move_Range,attack_Range,fast_action,deckbuilding,text,source,asset_path,notes
+1,hero_fire,Fire Spirit,,Hero,0,0,0,0,0,2,2,0,0,,asset,Assets/TcgEngine/Resources/Cards/Hero/hero_fire.asset,
+1,hero_forest,Forest Spirit,,Hero,0,0,0,0,0,2,2,0,0,,asset,Assets/TcgEngine/Resources/Cards/Hero/hero_forest.asset,
+1,hero_water,Water Spirit,,Hero,0,0,0,0,0,2,2,0,0,,asset,Assets/TcgEngine/Resources/Cards/Hero/hero_water.asset,
+1,hero_vc5_gear_commander,要塞指挥官,vc5,Character,0,0,0,1,16,2,2,0,0,要塞指挥官,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_gear_commander.asset,合并草案：朋友分支
+1,hero_vc5_gear_crafter,战地工匠,vc5,Character,0,0,0,1,10,3,2,0,0,战地工匠,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_gear_crafter.asset,合并草案：朋友分支
+1,hero_vc5_gear_engineer,机械工程师,vc5,Character,0,0,0,1,12,3,2,0,0,机械工程师,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_gear_engineer.asset,合并草案：朋友分支
+1,hero_vc5_gear_inventor,疯狂发明家,vc5,Character,0,0,0,0,11,4,1,0,0,疯狂发明家,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_gear_inventor.asset,合并草案：朋友分支
+1,hero_vc5_gear_knight,机甲骑士,vc5,Character,0,0,0,2,14,3,1,0,0,机甲骑士,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_gear_knight.asset,合并草案：朋友分支
+1,hero_vc5_rune_blade,符文剑士,vc5,Character,0,0,0,2,13,4,1,0,0,符文剑士,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_rune_blade.asset,合并草案：朋友分支
+1,hero_vc5_rune_chronomancer,时空旅者,vc5,Character,0,0,0,1,10,4,2,0,0,时空旅者,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_rune_chronomancer.asset,合并草案：朋友分支
+1,hero_vc5_rune_elementalist,元素法师,vc5,Character,0,0,0,1,11,3,3,0,0,元素法师,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_rune_elementalist.asset,合并草案：朋友分支
+1,hero_vc5_rune_summoner,奥术召唤师,vc5,Character,0,0,0,0,12,3,2,0,0,奥术召唤师,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_rune_summoner.asset,合并草案：朋友分支
+1,hero_vc5_rune_warden,符文守护者,vc5,Character,0,0,0,1,16,2,2,0,0,符文守护者,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_rune_warden.asset,合并草案：朋友分支
+1,hero_vc5_wild_bear,巨熊战士,vc5,Character,0,0,0,2,16,3,1,0,0,巨熊战士,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wild_bear.asset,合并草案：朋友分支
+1,hero_vc5_wild_druid,藤蔓德鲁伊,vc5,Character,0,0,0,1,13,3,2,0,0,藤蔓德鲁伊,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wild_druid.asset,合并草案：朋友分支
+1,hero_vc5_wild_hawk,鹰眼部落,vc5,Character,0,0,0,1,10,5,3,0,0,鹰眼部落,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wild_hawk.asset,合并草案：朋友分支
+1,hero_vc5_wild_shaman,灵魂萨满,vc5,Character,0,0,0,0,14,3,2,0,0,灵魂萨满,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wild_shaman.asset,合并草案：朋友分支
+1,hero_vc5_wild_wolf,狼群领袖,vc5,Character,0,0,0,2,12,4,1,0,0,狼群领袖,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wild_wolf.asset,合并草案：朋友分支
+1,vc5_dragon_berserker,狂龙,vc5,Character,1,0,0,2,10,3,2,0,0,龙息+尖锐+爆发,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_dragon_berserker.asset,合并草案：朋友分支
+1,vc5_dragon_blood,血龙,vc5,Character,1,0,0,2,12,3,1,0,0,龙息+龙焰冲锋,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_dragon_blood.asset,合并草案：朋友分支
+1,vc5_dragon_breaker,破龙,vc5,Character,1,0,0,1,16,3,1,0,0,龙息+龙爪破盾+压制,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_dragon_breaker.asset,合并草案：朋友分支
+1,vc5_dragon_sacrifice,祭龙,vc5,Character,1,0,0,2,14,3,1,0,0,龙息+生命消耗+辅助,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_dragon_sacrifice.asset,合并草案：朋友分支
+1,vc5_dragon_shadow,影龙,vc5,Character,1,0,0,1,11,4,1,0,0,龙息+龙影潜行+暗袭,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_dragon_shadow.asset,合并草案：朋友分支
+1,vc5_wind_chaser,追风,vc5,Character,1,0,0,1,12,6,1,0,0,流风+连续移动+位置控制,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wind_chaser.asset,合并草案：朋友分支
+1,vc5_wind_guard,风之守护,vc5,Character,1,0,0,0,16,4,2,0,0,流风+移动守护+风之庇护,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wind_guard.asset,合并草案：朋友分支
+1,vc5_wind_jungle,林风,vc5,Character,1,0,0,1,14,5,1,0,0,流风+风之追击,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wind_jungle.asset,合并草案：朋友分支
+1,vc5_wind_raider,掠风,vc5,Character,1,0,0,2,10,5,1,0,0,流风+风之击退+战场控制,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wind_raider.asset,合并草案：朋友分支
+1,vc5_wind_warden,御风,vc5,Character,1,0,0,0,15,4,2,0,0,流风+风墙+区域控制,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_vc5_wind_warden.asset,合并草案：朋友分支
+1,vc5_hero_slime_blood,血腥黏黏,黏黏(栗子球),Character,0,0,0,1,12,3,1,0,1,"【被动】我方的【黏黏】英雄对身上处于【粘液】状态下的敌方单位造成伤害时，恢复1点生命值。
+【技能】消耗1法力，每回合1次：对攻击距离内的一名敌人造成1+（其身上【粘液】层数/2，向下取整）的伤害。
+【觉醒】场上存在至少一名敌人带有4层及以上【粘液】时可发动：对所有满足条件的敌人造成1+（其【粘液】层数/2，向下取整）的伤害，并移除其全部【粘液】。",asset,Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_blood.asset,合并草案：main 黏黏 asset
+1,vc5_hero_slime_corrosive,腐蚀黏黏,黏黏(栗子球),Character,0,0,0,1,14,3,1,0,1,"【被动】身上处于【粘液】状态下的敌方单位移动力-1（不叠加，无论多少层【粘液】都只-1）。
+【觉醒】消耗1法力，每回合1次：重复4次向任意单位施加1层【粘液】（每次可选不同目标）。",asset,Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_corrosive.asset,合并草案：main 黏黏 asset
+1,vc5_hero_slime_giant,巨臂黏黏,黏黏(栗子球),Character,0,0,0,1,11,3,2,0,1,"【技能】每回合1次：使攻击距离内带粘液的敌人位移，距离为1+粘液层数/3（向下取整）。
+【觉醒】任意友方角色死亡后激活（全局1次）：进入真巨臂形态；本局内每次对其造成位移时，按位移距离对其造成伤害。",runtime_vc5,,合并草案：main；尚无 .asset
+1,vc5_hero_slime_hard,坚硬黏黏,黏黏(栗子球),Character,0,0,0,0,15,2,1,0,1,"【被动】自己的（具有【粘液】标签的）卡牌可对友方单位释放【粘液】；友军受到伤害时，按已附着【粘液】层数减伤并移除对应层数。
+【觉醒】消耗1法力，每2回合1次：向一名已带有【粘液】的友军施放【粘液】，次数=当前生命值/2（向下取整）。",asset,Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_hard.asset,合并草案：main 黏黏 asset
+0,vc5_hero_slime_hard2,坚硬黏黏2,黏黏(栗子球),Character,0,0,0,1,13,3,2,0,1,"【被动】同坚硬黏黏。
+【技能】每回合1次，弃1张手牌：对攻击距离内1名敌人造成等同攻击力的伤害，并在其相邻空格召唤黏黏幼崽（1/1）。",runtime_vc5,,合并草案：main；默认禁用
