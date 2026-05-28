@@ -1,0 +1,20 @@
+{
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Effects/vc5/heroes/eff_blood_skill_dmg.asset": "49a50bc988e8430eb754331d92d258ea",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Effects/vc5/heroes/eff_blood_awake_dmg.asset": "85cb92f66845402fb8effed71b39bd4a",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Effects/vc5/heroes/eff_hard_awake_slime.asset": "d5367bfa10f64e60a5f234179a235c0b",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Conditions/vc5/heroes/cond_attack_range_from_self.asset": "d8d7f956de4247ecb3215f604bc69f46",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Conditions/vc5/heroes/cond_enemy_has_slime4.asset": "b4a2d9c21ecd4293a1d940e2f4d3ade9",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Conditions/vc5/heroes/cond_target_slime4.asset": "4e40e4bb45ca4d9da994614cdea5ab41",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Conditions/vc5/heroes/cond_ally_has_slime.asset": "5525663a66024d4fa5dc54ab63e0da0c",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Conditions/vc5/heroes/cond_hard_awake_cd.asset": "042df452ae94413eb4605289853bb896",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_corrosive_slime_pick_4.asset": "1f2c708c26d940bfb5d0731478f315ea",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_corrosive_slime_pick_3.asset": "866a711c633d41cd8b58c4f622ed7eb3",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_corrosive_slime_pick_2.asset": "babaface61a34c719ecf7ec74af01548",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_corrosive_slime_pick_1.asset": "61104e632ae04888b6c42eed2851c47b",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_blood_slime_skill.asset": "8410804ddc8943939f25e5ad2439677d",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_blood_slime_awake.asset": "8fa3309c2bf5496eb49aa1d41cf5a14a",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Abilities/vc5/heroes/vc5_hard_slime_awake.asset": "10f2c4a885aa4dfa97810a6d26a2107d",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_blood.asset": "adf2ee9c8fea47a6a55dc036a402f529",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_corrosive.asset": "956f8f83e4d043938939f62339ffae2a",
+  "E:/unity/git_newest/ValkyriaChronicles5/Assets/TcgEngine/Resources/Cards/vc5/heroes/vc5_hero_slime_hard.asset": "59ff3165ec4748dfa67aa1e4e5114a0f"
+}

@@ -487,12 +487,18 @@ namespace TcgEngine
 
         private static void CreateSlimeHeroes(CardData spawn, Vc5ExcelAbilityConfig cfg)
         {
-            // 血腥黏黏
+            ConditionSlotDistFromTriggerer inRange = ScriptableObject.CreateInstance<ConditionSlotDistFromTriggerer>();
+            inRange.range_offset = 0;
+
+            if (CardData.Get("vc5_hero_slime_blood") != null)
+            {
+                // loaded from Resources .asset
+            }
+            else
+            {
             AbilityData bloodSkill = BaseAbility("vc5_blood_slime_skill", "血腥喷溅", AbilityTrigger.Activate, AbilityTarget.SelectTarget);
             bloodSkill.mana_cost = 1;
             bloodSkill.conditions_target = EnemyCardConds();
-            ConditionSlotDistFromTriggerer inRange = ScriptableObject.CreateInstance<ConditionSlotDistFromTriggerer>();
-            inRange.range_offset = 0;
             bloodSkill.conditions_target = new ConditionData[] { bloodSkill.conditions_target[0], bloodSkill.conditions_target[1], inRange };
             EffectDamageFromTargetStatus dmgBySlime = ScriptableObject.CreateInstance<EffectDamageFromTargetStatus>();
             dmgBySlime.status = StatusType.Slime;
@@ -530,7 +536,13 @@ namespace TcgEngine
             blood.text = "【被动】己方黏黏对带粘液敌方单位造成伤害时恢复1生命。\n【技能】消耗1法力，每回合1次：对攻击距离内1名敌人造成1+其粘液层数/2（向下取整）的伤害。\n【觉醒】场上有敌人粘液层数≥4时可发动：对所有满足条件的敌人造成1+其粘液层数/2（向下取整）的伤害并移除其全部粘液。";
             ApplyHeroCsvStats(blood, cfg, "hero_slime_blood");
             RegisterCard(blood);
+            }
 
+            if (CardData.Get("vc5_hero_slime_corrosive") != null)
+            {
+            }
+            else
+            {
             // 腐蚀黏黏
             AbilityData corAwake = BaseAbility("vc5_corrosive_slime_awake", "腐蚀喷洒", AbilityTrigger.Activate, AbilityTarget.SelectTarget);
             corAwake.conditions_target = new ConditionData[] { ScriptableObject.CreateInstance<ConditionTarget>() };
@@ -548,7 +560,13 @@ namespace TcgEngine
             corrosive.text = "【被动】身上持有粘液的敌方单位移动力-1（不叠加）。\n【觉醒】每回合1次：向任意目标施放粘液共4次（可分配给不同单位）。";
             ApplyHeroCsvStats(corrosive, cfg, "hero_slime_corrosive");
             RegisterCard(corrosive);
+            }
 
+            if (CardData.Get("vc5_hero_slime_giant") != null)
+            {
+            }
+            else
+            {
             // 巨臂黏黏
             AbilityData giantMove = BaseAbility("vc5_giant_slime_move", "巨臂甩击", AbilityTrigger.Activate, AbilityTarget.SelectTarget);
             giantMove.conditions_target = EnemyCardConds();
@@ -580,7 +598,13 @@ namespace TcgEngine
             giant.text = "【技能】每回合1次：使攻击距离内带粘液的敌人位移，距离为1+粘液层数/3（向下取整）。\n【觉醒】任意友方角色死亡后激活（全局1次）：进入真巨臂形态；本局内每次对其造成位移时，按位移距离对其造成伤害。";
             ApplyHeroCsvStats(giant, cfg, "hero_slime_giant");
             RegisterCard(giant);
+            }
 
+            if (CardData.Get("vc5_hero_slime_hard") != null)
+            {
+            }
+            else
+            {
             // 坚硬黏黏
             AbilityData hardAwake = BaseAbility("vc5_hard_slime_awake", "防护粘液", AbilityTrigger.Activate, AbilityTarget.SelectTarget);
             hardAwake.conditions_target = AllyCardConds();
@@ -596,7 +620,13 @@ namespace TcgEngine
             hard.text = "【被动】自己的粘液可对友军施加；友军受伤时按粘液层数减伤并移除对应层数。\n【觉醒】每2回合1次：向单个友军施放粘液，次数=当前生命值/2（向下取整）。";
             ApplyHeroCsvStats(hard, cfg, "hero_slime_hard");
             RegisterCard(hard);
+            }
 
+            if (CardData.Get("vc5_hero_slime_hard2") != null)
+            {
+            }
+            else
+            {
             // 坚硬黏黏2
             AbilityData hard2Skill = BaseAbility("vc5_hard2_slime_skill", "幼崽投掷", AbilityTrigger.Activate, AbilityTarget.SelectTarget);
             hard2Skill.discard_cost = 1;
@@ -618,6 +648,7 @@ namespace TcgEngine
             hard2.text = "【被动】同坚硬黏黏。\n【技能】每回合1次，弃1张手牌：对攻击距离内1名敌人造成等同攻击力的伤害，并在其相邻空格召唤黏黏幼崽（1/1）。";
             ApplyHeroCsvStats(hard2, cfg, "hero_slime_hard2");
             RegisterCard(hard2);
+            }
         }
 
         private static void CreateSlimeCards(CardData spawn, CardData slimePool, Vc5ExcelAbilityConfig cfg)
@@ -995,6 +1026,24 @@ namespace TcgEngine
                     "vc5_slime_run:2"
                 });
             RegisterDeck(slimeDeck);
+
+            // Docs/黏黏试玩卡组1.docx — 正式游玩用（20 张，无测试模式加成）
+            DeckData slimeTrialDeck = BuildDeck(
+                "deck_slime_trial_1",
+                "黏黏试玩卡组1",
+                new string[] { "vc5_hero_slime_corrosive", "vc5_hero_slime_corrosive", "vc5_hero_slime_hard" },
+                new string[]
+                {
+                    "vc5_slime_heavy_strike:3",
+                    "vc5_slime_combo_strike:3",
+                    "vc5_slime_spray:3",
+                    "vc5_slime_attach:3",
+                    "vc5_slime_boom_card:2",
+                    "vc5_slime_detonate_card:2",
+                    "vc5_slime_sharpen:2",
+                    "vc5_slime_run:2"
+                });
+            RegisterDeck(slimeTrialDeck);
 
             // test deck for quickly validating heavy/combo/spray
             DeckData slimeThreeCardsDeck = BuildDeck(

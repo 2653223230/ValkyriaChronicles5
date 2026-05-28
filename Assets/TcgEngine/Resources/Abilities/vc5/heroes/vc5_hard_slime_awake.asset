@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
+  m_Name: vc5_hard_slime_awake
+  m_EditorClassIdentifier: 
+  id: vc5_hard_slime_awake
+  trigger: 5
+  conditions_trigger: [{fileID: 11400000, guid: 042df452ae94413eb4605289853bb896, type: 2}]
+  target: 30
+  conditions_target: [{fileID: 11400000, guid: 902733d12f434e94b904de5ebf4112de, type: 2}, {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}, {fileID: 11400000, guid: 5525663a66024d4fa5dc54ab63e0da0c, type: 2}]
+  filters_target: []
+  effects: [{fileID: 11400000, guid: d5367bfa10f64e60a5f234179a235c0b, type: 2}]
+  status: []
+  value: 0
+  duration: 0
+  chain_abilities: []
+  mana_cost: 1
+  hp_cost: 0
+  discard_cost: 0
+  exhaust: 0
+  fast_action: 0
+  uses_per_turn: 1
+  board_fx: {fileID: 0}
+  caster_fx: {fileID: 0}
+  target_fx: {fileID: 0}
+  projectile_fx: {fileID: 0}
+  cast_audio: {fileID: 0}
+  target_audio: {fileID: 0}
+  charge_target: 0
+  title: "防护粘液"
+  desc: ""

@@ -1654,6 +1654,9 @@ namespace TcgEngine.Gameplay
             onAbilityEnd?.Invoke(iability, caster);
             resolve_queue.ResolveAll(0.5f);
             RefreshData();
+
+            if (iability.id == "vc5_hard_slime_awake")
+                Vc5AbilityTurnTracker.RecordUse(game_data, caster, Vc5AbilityTurnTracker.HardAwakeKey);
         }
 
         //This function is called often to update status/stats affected by ongoing abilities
