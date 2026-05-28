@@ -18,6 +18,10 @@
 # Recordings can get excessive in size
 /[Rr]ecordings/
 
+# VC5 logic test outputs (keep README, ignore generated reports)
+/TestResults/*
+!/TestResults/README.md
+
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
 
