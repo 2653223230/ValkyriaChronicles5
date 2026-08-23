@@ -17,8 +17,19 @@ namespace TcgEngine.Testing
 
         public static void LoadGameData()
         {
+            RemoveDestroyedRegistryEntries();
+
             if (DataLoaded)
-                return;
+            {
+                if (DeckData.Get(DefaultDeckId) == null)
+                    Vc5SlimeBootstrap.ResetForDataReload();
+                Vc5SlimeBootstrap.Register();
+                Vc5DemoBootstrap.Register();
+                if (DeckData.Get(DefaultDeckId) != null
+                    && DeckData.Get(Vc5DemoBootstrap.MobileAssaultDeckId) != null
+                    && DeckData.Get(Vc5DemoBootstrap.RangedPressureDeckId) != null)
+                    return;
+            }
 
             CardData.Load();
             TeamData.Load();
@@ -28,19 +39,61 @@ namespace TcgEngine.Testing
             DeckData.Load();
             AbilityData.Load();
             StatusData.Load();
+            Vc5SlimeBootstrap.ResetForDataReload();
             Vc5SlimeBootstrap.Register();
+            Vc5DemoBootstrap.Register();
             Vc5CardRegistry.Apply();
 
             DataLoaded = true;
         }
 
-        public static GameLogic CreateLogic(out Game game, string deckId = DefaultDeckId, int firstPlayer = 0)
+        private static void RemoveDestroyedRegistryEntries()
+        {
+            CardData.card_list.RemoveAll(item => item == null);
+            RemoveDestroyedDictionaryEntries(CardData.card_dict);
+
+            AbilityData.ability_list.RemoveAll(item => item == null);
+            RemoveDestroyedDictionaryEntries(AbilityData.ability_dict);
+
+            DeckData.deck_list.RemoveAll(item => item == null);
+
+            GameplayData gameplay = GameplayData.Get();
+            if (gameplay != null && gameplay.free_decks != null)
+            {
+                List<DeckData> validDecks = new List<DeckData>();
+                foreach (DeckData deck in gameplay.free_decks)
+                {
+                    if (deck != null)
+                        validDecks.Add(deck);
+                }
+                gameplay.free_decks = validDecks.ToArray();
+            }
+        }
+
+        private static void RemoveDestroyedDictionaryEntries<T>(Dictionary<string, T> registry)
+            where T : UnityEngine.Object
+        {
+            List<string> destroyedIds = new List<string>();
+            foreach (KeyValuePair<string, T> entry in registry)
+            {
+                if (entry.Value == null)
+                    destroyedIds.Add(entry.Key);
+            }
+
+            foreach (string id in destroyedIds)
+                registry.Remove(id);
+        }
+
+        public static GameLogic CreateLogic(out Game game, string deckId = DefaultDeckId, int firstPlayer = 0, bool vc5TestMode = true)
         {
             LoadGameData();
 
-            DeckData deck = DeckData.Get(deckId);
+            string resolvedDeckId = !vc5TestMode && deckId == DefaultDeckId
+                ? Vc5DemoBootstrap.MobileAssaultDeckId
+                : deckId;
+            DeckData deck = DeckData.Get(resolvedDeckId);
             if (deck == null)
-                throw new InvalidOperationException("Deck not found: " + deckId);
+                throw new InvalidOperationException("Deck not found: " + resolvedDeckId);
 
             game = new Game("vc5_logic_test", 2);
             GameLogic logic = new GameLogic(true);

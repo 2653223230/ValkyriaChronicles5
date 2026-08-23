@@ -23,6 +23,8 @@ namespace TcgEngine.Client
         public float radius = 0.5f; // 六边形半径
         public float height = 0.01f; // 柱体高度
 
+        private bool is_scoring_zone = false;
+
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
 
         protected override void Awake()
@@ -42,6 +44,10 @@ namespace TcgEngine.Client
         {
             if (x < Slot.x_min || x > Slot.x_max || y < Slot.y_min || y > Slot.y_max)
                 Debug.LogError("Board Slot X and Y value must be within the min and max set for those values, check Slot.cs script to change those min/max.");
+
+            is_scoring_zone = Vc5ScoringZone.IsScoringCell(x, y);
+            if (is_scoring_zone)
+                EnsureScoringZoneLabel();
         }
 
         protected override void Update()
@@ -67,6 +73,14 @@ namespace TcgEngine.Client
             color_b = 255;
             //Find target opacity value查找目标不透明度值
             target_alpha = 0f;
+
+            if (is_scoring_zone)
+            {
+                target_alpha = 0.78f;
+                color_r = 255f;
+                color_g = 48f;
+                color_b = 48f;
+            }
 
             BoardCard focus_card = BoardCard.GetFocus();
             Card hover_card = focus_card != null ? focus_card.GetCard() : null;
@@ -124,7 +138,7 @@ namespace TcgEngine.Client
             }
 
             Card select_card = bcard_selected?.GetCard();
-            bool can_do_move = your_turn && select_card != null && slot_card == null && gdata.CanMoveCard(select_card, slot);
+            bool can_do_move = your_turn && select_card != null && slot_card == null && gdata.CanManualMoveCard(select_card, slot);
             bool can_do_attack = your_turn && select_card != null && slot_card != null && gdata.CanAttackTarget(select_card, slot_card);
 
             if (can_do_attack || can_do_move)
@@ -193,7 +207,12 @@ namespace TcgEngine.Client
                 Card slot_card = gdata.GetSlotCard(slot);
                 if (slot_card == null)
                 {
-                    GameClient.Get().SelectSlot(slot);
+                    Card caster = gdata.GetCard(gdata.selector_caster_uid);
+                    AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
+                    if (ability != null && caster != null && ability.CanTarget(gdata, caster, slot))
+                        GameClient.Get().SelectSlot(slot);
+                    else
+                        WarningText.ShowInvalidTarget();
                 }
             }
         }
@@ -266,6 +285,30 @@ namespace TcgEngine.Client
 
             GetComponent<MeshCollider>().sharedMesh = mesh;
             GetComponent<MeshCollider>().convex = true; // 启用凸面碰撞
+        }
+
+        private void EnsureScoringZoneLabel()
+        {
+            if (transform.Find("ScoringZoneLabel") != null)
+                return;
+
+            GameObject label = new GameObject("ScoringZoneLabel");
+            label.transform.SetParent(transform, false);
+            label.transform.localPosition = new Vector3(0f, 0f, -0.03f);
+            label.transform.localRotation = Quaternion.identity;
+            label.transform.localScale = Vector3.one;
+
+            TextMesh text = label.AddComponent<TextMesh>();
+            text.text = "得分区";
+            text.anchor = TextAnchor.MiddleCenter;
+            text.alignment = TextAlignment.Center;
+            text.fontSize = 28;
+            text.characterSize = 0.075f;
+            text.color = Color.white;
+
+            MeshRenderer mesh = label.GetComponent<MeshRenderer>();
+            if (mesh != null)
+                mesh.sortingOrder = 20;
         }
 
     }

@@ -398,6 +398,13 @@ namespace TcgEngine.Client
             SendAction(GameAction.EndTurn);
         }
 
+        public void DiscardEndPhaseCard(Card card)
+        {
+            MsgString mdata = new MsgString();
+            mdata.text = card.uid;
+            SendAction(GameAction.DiscardEndPhase, mdata);
+        }
+
         public void Resign()
         {
             SendAction(GameAction.Resign);

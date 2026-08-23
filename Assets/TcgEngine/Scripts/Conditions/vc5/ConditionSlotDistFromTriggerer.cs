@@ -17,13 +17,9 @@ namespace TcgEngine
             Card triggerer = data.GetCard(data.ability_triggerer);
             if (triggerer == null)
                 return false;
-            int maxRange = triggerer.attack_Range + range_offset;
+            int maxRange = triggerer.attack_Range + triggerer.GetStatusValue(StatusType.Vc5AttackRangeBonus) + range_offset;
 
-            int dx = target.x - triggerer.slot.x;
-            int dy = target.y - triggerer.slot.y;
-            int dz = (triggerer.slot.x + triggerer.slot.y) - (target.x + target.y);
-            int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-            return hexDistance <= maxRange;
+            return Vc5DemoGrid.HexDistance(triggerer.slot, target) <= maxRange;
         }
     }
 }

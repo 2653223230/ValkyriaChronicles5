@@ -72,6 +72,7 @@ namespace TcgEngine.Server
             RegisterAction(GameAction.CancelSelect, ReceiveCancelSelection);
             RegisterAction(GameAction.EndStage, ReceiveEndStage);
             RegisterAction(GameAction.EndTurn, ReceiveEndTurn);
+            RegisterAction(GameAction.DiscardEndPhase, ReceiveDiscardEndPhase);
             RegisterAction(GameAction.Resign, ReceiveResign);
             RegisterAction(GameAction.ChatMessage, ReceiveChat);
 
@@ -340,7 +341,7 @@ namespace TcgEngine.Server
             if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
             {
                 Card card = player.GetCard(msg.card_uid);
-                if (card != null && card.player_id == player.player_id)
+                if (card != null && card.player_id == player.player_id && game_data.CanManualMoveCard(card, msg.slot))
                     gameplay.MoveCard(card, msg.slot);
             }
         }
@@ -425,7 +426,10 @@ namespace TcgEngine.Server
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerTurn(player))
             {
-                gameplay.NextStep();
+                if (game_data.phase == GamePhase.EndDiscard)
+                    gameplay.PassEndDiscard(player);
+                else
+                    gameplay.NextStep();
             }
         }
 
@@ -434,7 +438,22 @@ namespace TcgEngine.Server
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerTurn(player))
             {
-                gameplay.NextPhase();
+                if (game_data.phase == GamePhase.EndDiscard)
+                    gameplay.PassEndDiscard(player);
+                else
+                    gameplay.NextPhase();
+            }
+        }
+
+        public void ReceiveDiscardEndPhase(ClientData iclient, SerializedData sdata)
+        {
+            MsgString msg = sdata.Get<MsgString>();
+            Player player = GetPlayer(iclient);
+            if (player != null && msg != null && game_data.phase == GamePhase.EndDiscard
+                && game_data.IsPlayerTurn(player) && !gameplay.IsResolving())
+            {
+                Card card = game_data.GetCard(msg.text);
+                gameplay.DiscardEndPhaseCard(player, card);
             }
         }
 

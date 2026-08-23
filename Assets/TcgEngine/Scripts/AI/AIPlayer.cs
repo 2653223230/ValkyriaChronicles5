@@ -36,6 +36,8 @@ namespace TcgEngine.AI
                 return new AIPlayerRandom(gameplay, id, level);
             if (type == AIType.MiniMax)
                 return new AIPlayerMM(gameplay, id, level);
+            if (type == AIType.Vc5Demo)
+                return new AIPlayerVc5Demo(gameplay, id, level);
             return null;
         }
     }
@@ -44,5 +46,6 @@ namespace TcgEngine.AI
     {
         Random = 0,      //Dumb AI that just do random moves, useful for testing cards without getting destroyed
         MiniMax = 10,    //Stronger AI using Minimax algo with alpha-beta pruning
+        Vc5Demo = 20,    //Rule-based AI for the VC5 card tactics demo
     }
 }

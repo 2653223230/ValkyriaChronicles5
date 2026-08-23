@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TcgEngine;
 using TcgEngine.Gameplay;
 
 namespace TcgEngine.AI
@@ -31,8 +32,16 @@ namespace TcgEngine.AI
 
             if (!is_playing && CanPlay())
             {
-                is_playing = true;
-                TimeTool.StartCoroutine(AiTurn());
+                if (game_data.phase == GamePhase.EndDiscard && !player.end_discard_passed)
+                {
+                    is_playing = true;
+                    TimeTool.StartCoroutine(AiEndDiscard());
+                }
+                else if (game_data.IsPlayerTurn(player) && game_data.current_player == player_id)
+                {
+                    is_playing = true;
+                    TimeTool.StartCoroutine(AiTurn());
+                }
             }
 
             if (!game_data.IsPlayerTurn(player) && ai_logic.IsRunning())
@@ -246,12 +255,26 @@ namespace TcgEngine.AI
             }
         }
 
+        private IEnumerator AiEndDiscard()
+        {
+            yield return new WaitForSeconds(0.5f);
+            Player player = gameplay.GetGameData().GetPlayer(player_id);
+            if (player != null)
+                gameplay.PassEndDiscard(player);
+            is_playing = false;
+        }
+
         private void EndTurn()
         {
-            if (CanPlay())
-            {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            if (game_data.phase == GamePhase.EndDiscard)
+                gameplay.PassEndDiscard(player);
+            else
                 gameplay.EndTurn();
-            }
         }
 
         private void Resign()

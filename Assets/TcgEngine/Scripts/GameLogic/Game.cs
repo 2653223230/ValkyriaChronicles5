@@ -18,6 +18,7 @@ namespace TcgEngine
         public int current_player = 0;//当前玩家
         public int turn_count = 0;
         public float turn_timer = 0f;
+        public bool opening_turn = true;
 
         public GameState state = GameState.Connecting;
         public GamePhase phase = GamePhase.None;
@@ -85,8 +86,13 @@ namespace TcgEngine
 
         public virtual bool IsPlayerActionTurn(Player player)
         {
-            return player != null && current_player == player.player_id
-                && state == GameState.Play && selector == SelectorType.None;
+            if (player == null || state != GameState.Play || selector != SelectorType.None)
+                return false;
+
+            if (phase == GamePhase.EndDiscard)
+                return !player.end_discard_passed;
+
+            return current_player == player.player_id;
         }
 
         public virtual bool IsPlayerSelectorTurn(Player player)
@@ -113,7 +119,7 @@ namespace TcgEngine
 
             if (card.CardData.IsBoardCard())
             {
-                if (!slot.IsValid() || IsCardOnSlot(slot))
+                if (!slot.IsValid() || Vc5DemoGrid.GetDisplayedSlotCard(this, slot) != null)
                     return false;   //Slot already occupied
                 if (Slot.GetP(card.player_id) != slot.p)
                     return false; //Cant play on opponent side
@@ -143,7 +149,7 @@ namespace TcgEngine
 
         //Check if a card is allowed to move to slot
         //检查是否允许卡移动到插槽
-        public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
+        public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false, bool ignore_range = false)
         {
             if (card == null || !slot.IsValid())
                 return false;
@@ -160,7 +166,7 @@ namespace TcgEngine
             if (card.slot == slot)
                 return false; //Cant move to same slot 无法移动到同一插槽
 
-            Card slot_card = GetSlotCard(slot);
+            Card slot_card = Vc5DemoGrid.GetDisplayedSlotCard(this, slot, card);
             if (slot_card != null)
             {
                 bool can_consume_spawn = slot_card.player_id == card.player_id && slot_card.HasTrait("slime_spawn");
@@ -175,7 +181,7 @@ namespace TcgEngine
                 if (PlayerHasTraitOnBoard(opponent, "slime_corrosive"))
                     effective_move = Mathf.Max(effective_move - 1, 0);
             }
-            if (effective_move <= 0)
+            if (!ignore_range && effective_move <= 0)
                 return false;
 
             //正方形网格移动范围计算    
@@ -186,10 +192,15 @@ namespace TcgEngine
             int dy = slot.y - card.slot.y;
             int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
             int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-            if (hexDistance > effective_move)
+            if (!ignore_range && hexDistance > effective_move)
                 return false;
 
             return true;
+        }
+
+        public virtual bool CanManualMoveCard(Card card, Slot slot)
+        {
+            return false;
         }
 
         public bool PlayerHasTraitOnBoard(int player_id, string trait_id)
@@ -257,11 +268,7 @@ namespace TcgEngine
             if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
                 return false; //Protected by adjacent card
 
-            int dx = target.slot.x - attacker.slot.x;
-            int dy = target.slot.y - attacker.slot.y;
-            int dz = (attacker.slot.x + attacker.slot.y) - (target.slot.x + target.slot.y);
-            int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-            if (hexDistance > attacker.attack_Range)
+            if (!Vc5DemoGrid.InAttackRange(attacker, target))
                 return false;
 
             return true;
@@ -607,6 +614,7 @@ namespace TcgEngine
             dest.current_player = source.current_player;
             dest.turn_count = source.turn_count;
             dest.turn_timer = source.turn_timer;
+            dest.opening_turn = source.opening_turn;
             dest.state = source.state;
             dest.phase = source.phase;
 
@@ -654,11 +662,22 @@ namespace TcgEngine
             return true;
         }
 
+        public bool AllPlayersEndDiscardPassed()
+        {
+            foreach (Player player in players)
+            {
+                if (!player.end_discard_passed)
+                    return false;
+            }
+            return true;
+        }
+
         public void AllPlayersStartTurn()
         {
             foreach (Player player in players)
             {
                 player.EndTurn = false;
+                player.end_discard_passed = false;
             }
         }
     }
@@ -678,6 +697,8 @@ namespace TcgEngine
         StartTurn = 10, //Start of turn resolution
         Main = 20,      //Main play phase
         EndStage = 25,
+        Scoring = 28,   //VC5: scoring zone resolution
+        EndDiscard = 29,//VC5: optional end-of-turn hand discard
         EndTurn = 30,   //End of turn resolutions
     }
 

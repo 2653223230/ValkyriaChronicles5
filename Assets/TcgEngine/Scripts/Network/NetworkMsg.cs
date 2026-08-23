@@ -312,6 +312,16 @@ namespace TcgEngine
         }
     }
 
+    public class MsgString : INetworkSerializable
+    {
+        public string text;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref text);
+        }
+    }
+
     public class MsgChat : INetworkSerializable
     {
         public int player_id;

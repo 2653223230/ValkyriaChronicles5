@@ -21,6 +21,7 @@ namespace TcgEngine.Testing.Editor
         [SetUp]
         public void SetUp()
         {
+            Vc5LogicTestHarness.LoadGameData();
             testWatch = Stopwatch.StartNew();
         }
 

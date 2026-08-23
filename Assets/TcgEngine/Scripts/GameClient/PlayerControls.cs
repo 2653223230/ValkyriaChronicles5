@@ -51,7 +51,12 @@ namespace TcgEngine.Client
             {
                 //Target selector, select this card
                 //目标选择器，选择这张卡
-                GameClient.Get().SelectCard(card);
+                AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
+                Card caster = gdata.GetCard(gdata.selector_caster_uid);
+                if (ability != null && caster != null && ability.CanTarget(gdata, caster, card))
+                    GameClient.Get().SelectCard(card);
+                else
+                    WarningText.ShowInvalidTarget();
             }
             else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
             {
@@ -146,7 +151,7 @@ namespace TcgEngine.Client
                     else if (tslot != null && tslot is BoardSlot && destination_slot != Slot.None && destination_slot != card.slot)
                     {
                         Game gdata = GameClient.Get().GetGameData();
-                        if (gdata != null && gdata.CanMoveCard(card, destination_slot))
+                        if (gdata != null && gdata.CanManualMoveCard(card, destination_slot))
                         {
                             GameClient.Get().Move(card, destination_slot);//移动
                             action_performed = true;

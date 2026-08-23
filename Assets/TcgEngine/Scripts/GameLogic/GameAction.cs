@@ -27,6 +27,7 @@ namespace TcgEngine
         public const ushort CancelSelect = 1039;
         public const ushort EndStage = 1041;
         public const ushort EndTurn = 1040;
+        public const ushort DiscardEndPhase = 1042;
         public const ushort Resign = 1050;
         public const ushort ChatMessage = 1090;
 

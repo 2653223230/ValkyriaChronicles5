@@ -26,6 +26,7 @@ namespace TcgEngine.UI
         public Text version_text;
         public DeckSelector deck_selector;
         public DeckDisplay deck_preview;
+        public bool show_vc5_demo_ai_panel = true;
 
         private bool starting = false;
 
@@ -50,6 +51,9 @@ namespace TcgEngine.UI
             credits_txt.text = "";
             version_text.text = "Version " + Application.version;
             deck_selector.onChange += OnChangeDeck;
+
+            if (show_vc5_demo_ai_panel)
+                Vc5DemoAIBattlePanel.Ensure(this);
 
             if (Authenticator.Get().IsConnected())
                 AfterLogin();
@@ -77,8 +81,18 @@ namespace TcgEngine.UI
             bool success = await Authenticator.Get().RefreshLogin();
             if (success)
                 AfterLogin();
+            else if (show_vc5_demo_ai_panel)
+                ShowDemoEntryWithoutLogin();
             else
                 SceneNav.GoTo("LoginMenu");
+        }
+
+        private void ShowDemoEntryWithoutLogin()
+        {
+            BlackPanel.Get().Hide();
+            username_txt.text = "Demo Player";
+            credits_txt.text = "0";
+            Vc5DemoAIBattlePanel.Ensure(this);
         }
 
         private void AfterLogin()
@@ -248,6 +262,11 @@ namespace TcgEngine.UI
             GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
 
             StartGame(GameType.Solo, GameMode.Casual);
+        }
+
+        public bool TryStartVc5DemoAIBattle(string playerDeckId, string aiDeckId, out string errmsg)
+        {
+            return Vc5DemoMatchSetup.TryStartSoloAIMatch(this, playerDeckId, aiDeckId, out errmsg);
         }
 
         public void OnClickPvP()

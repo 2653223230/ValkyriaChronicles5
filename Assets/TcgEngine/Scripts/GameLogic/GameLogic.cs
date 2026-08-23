@@ -107,7 +107,7 @@ namespace TcgEngine.Gameplay
             //Choose first player
             //选择第一个玩家
             game_data.state = GameState.Play;
-            game_data.first_player = random.NextDouble() < 0.5 ? 0 : 1;
+            game_data.first_player = IsVc5DemoSoloMatch() ? 0 : (random.NextDouble() < 0.5 ? 0 : 1);
             game_data.current_player = game_data.first_player;
             game_data.turn_count = 1;
 
@@ -223,13 +223,19 @@ namespace TcgEngine.Gameplay
                 int cardsNeeded = GameplayData.Get().cards_per_turn - aplayer.cards_hand.Count;
                 if (cardsNeeded > 0)
                     DrawCard(aplayer, cardsNeeded);
+                if (game_data.state == GameState.GameEnded)
+                    return;
             }
 
             //Mana 法力值
+            bool is_opening_turn = game_data.opening_turn;
             foreach (Player playerMana in game_data.players)
             {
-                playerMana.mana_max += GameplayData.Get().mana_per_turn;
-                playerMana.mana_max = Mathf.Min(playerMana.mana_max, GameplayData.Get().mana_max);
+                if (!is_opening_turn)
+                {
+                    playerMana.mana_max += GameplayData.Get().mana_per_turn;
+                    playerMana.mana_max = Mathf.Min(playerMana.mana_max, GameplayData.Get().mana_max);
+                }
                 playerMana.mana = playerMana.mana_max;   
                 if (game_data.IsVc5TestMode(playerMana))
                 {
@@ -237,6 +243,8 @@ namespace TcgEngine.Gameplay
                     playerMana.mana = 99;
                 }
             }
+            if (is_opening_turn)
+                game_data.opening_turn = false;
 
             // VC5: no turn countdown.
             game_data.turn_timer = 999f;
@@ -320,13 +328,7 @@ namespace TcgEngine.Gameplay
         //结束阶段
         public virtual void EndStage()
         {
-            if (game_data.state == GameState.GameEnded)
-                return;
-            if (game_data.phase != GamePhase.Main)
-                return;
-            
-            resolve_queue.AddCallback(StartNextStage);
-            resolve_queue.ResolveAll(0.2f);
+            EndTurn();
         }
 
         //结束回合
@@ -342,30 +344,11 @@ namespace TcgEngine.Gameplay
 
             if (game_data.AllPlayersEndTurn() == true)
             {
-                Debug.Log("结束回合");
+                Debug.Log("双方结束主要阶段，进入得分阶段");
                 game_data.selector = SelectorType.None;
-                game_data.phase = GamePhase.EndTurn;
+                game_data.phase = GamePhase.Scoring;
 
-                RestoreMoveRangesForAllPlayers();
-
-                //Reduce status effects with duration
-                //减少持续时间对状态的影响
-                foreach (Player aplayer in game_data.players)
-                {
-                    aplayer.ReduceStatusDurations();
-                    foreach (Card card in aplayer.cards_board)
-                        card.ReduceStatusDurations();
-                    foreach (Card card in aplayer.cards_equip)
-                        card.ReduceStatusDurations();
-                }
-                //End of turn abilities
-                //回合结束能力
-                TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
-
-                onTurnEnd?.Invoke();
-                RefreshData();
-
-                resolve_queue.AddCallback(StartNextTurn);
+                resolve_queue.AddCallback(ResolveScoringZonePhase);
                 resolve_queue.ResolveAll(0.2f);
             }
             else
@@ -417,6 +400,112 @@ namespace TcgEngine.Gameplay
             //Add to resolve queue in case its still resolving
             resolve_queue.AddCallback(EndTurn);
             resolve_queue.ResolveAll();
+        }
+
+        /// <summary>VC5 得分阶段：统计中央得分区存活角色并加分。</summary>
+        public virtual void ResolveScoringZonePhase()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            ResolveScoringZone();
+            CheckForWinner();
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            BeginEndDiscardPhase();
+        }
+
+        /// <summary>按设计文档结算得分区：多者+2，相同各+1（含双方均为0）。</summary>
+        public virtual void ResolveScoringZone()
+        {
+            Player p0 = game_data.GetPlayer(0);
+            Player p1 = game_data.GetPlayer(1);
+            int count0 = Vc5ScoringZone.CountCharactersInZone(p0);
+            int count1 = Vc5ScoringZone.CountCharactersInZone(p1);
+
+            if (count0 > count1)
+                p0.kill_count += 2;
+            else if (count1 > count0)
+                p1.kill_count += 2;
+            else
+            {
+                p0.kill_count += 1;
+                p1.kill_count += 1;
+            }
+
+            RefreshData();
+        }
+
+        public virtual void BeginEndDiscardPhase()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            game_data.phase = GamePhase.EndDiscard;
+            foreach (Player aplayer in game_data.players)
+                aplayer.end_discard_passed = false;
+
+            onTurnPlay?.Invoke();
+            RefreshData();
+        }
+
+        public virtual void PassEndDiscard(Player player)
+        {
+            if (game_data.state == GameState.GameEnded || game_data.phase != GamePhase.EndDiscard)
+                return;
+            if (player == null || player.end_discard_passed)
+                return;
+
+            player.end_discard_passed = true;
+            RefreshData();
+
+            if (game_data.AllPlayersEndDiscardPassed())
+            {
+                resolve_queue.AddCallback(FinishTurnAfterEndDiscard);
+                resolve_queue.ResolveAll(0.2f);
+            }
+        }
+
+        public virtual void DiscardEndPhaseCard(Player player, Card card)
+        {
+            if (game_data.state == GameState.GameEnded || game_data.phase != GamePhase.EndDiscard)
+                return;
+            if (player == null || player.end_discard_passed)
+                return;
+            if (card == null || !player.HasCard(player.cards_hand, card))
+                return;
+
+            DiscardCard(card);
+            RefreshData();
+        }
+
+        protected virtual void FinishTurnAfterEndDiscard()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            game_data.phase = GamePhase.EndTurn;
+            Player player = game_data.GetActivePlayer();
+
+            RestoreMoveRangesForAllPlayers();
+
+            foreach (Player aplayer in game_data.players)
+            {
+                aplayer.ReduceStatusDurations();
+                foreach (Card card in aplayer.cards_board)
+                    card.ReduceStatusDurations();
+                foreach (Card card in aplayer.cards_equip)
+                    card.ReduceStatusDurations();
+            }
+
+            TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
+
+            onTurnEnd?.Invoke();
+            RefreshData();
+
+            resolve_queue.AddCallback(StartNextTurn);
+            resolve_queue.ResolveAll(0.2f);
         }
 
         //Check if a player is winning the game, if so end the game
@@ -748,6 +837,13 @@ namespace TcgEngine.Gameplay
                     TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
                 }
 
+                if (pending_play_main_action.Contains(card.uid))
+                {
+                    string playedCardUid = card.uid;
+                    int actionPlayerId = player.player_id;
+                    resolve_queue.AddCallback(() => CompletePlayedMainAction(playedCardUid, actionPlayerId));
+                }
+
                 RefreshData();
 
                 onCardPlayed?.Invoke(card, slot);
@@ -756,9 +852,9 @@ namespace TcgEngine.Gameplay
         }
 
         //移动卡牌
-        public virtual void MoveCard(Card card, Slot slot, bool skip_cost = false)
+        public virtual void MoveCard(Card card, Slot slot, bool skip_cost = false, bool ignore_range = false)
         {
-            if (game_data.CanMoveCard(card, slot, skip_cost))
+            if (game_data.CanMoveCard(card, slot, skip_cost, ignore_range))
             {
                 Card slot_card = game_data.GetSlotCard(slot);
                 if (slot_card != null && slot_card.player_id == card.player_id && slot_card.HasTrait(TraitSlimeSpawn))
@@ -770,7 +866,8 @@ namespace TcgEngine.Gameplay
                 int dy = slot.y - card.slot.y;
                 int dz = (card.slot.x + card.slot.y) - (slot.x + slot.y);
                 int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-                card.move_Range -= hexDistance;
+                if (!ignore_range)
+                    card.move_Range -= hexDistance;
 
                 //正方形网格移动
                 //card.move_Range -= Mathf.Abs(slot.x - card.slot.x)+ Mathf.Abs(slot.y - card.slot.y);
@@ -804,13 +901,35 @@ namespace TcgEngine.Gameplay
             {
                 Player player = game_data.GetPlayer(card.player_id);
                 if (!iability.fast_action && !game_data.IsVc5TestMode(player))
+                {
                     player.main_action_used = true;
+                    int actionPlayerId = player.player_id;
+                    resolve_queue.AddCallback(() => CompleteMainActionOpportunity(actionPlayerId));
+                }
                 card.IncrementAbilityUse(iability.id);
                 if (!is_ai_predict && iability.target != AbilityTarget.SelectTarget)
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
                 TriggerCardAbility(iability, card);
                 resolve_queue.ResolveAll();
+            }
+        }
+
+        private void CompletePlayedMainAction(string cardUid, int playerId)
+        {
+            if (!pending_play_main_action.Remove(cardUid))
+                return; // The play was cancelled while waiting for target selection.
+
+            CompleteMainActionOpportunity(playerId);
+        }
+
+        private void CompleteMainActionOpportunity(int playerId)
+        {
+            Player player = game_data.GetPlayer(playerId);
+            if (game_data.phase == GamePhase.Main && game_data.current_player == playerId
+                && player != null && !player.EndTurn)
+            {
+                StartNextStage();
             }
         }
 
@@ -1012,17 +1131,29 @@ namespace TcgEngine.Gameplay
         //抽卡
         public virtual void DrawCard(Player player, int nb = 1)
         {
+            int drawn = 0;
             for (int i = 0; i < nb; i++)
             {
-            if (player.cards_deck.Count > 0 && (player.cards_hand.Count < GameplayData.Get().cards_max || game_data.IsVc5TestMode(player)))
+                bool handHasSpace = player.cards_hand.Count < GameplayData.Get().cards_max
+                    || game_data.IsVc5TestMode(player);
+                if (!handHasSpace)
+                    break;
+
+                if (player.cards_deck.Count == 0)
                 {
-                    Card card = player.cards_deck[0];
-                    player.cards_deck.RemoveAt(0);
-                    player.cards_hand.Add(card);
+                    int winner = (player.player_id + 1) % game_data.settings.nb_players;
+                    EndGame(winner);
+                    break;
                 }
+
+                Card card = player.cards_deck[0];
+                player.cards_deck.RemoveAt(0);
+                player.cards_hand.Add(card);
+                drawn++;
             }
 
-            onCardDrawn?.Invoke(nb);
+            if (drawn > 0)
+                onCardDrawn?.Invoke(drawn);
         }
 
         //Put a card from deck into discard
@@ -1303,6 +1434,8 @@ namespace TcgEngine.Gameplay
 
             if (attacker != null)
                 TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+
+            CheckForWinner();
         }
 
         private void AwardScoreForDeath(Card deadCard)
@@ -2424,5 +2557,24 @@ namespace TcgEngine.Gameplay
 
         public Game GameData { get { return game_data; } }
         public ResolveQueue ResolveQueue { get { return resolve_queue; } }
+
+
+        private static bool IsVc5DemoDeck(string deckId)
+        {
+            return deckId == Vc5DemoBootstrap.MobileAssaultDeckId
+                || deckId == Vc5DemoBootstrap.RangedPressureDeckId;
+        }
+
+
+        private bool IsVc5DemoSoloMatch()
+        {
+            if (game_data == null || game_data.settings == null
+                || game_data.settings.game_type != GameType.Solo
+                || game_data.players == null || game_data.players.Length < 2)
+                return false;
+
+            return IsVc5DemoDeck(game_data.players[0].deck)
+                && IsVc5DemoDeck(game_data.players[1].deck);
+        }
     }
 }

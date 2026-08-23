@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +31,7 @@ namespace TcgEngine.UI
         private float selector_timer = 0f;
         private float end_turn_timer = 0f;
         private int prev_time_val = 0;
+        private Text end_turn_button_text;
 
         private static GameUI instance;
 
@@ -73,6 +74,11 @@ namespace TcgEngine.UI
                 return;
 
             bool yourturn = GameClient.Get().IsYourTurn();
+            bool endDiscardPhase = data.phase == GamePhase.EndDiscard;
+            Player localPlayer = GameClient.Get().GetPlayer();
+            bool canEndPhase = endDiscardPhase
+                ? (localPlayer != null && !localPlayer.end_discard_passed)
+                : yourturn;
             if (data != null && data.selector != SelectorType.None && data.selector_player_id == GameClient.Get().GetPlayerID()
                 && Input.GetMouseButtonDown(1) && !IsOverUI())
             {
@@ -80,16 +86,22 @@ namespace TcgEngine.UI
             }
 
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
-            end_turn_button.interactable = yourturn && end_turn_timer > 1f;
+            end_turn_button.interactable = canEndPhase && end_turn_timer > 1f;
+            if (end_turn_button_text == null && end_turn_button != null)
+                end_turn_button_text = end_turn_button.GetComponentInChildren<Text>(true);
+            if (end_turn_button_text != null)
+                end_turn_button_text.text = GetVc5EndButtonText(data.phase);
             end_turn_timer += Time.deltaTime;
             selector_timer += Time.deltaTime;
 
             // VC5: no countdown timer; use the turn area to show whose turn it is.
-            turn_count.text = yourturn ? "我方回合" : "对手行动中";
+            turn_count.text = GetVc5TurnStatusText(
+                data.phase, yourturn, localPlayer != null && localPlayer.end_discard_passed);
             if (turn_timer != null)
             {
                 turn_timer.enabled = true;
-                turn_timer.text = "第 " + data.turn_count.ToString() + " 回合";
+                turn_timer.text = GetVc5TurnDetailText(
+                    data.phase, localPlayer != null && localPlayer.end_discard_passed, data.turn_count);
             }
 
             //Show selector panels
@@ -111,7 +123,7 @@ namespace TcgEngine.UI
             }
 
             //Hide
-            if (!yourturn)
+            if (!canEndPhase && !yourturn)
             {
                 SelectorPanel.HideAll();
             }
@@ -126,7 +138,8 @@ namespace TcgEngine.UI
 
         private void OnGameStart()
         {
-            
+            if (top_canvas != null && Vc5DemoTutorialOverlay.ShouldShowCurrentMatch())
+                Vc5DemoTutorialOverlay.Show(top_canvas.transform);
         }
 
         private void OnNewTurn(int player_id)
@@ -142,8 +155,30 @@ namespace TcgEngine.UI
         }
         public void OnClickNextTurn()
         {
-            GameClient.Get().EndTurn();
-            end_turn_timer = 0f; //Disable button immediately (dont wait for refresh)
+            OnClickNextStage();
+        }
+
+        public static string GetVc5EndButtonText(GamePhase phase)
+        {
+            return phase == GamePhase.EndDiscard ? "完成弃牌" : "放弃行动";
+        }
+
+        public static string GetVc5TurnStatusText(GamePhase phase, bool yourTurn, bool localEndDiscardPassed)
+        {
+            if (phase == GamePhase.EndDiscard)
+                return localEndDiscardPassed ? "等待对手" : "弃牌阶段";
+            if (phase == GamePhase.Scoring)
+                return "得分结算中";
+            if (phase == GamePhase.EndTurn)
+                return "回合结算中";
+            return yourTurn ? "我方行动" : "对手行动";
+        }
+
+        public static string GetVc5TurnDetailText(GamePhase phase, bool localEndDiscardPassed, int turnCount)
+        {
+            if (phase == GamePhase.EndDiscard)
+                return localEndDiscardPassed ? "弃牌已完成" : "拖动手牌后松开即可弃置";
+            return "第 " + turnCount.ToString() + " 回合";
         }
 
         public void OnClickRestart()

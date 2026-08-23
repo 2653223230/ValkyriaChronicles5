@@ -534,8 +534,8 @@ namespace TcgEngine.UI
                 index++;
             }
 
-            deck_quantity.text = count + "/" + GameplayData.Get().deck_size;
-            deck_quantity.color = count >= GameplayData.Get().deck_size ? Color.white : Color.red;
+            deck_quantity.text = count + "/" + GameplayData.Get().deck_size + "-" + GameplayData.Get().deck_size_max;
+            deck_quantity.color = count >= GameplayData.Get().deck_size && count <= GameplayData.Get().deck_size_max ? Color.white : Color.red;
 
             RefreshCardsQuantities();
         }
@@ -820,9 +820,16 @@ namespace TcgEngine.UI
                     return;
                 }
                 int need = GameplayData.Get().deck_size;
-                if (GetDeckCardsQuantityTotal() < need)
+                int max = GameplayData.Get().deck_size_max;
+                int total = GetDeckCardsQuantityTotal();
+                if (total < need)
                 {
-                    Debug.LogWarning("组卡未保存：卡组至少需要 " + need + " 张牌（当前 " + GetDeckCardsQuantityTotal() + "）。");
+                    Debug.LogWarning("组卡未保存：卡组至少需要 " + need + " 张牌（当前 " + total + "）。");
+                    return;
+                }
+                if (total > max)
+                {
+                    Debug.LogWarning("组卡未保存：卡组最多 " + max + " 张牌（当前 " + total + "）。");
                     return;
                 }
                 SaveDeck();

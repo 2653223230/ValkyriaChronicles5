@@ -45,6 +45,7 @@ namespace TcgEngine
             AbilityData.Load();
             StatusData.Load();
             Vc5SlimeBootstrap.Register();
+            Vc5DemoBootstrap.Register();
             Vc5CardRegistry.Apply();
             AvatarData.Load();
             CardbackData.Load();

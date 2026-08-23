@@ -35,6 +35,7 @@ namespace TcgEngine.Client
         private Vector3 current_rotate;
         private Vector3 target_rotate;
         private Vector3 prev_pos;
+        private Vector2 drag_start_screen_pos;
 
         private bool destroyed = false;
         private float focus_timer = 0f;
@@ -44,6 +45,8 @@ namespace TcgEngine.Client
         private bool selected = false;
 
         private static List<HandCard> card_list = new List<HandCard>();
+
+        public const float Vc5DiscardDragThreshold = 20f;
 
         void Awake()
         {
@@ -191,6 +194,7 @@ namespace TcgEngine.Client
                 return;
 
             UnselectAll();
+            drag_start_screen_pos = Input.mousePosition;
             drag = true;
             selected = true;
             PlayerControls.Get().UnselectAll();
@@ -204,6 +208,21 @@ namespace TcgEngine.Client
         {
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
+            Game gdata = GameClient.Get().GetGameData();
+            Player player = gdata?.GetPlayer(GameClient.Get().GetPlayerID());
+            Card card = GetCard();
+
+            if (drag && gdata != null && player != null && card != null
+                && ShouldDiscardOnRelease(gdata.phase, player.end_discard_passed,
+                    drag_start_screen_pos, Input.mousePosition))
+            {
+                GameClient.Get().DiscardEndPhaseCard(card);
+                HandCardArea.Get().DelayRefresh(card);
+                Destroy(gameObject);
+                drag = false;
+                return;
+            }
+
             if (drag && mpos.y > 0.25f)
                 TryPlayCard(board_pos);//尝试出牌
             else if (!GameTool.IsMobile())
@@ -260,6 +279,14 @@ namespace TcgEngine.Client
             {
                 PlayCard(slot);
             }
+        }
+
+        public static bool ShouldDiscardOnRelease(GamePhase phase, bool endDiscardPassed,
+            Vector2 dragStartScreenPos, Vector2 releaseScreenPos)
+        {
+            return phase == GamePhase.EndDiscard
+                && !endDiscardPassed
+                && Vector2.Distance(dragStartScreenPos, releaseScreenPos) >= Vc5DiscardDragThreshold;
         }
 
         public void PlayCard(Slot slot)

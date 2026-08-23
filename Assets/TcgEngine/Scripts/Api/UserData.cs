@@ -396,7 +396,11 @@ namespace TcgEngine
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && HeroesReady() && GetQuantity() >= GameplayData.Get().deck_size;
+            int qty = GetQuantity();
+            int min = GameplayData.Get().deck_size;
+            int max = GameplayData.Get().deck_size_max;
+            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && HeroesReady()
+                && qty >= min && qty <= max;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

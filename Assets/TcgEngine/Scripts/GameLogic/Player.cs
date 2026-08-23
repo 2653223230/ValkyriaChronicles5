@@ -30,6 +30,7 @@ namespace TcgEngine
         public int mana_max = 0;
         public int kill_count = 0;
         public bool EndTurn = false;
+        public bool end_discard_passed = false;
         public bool main_action_used = false;
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
@@ -639,6 +640,8 @@ namespace TcgEngine
             dest.mana = source.mana;
             dest.mana_max = source.mana_max;
             dest.kill_count = source.kill_count;
+            dest.EndTurn = source.EndTurn;
+            dest.end_discard_passed = source.end_discard_passed;
             dest.main_action_used = source.main_action_used;
 
             Card.CloneNull(source.hero, ref dest.hero);

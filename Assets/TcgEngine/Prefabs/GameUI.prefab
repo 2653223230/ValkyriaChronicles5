@@ -6705,7 +6705,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2182552243209669332}
-        m_TargetAssemblyTypeName: TcgEngine.UI.TheUI, Assembly-CSharp
+        m_TargetAssemblyTypeName: TcgEngine.UI.GameUI, Assembly-CSharp
         m_MethodName: OnClickNextTurn
         m_Mode: 1
         m_Arguments:
