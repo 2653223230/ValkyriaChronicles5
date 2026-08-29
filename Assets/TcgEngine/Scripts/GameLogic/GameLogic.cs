@@ -11,7 +11,7 @@ namespace TcgEngine.Gameplay
     /// 执行并解析游戏规则和逻辑
     /// </summary>
 
-    public class GameLogic
+    public partial class GameLogic
     {
         public UnityAction onGameStart;
         public UnityAction<Player> onGameEnd;          //Winner

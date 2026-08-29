@@ -1,115 +1,227 @@
-﻿﻿enabled,id,title,series,type,mana,hp_cost,discard_cost,attack,hp,move_Range,attack_Range,fast_action,deckbuilding,text,source,asset_path,notes
-1,armored_beast,Armored Beast,,Character,4,0,0,3,6,2,2,0,1,Taunt,asset,Assets/TcgEngine/Resources/Cards/Forest/armored_beast.asset,
-1,ashes_snake,Ashes Snake,,Character,5,0,0,6,4,2,2,0,1,测试用白板,asset,Assets/TcgEngine/Resources/Cards/Fire/ashes_snake.asset,
-1,attack_ally_card,攻击,,Spell,1,0,0,0,0,2,2,0,1,对攻击距离内的敌人造成攻击力的伤害,asset,Assets/TcgEngine/Resources/Cards/vc5/art/attack_ally_card.asset,
-1,bay,Bay,,Artifact,2,0,0,0,5,2,2,0,1,"When a blue creature you own dies, draw a card.",asset,Assets/TcgEngine/Resources/Cards/Water/bay.asset,
-1,bear,Bear,,Character,5,0,0,4,5,2,2,0,1,<b>Play:</b> Gain Taunt or Fury,asset,Assets/TcgEngine/Resources/Cards/Forest/bear.asset,
-1,bull_heat,Heat Bull,,Character,3,0,0,2,5,2,2,0,1,Spell damage +1.,asset,Assets/TcgEngine/Resources/Cards/Fire/bull_heat.asset,
-1,cave,Cave,,Artifact,2,0,0,0,5,2,2,0,1,"All red creatures gain: ""Take 1 damage to gain +1 attack"".",asset,Assets/TcgEngine/Resources/Cards/Fire/cave.asset,
-1,coin,Coin,,Spell,0,0,0,0,0,2,2,0,0,Gain 1 mana.,asset,Assets/TcgEngine/Resources/Cards/Summon/coin.asset,
-1,crab_mana,Mana Crab,,Character,2,0,0,3,1,2,2,0,1,"When attacking a player, gain 2 mana.",asset,Assets/TcgEngine/Resources/Cards/Water/crab_mana.asset,
-1,dark_stallion,Dark Stallion,,Character,4,0,0,4,5,2,2,0,1,"<b>Cast (2):</b> Roll a D6, on 4+ return target to hand.",asset,Assets/TcgEngine/Resources/Cards/Fire/dark_stallion.asset,
-1,dragon_blue,Blue Dragon,,Character,7,0,0,8,8,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Water/dragon_blue.asset,
-1,dragon_egg,Dragon Egg,,Spell,2,0,0,0,0,2,2,0,1,Discover a Dragon.,asset,Assets/TcgEngine/Resources/Cards/Summon/dragon_egg.asset,
-1,dragon_green,Green Dragon,,Character,7,0,0,7,9,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Forest/dragon_green.asset,
-1,dragon_red,Red Dragon,,Character,7,0,0,9,7,2,2,0,1,Spell Immunity,asset,Assets/TcgEngine/Resources/Cards/Fire/dragon_red.asset,
-1,eel,Electric Eel,,Character,4,0,0,5,2,2,2,0,1,<b>Play:</b> Target character's attack is reduced to 1.,asset,Assets/TcgEngine/Resources/Cards/Water/eel.asset,
-1,elf_swordsman,精灵剑士,,Character,1,0,0,2,20,2,1,0,0,通常：学会了剑术的精灵。以快速的攻击作弄敌人。 ,asset,Assets/TcgEngine/Resources/Cards/vc5/hero_elf_swordsman.asset,
-1,equip_ring,Mana Ring,,Equipment,1,0,0,0,3,2,2,0,1,Gain 2 extra mana per turn for 3 turns.,asset,Assets/TcgEngine/Resources/Cards/Water/equip_ring.asset,
-1,equip_shield,Wooden Shield,,Equipment,2,0,0,0,2,2,2,0,1,Bearer gains 2 armor and taunt.,asset,Assets/TcgEngine/Resources/Cards/Forest/equip_shield.asset,
-1,equip_sword,Fire Sword,,Equipment,2,0,0,0,2,2,2,0,1,"Attack +1.
-Bearer receives no damage when attacking.",asset,Assets/TcgEngine/Resources/Cards/Fire/equip_sword.asset,
-1,fire_chicken,Roasted Chicken,,Character,2,0,0,1,1,2,2,0,1,<b>Death:</b> Summon an egg.,asset,Assets/TcgEngine/Resources/Cards/Fire/fire_chicken.asset,
-1,fire_element,Fire Element,,Character,5,0,0,7,3,2,2,0,1,<b>Play:</b> Damage all by 2.,asset,Assets/TcgEngine/Resources/Cards/Fire/fire_element.asset,
-1,firefox,Firefox,,Character,4,0,0,4,4,2,2,0,1,<b>Cast (2):</b> Return a spell to your hand.,asset,Assets/TcgEngine/Resources/Cards/Fire/firefox.asset,
-1,fish,Fish,,Character,1,0,0,1,1,2,2,0,1,<b>Death:</b> Draw a card.,asset,Assets/TcgEngine/Resources/Cards/Water/fish.asset,
-1,flame_eagle,Flame Eagle,,Character,1,0,0,1,1,2,2,0,0,"Flying
-Haste",asset,Assets/TcgEngine/Resources/Cards/Summon/flame_eagle.asset,
-1,gorilla,Gorilla,,Character,4,0,0,0,6,2,2,0,1,<b>Play:</b> Roll a D6 to know your attack.,asset,Assets/TcgEngine/Resources/Cards/Forest/gorilla.asset,
-1,hell_hound,Hell Hound,,Character,4,0,0,4,2,2,2,0,1,Fury,asset,Assets/TcgEngine/Resources/Cards/Fire/hell_hound.asset,
-1,imp,Imp,,Character,2,0,0,2,1,2,2,0,1,<b>Play:</b> Deal 1 damage.,asset,Assets/TcgEngine/Resources/Cards/Fire/imp.asset,
-1,killer_whale,Killer Whale,,Character,5,0,0,5,4,2,2,0,1,<b>Play:</b> Destroy a character with 4 or less attack.,asset,Assets/TcgEngine/Resources/Cards/Water/killer_whale.asset,
-1,kraken,Kraken,,Character,6,0,0,5,5,2,2,0,1,Haste,asset,Assets/TcgEngine/Resources/Cards/Water/kraken.asset,
-1,lava_beast,Lava Beast,,Character,3,0,0,2,3,2,2,0,1,"After playing a spell, gain +2 attack.",asset,Assets/TcgEngine/Resources/Cards/Fire/lava_beast.asset,
-1,mammoth,Mammoth,,Character,6,0,0,7,6,2,2,0,1,Trample,asset,Assets/TcgEngine/Resources/Cards/Forest/mammoth.asset,
-1,null,白板,,Character,0,0,0,1,1,2,2,0,0,测试用白板,asset,Assets/TcgEngine/Resources/Cards/Monster/monster_null.asset,
-1,octopus,Octopus,,Character,4,0,0,2,5,2,2,0,1,"When attacking, roll a D6. On 4+ gain +6 attack.",asset,Assets/TcgEngine/Resources/Cards/Water/octopus.asset,
-1,owl,Owl,,Character,3,0,0,2,3,2,2,0,1,Silence target card.,asset,Assets/TcgEngine/Resources/Cards/Forest/owl.asset,
-1,phoenix,Phoenix,,Character,6,0,0,6,6,2,2,0,1,"<b>Cast (3):</b> Deal 2 damage.
-<b>Death:</b> Summon an egg.",asset,Assets/TcgEngine/Resources/Cards/Fire/phoenix.asset,
-1,phoenix_egg,Phoenix Egg,,Artifact,0,0,0,0,3,2,2,0,0,"After 3 turns, transforms into a Phoenix.",asset,Assets/TcgEngine/Resources/Cards/Summon/phoenix_egg.asset,
-1,poison_frog,Poison Frog,,Character,3,0,0,2,2,2,2,0,1,Deathtouch,asset,Assets/TcgEngine/Resources/Cards/Water/poison_frog.asset,
-1,potion_blue,Blue Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains shell and fully heals.,asset,Assets/TcgEngine/Resources/Cards/Water/potion_blue.asset,
-1,potion_green,Green Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains 2 HP and Taunt.,asset,Assets/TcgEngine/Resources/Cards/Forest/potion_green.asset,
-1,potion_red,Red Potion,,Spell,2,0,0,0,0,2,2,0,1,Target gains 1 attack and fury.,asset,Assets/TcgEngine/Resources/Cards/Fire/potion_red.asset,
-1,pufferfish,Pufferfish,,Character,3,0,0,2,5,2,2,0,1,Has +3 attack during the opponent's turn.,asset,Assets/TcgEngine/Resources/Cards/Water/pufferfish.asset,
-1,raccoon,Raccoon,,Character,2,0,0,2,3,2,2,0,1,<b>Play:</b> Return a character to your hand.,asset,Assets/TcgEngine/Resources/Cards/Forest/raccoon.asset,
-1,reaper,Hell Reaper,,Character,6,0,0,6,6,2,2,0,1,<b>Each turn:</b> Kill characters with the lowest attack.,asset,Assets/TcgEngine/Resources/Cards/Fire/reaper.asset,
-1,sasquatch,Sasquatch,,Character,5,0,0,6,4,2,2,0,1,<b>End Turn:</b> Go in stealth if you have other characters.,asset,Assets/TcgEngine/Resources/Cards/Forest/sasquatch.asset,
-1,sea_monster,Sea Monster,,Character,6,0,0,4,7,2,2,0,1,"Enemy characters have -1 attack.
-<b>Action:</b> +1 attack to allies.",asset,Assets/TcgEngine/Resources/Cards/Water/sea_monster.asset,
-1,seagull,Seagull,,Character,2,0,0,2,2,2,2,0,1,Flying,asset,Assets/TcgEngine/Resources/Cards/Water/seagull.asset,
-1,shark,Shark,,Character,4,0,0,4,4,2,2,0,1,"Whenever another character dies, draw 1 card.",asset,Assets/TcgEngine/Resources/Cards/Water/shark.asset,
-1,snake_venom,Viper,,Character,2,0,0,1,3,2,2,0,1,<b>Attack:</b> Poison.,asset,Assets/TcgEngine/Resources/Cards/Forest/snake_venom.asset,
-1,spell_aerial_strike,Aerial Strike,,Spell,3,0,0,0,0,2,2,0,1,Summon 3 eagles into your hand.,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_aerial_strike.asset,
-1,spell_ally_attack_damage,黏黏重击！,,Spell,1,0,0,0,0,2,2,0,1,选择一个我方随从，然后选择一个敌人。对敌人造成我方随从攻击力+1的伤害。,asset,Assets/TcgEngine/Resources/Cards/vc5/spell_ally_attack_damage.asset,
-1,spell_armageddon,Armageddon,,Spell,5,0,0,0,0,2,2,0,1,Destroy all creatures on the board,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_armageddon.asset,
-1,spell_burn,Burn,,Spell,4,0,0,0,0,2,2,0,1,Destroy target.,asset,Assets/TcgEngine/Resources/Cards/Fire/spell_burn.asset,
-1,spell_extinct,Extinct,,Spell,2,0,0,0,0,2,2,0,1,"Target card gains ""When an allied character enters play, destroy this"".",asset,Assets/TcgEngine/Resources/Cards/Forest/spell_extinct.asset,
-1,spell_flood,Flood,,Spell,3,0,0,0,0,2,2,0,1,Reduce the hp of all characters to 1.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_flood.asset,
-1,spell_growth,Growth,,Spell,5,0,0,0,0,2,2,0,1,All allied characters gain +2/2,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_growth.asset,
-1,spell_hibernate,Hibernate,,Spell,3,0,0,0,0,2,2,0,1,Target gains +4/4 and goes to sleep for the next 2 turns.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_hibernate.asset,
-1,spell_projectiles,Projectiles,,Spell,999,0,0,0,0,2,2,0,1,"Deal 1 damage to a random card.
-Repeat X times.",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_projectiles.asset,
-1,spell_roots,Roots,,Spell,3,0,0,0,0,2,2,0,1,Paralyse target for 3 turns.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_roots.asset,
-1,spell_split,Ground Split,,Spell,2,0,0,0,0,2,2,0,1,"Target creature gains ""Suffer 3 damage before attacking"".",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_split.asset,
-1,spell_stomp,Stomp,,Spell,2,0,0,0,0,2,2,0,1,Destroy the character with the lowest HP.,asset,Assets/TcgEngine/Resources/Cards/Forest/spell_stomp.asset,
-1,spell_stones,Hot Stones,,Spell,2,0,0,0,0,2,2,0,1,"Deal 1 damage.
-Draw a card.",asset,Assets/TcgEngine/Resources/Cards/Fire/spell_stones.asset,
-1,spell_storm,Sea Storm,,Spell,5,0,0,0,0,2,2,0,1,All cards return to their owner's hand.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_storm.asset,
-1,spell_submerge,Submerge,,Spell,2,0,0,0,0,2,2,0,1,"Target card gains ""When attacked, opponent must discard 1 random card"".",asset,Assets/TcgEngine/Resources/Cards/Water/spell_submerge.asset,
-1,spell_treasure,Lost Treasure,,Spell,3,0,0,0,0,2,2,0,1,"Look at the next 7 cards in your deck, and choose two.",asset,Assets/TcgEngine/Resources/Cards/Water/spell_treasure.asset,
-1,spell_wave,Wave,,Spell,3,0,0,0,0,2,2,0,1,Return target to owner's hand.,asset,Assets/TcgEngine/Resources/Cards/Water/spell_wave.asset,
-1,town_forest,Forest Town,,Artifact,3,0,0,0,7,2,2,0,1,All green cards have +2 HP.,asset,Assets/TcgEngine/Resources/Cards/Forest/town_forest.asset,
-1,town_underwater,Underwater Town,,Artifact,3,0,0,0,7,2,2,0,1,All blue cards cost 1 less.,asset,Assets/TcgEngine/Resources/Cards/Water/town_underwater.asset,
-1,town_volcano,Volcano Town,,Artifact,3,0,0,0,7,2,2,0,1,All red creatures have +2 attack.,asset,Assets/TcgEngine/Resources/Cards/Fire/town_volcano.asset,
-1,trap_explosive,Bomb Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Damage all by 2.,asset,Assets/TcgEngine/Resources/Cards/Fire/trap_explosive.asset,
-1,trap_fish,Fish Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Transform into fish.,asset,Assets/TcgEngine/Resources/Cards/Water/trap_fish.asset,
-1,trap_spike,Spike Trap,,Secret,3,0,0,0,0,2,2,0,1,<b>Trap:</b> Paralyse the next attacker.,asset,Assets/TcgEngine/Resources/Cards/Forest/trap_spike.asset,
-1,tree_angry,Angry Tree,,Character,3,0,0,3,5,2,2,0,1,Regeneration,asset,Assets/TcgEngine/Resources/Cards/Forest/tree_angry.asset,
-1,turtle,Turtle,,Character,3,0,0,2,3,2,2,0,1,"Taunt
-Shell",asset,Assets/TcgEngine/Resources/Cards/Water/turtle.asset,
-1,unicorn,Unicorn,,Character,6,0,0,5,6,2,2,0,1,"<b>Play:</b> Give +2/2.
-<b>Action:</b> Charge.",asset,Assets/TcgEngine/Resources/Cards/Forest/unicorn.asset,
-1,vc5_slime_attach,粘液附着,黏黏,Spell,0,0,0,0,0,0,0,1,1,"【效果】对攻击距离+1内任意单位施加1层粘液，并无法移动，持续1阶段。
-【特殊效果】可对己方黏黏使用，效果变为获得1层尖锐，持续2阶段。",runtime_vc5,,
-1,vc5_slime_boom_card,黏黏爆炸,黏黏,Spell,0,0,0,0,0,0,0,0,1,"【效果】以己方1个单位为对象发动，使用后该单位死亡，对周围1格内所有单位造成其当前生命值伤害；对黏黏幼崽使用时可同时引爆所有幼崽。
-【特殊效果】若使用者为黏黏，对场上随机存活敌人附加粘液，重复次数等于该单位生命值。",runtime_vc5,,
-1,vc5_slime_combo_strike,黏黏连打,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离内的一个任意单位造成1+攻击力的伤害。
-【特殊效果】若本卡由黏黏使用，额外释放一次。",runtime_vc5,,
-1,vc5_slime_detonate_card,粘液引爆,黏黏,Spell,2,0,0,0,0,0,0,0,1,"【效果】对任意单位造成1伤害。
-【特殊效果】若目标身上存在粘液，消耗1层粘液，再次执行该效果，直到无法继续。",runtime_vc5,,
-1,vc5_slime_heavy_strike,黏黏重击,黏黏,Spell,0,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离内的一个任意敌人造成2+攻击力的伤害。
-【特殊效果】若本卡由黏黏使用，额外附加1层粘液。",runtime_vc5,,
-1,vc5_slime_merge_card,黏黏合体,黏黏,Spell,1,0,0,0,0,0,0,0,1,【效果】以己方1只黏黏幼崽为对象，消灭其余黏黏幼崽，将被消灭幼崽的属性以加法叠加至对象身上。,runtime_vc5,,
-1,vc5_slime_pool,粘液池,,Artifact,0,0,0,0,1,0,0,0,0,"【效果】召唤粘液池，不可被攻击，持续若干回合。
-【特殊效果】若己方存在腐蚀黏黏，持续回合+1。",runtime_vc5,,
-1,vc5_slime_pool_spell,粘液池,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】在己方任意角色2格范围内无单位的格子召唤粘液池，不可被攻击，持续2回合。
-【特殊效果】若己方存在腐蚀黏黏，持续回合+1。",runtime_vc5,,
-1,vc5_slime_run,黏黏快跑,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】移动2格。
-【特殊效果】若使用者为黏黏，可直接移动到场上任意黏黏幼崽所在格。",runtime_vc5,,
-1,vc5_slime_sharpen,黏黏磨刀,黏黏,Spell,1,0,0,0,0,0,0,1,1,"【效果】使用者本回合造成伤害+2。
-【特殊效果】若使用者为黏黏，额外消耗随机2层粘液，本回合造成伤害再+2。",runtime_vc5,,
-1,vc5_slime_spawn,黏黏幼崽,,Character,0,0,0,1,1,1,1,0,0,"【效果】1血1攻，敌方不可通过；友方可通过，若停留其上可吞噬并回复1生命。
-【特殊效果】无",runtime_vc5,,
-1,vc5_slime_split_card,黏黏分裂,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】消耗所有附着有粘液的角色身上的粘液，每消耗2层粘液，在其周围可召唤格召唤1只黏黏幼崽（至少1只）。
-【特殊效果】幼崽死亡时为击杀者附加1层粘液。",runtime_vc5,,
-1,vc5_slime_spray,粘液喷射,黏黏,Spell,1,0,0,0,0,0,0,0,1,"【效果】让一个我方英雄，对攻击距离+1内的一个任意单位施加2层粘液。
-【特殊效果】可对己方黏黏使用，效果变为恢复3生命。",runtime_vc5,,
-1,wolf_alpha,Alpha Wolf,,Character,3,0,0,3,2,2,2,0,1,"<b>Play</b>: Summon a baby wolf.
-All Wolves +1 attack.",asset,Assets/TcgEngine/Resources/Cards/Forest/wolf_alpha.asset,
-1,wolf_baby,Baby Wolf,,Character,1,0,0,1,1,2,2,0,0,,asset,Assets/TcgEngine/Resources/Cards/Summon/wolf_baby.asset,
-1,wolf_furious,Furious Wolf,,Character,5,0,0,3,4,2,2,0,1,"Fury
-Each turn, gain +1 attack.",asset,Assets/TcgEngine/Resources/Cards/Fire/wolf_furious.asset,
-1,wolf_stalker,Wolf Stalker,,Character,3,0,0,4,2,2,2,0,1,Stealth,asset,Assets/TcgEngine/Resources/Cards/Forest/wolf_stalker.asset,
-1,woodland,Woodland,,Artifact,2,0,0,0,5,2,2,0,1,<b>Start of turn: </b>All green cards heal by 3.,asset,Assets/TcgEngine/Resources/Cards/Forest/woodland.asset,
+﻿"﻿enabled","id","title","series","type","mana","hp_cost","discard_cost","attack","hp","move_Range","attack_Range","fast_action","deckbuilding","text","source","asset_path","notes"
+"1","armored_beast","Armored Beast","","Character","4","0","0","3","6","2","2","0","1","Taunt","asset","Assets/TcgEngine/Resources/Cards/Forest/armored_beast.asset",""
+"1","ashes_snake","Ashes Snake","","Character","5","0","0","6","4","2","2","0","1","测试用白板","asset","Assets/TcgEngine/Resources/Cards/Fire/ashes_snake.asset",""
+"1","attack_ally_card","攻击","","Spell","1","0","0","0","0","2","2","0","1","对攻击距离内的敌人造成攻击力的伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/art/attack_ally_card.asset",""
+"1","bay","Bay","","Artifact","2","0","0","0","5","2","2","0","1","When a blue creature you own dies, draw a card.","asset","Assets/TcgEngine/Resources/Cards/Water/bay.asset",""
+"1","bear","Bear","","Character","5","0","0","4","5","2","2","0","1","<b>Play:</b> Gain Taunt or Fury","asset","Assets/TcgEngine/Resources/Cards/Forest/bear.asset",""
+"1","bull_heat","Heat Bull","","Character","3","0","0","2","5","2","2","0","1","Spell damage +1.","asset","Assets/TcgEngine/Resources/Cards/Fire/bull_heat.asset",""
+,"card_vc5_gear_armor","强化装甲","vc5","Spell","1","0","0","0","0","0","0","0","1","强化装甲","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_armor.asset",""
+,"card_vc5_gear_bomb","组装自爆机器人","vc5","Spell","1","0","0","0","0","0","0","0","1","组装自爆机器人","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_bomb.asset",""
+,"card_vc5_gear_cannon","组装蒸汽巨炮","vc5","Spell","3","0","0","0","0","0","0","0","1","组装蒸汽巨炮","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_cannon.asset",""
+,"card_vc5_gear_charge","机械充能","vc5","Spell","1","0","0","0","0","0","0","0","1","机械充能","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_charge.asset",""
+,"card_vc5_gear_collect","零件搜集","vc5","Spell","1","0","0","0","0","0","0","0","1","零件搜集","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_collect.asset",""
+,"card_vc5_gear_fix","紧急维修","vc5","Spell","1","0","0","0","0","0","0","0","1","紧急维修","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_fix.asset",""
+,"card_vc5_gear_mech","组装巨型机甲","vc5","Spell","3","0","0","0","0","0","0","0","1","组装巨型机甲","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_mech.asset",""
+,"card_vc5_gear_mine","过度开采","vc5","Spell","0","0","0","0","0","0","0","0","1","过度开采","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_mine.asset",""
+,"card_vc5_gear_overload","过载指令","vc5","Spell","2","0","0","0","0","0","0","0","1","过载指令","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_overload.asset",""
+,"card_vc5_gear_recycle","零件回收","vc5","Secret","1","0","0","0","0","0","0","0","1","零件回收","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_recycle.asset",""
+,"card_vc5_gear_repair","组装维修站","vc5","Spell","2","0","0","0","0","0","0","0","1","组装维修站","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_repair.asset",""
+,"card_vc5_gear_salvage","拆解回收","vc5","Spell","1","0","0","0","0","0","0","0","1","拆解回收","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_salvage.asset",""
+,"card_vc5_gear_scavenge","战场拾荒","vc5","Spell","1","0","0","0","0","0","0","0","1","战场拾荒","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_scavenge.asset",""
+,"card_vc5_gear_scrap","紧急铸造","vc5","Spell","0","0","0","0","0","0","0","0","1","紧急铸造","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_scrap.asset",""
+,"card_vc5_gear_selfdestruct","自毁程序","vc5","Spell","1","0","0","0","0","0","0","0","1","自毁程序","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_selfdestruct.asset",""
+,"card_vc5_gear_shield_gen","组装护盾发生器","vc5","Spell","2","0","0","0","0","0","0","0","1","组装护盾发生器","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_shield_gen.asset",""
+,"card_vc5_gear_turret","组装炮台","vc5","Spell","2","0","0","0","0","0","0","0","1","组装炮台","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_turret.asset",""
+,"card_vc5_gear_upgrade","改造升级","vc5","Spell","2","0","0","0","0","0","0","0","1","改造升级","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_upgrade.asset",""
+,"card_vc5_gear_warmup","核心预热","vc5","Spell","2","0","0","0","0","0","0","0","1","核心预热","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_warmup.asset",""
+,"card_vc5_gear_weapon","强化武器","vc5","Spell","1","0","0","0","0","0","0","0","1","强化武器","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_gear_weapon.asset",""
+,"card_vc5_rune_armor","符文护甲","vc5","Spell","1","0","0","0","0","0","0","0","1","符文护甲","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_armor.asset",""
+,"card_vc5_rune_burst","元素爆发","vc5","Spell","3","0","0","5","0","0","0","0","1","元素爆发","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_burst.asset",""
+,"card_vc5_rune_charge","符文充能","vc5","Spell","1","0","0","0","0","0","0","0","1","符文充能","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_charge.asset",""
+,"card_vc5_rune_copy","符文复制","vc5","Spell","2","0","0","0","0","0","0","0","1","符文复制","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_copy.asset",""
+,"card_vc5_rune_earth","大地符文","vc5","Spell","1","0","0","0","0","0","0","0","1","大地符文","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_earth.asset",""
+,"card_vc5_rune_explosion","符文爆发","vc5","Spell","2","0","0","0","0","0","0","0","1","符文爆发","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_explosion.asset",""
+,"card_vc5_rune_fire","火焰符文","vc5","Spell","1","0","0","0","0","0","0","0","1","火焰符文","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_fire.asset",""
+,"card_vc5_rune_firestorm","烈焰风暴","vc5","Spell","3","0","0","4","0","0","0","0","1","烈焰风暴","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_firestorm.asset",""
+,"card_vc5_rune_flood","奥术洪流","vc5","Spell","3","0","0","0","0","0","0","0","1","奥术洪流","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_flood.asset",""
+,"card_vc5_rune_harmony","元素调和","vc5","Spell","2","0","0","0","0","0","0","0","1","元素调和","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_harmony.asset",""
+,"card_vc5_rune_purify","元素净化","vc5","Spell","1","0","0","0","0","0","0","0","1","元素净化","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_purify.asset",""
+,"card_vc5_rune_resonance","元素共鸣","vc5","Secret","1","0","0","0","0","0","0","0","1","元素共鸣","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_resonance.asset",""
+,"card_vc5_rune_sandstorm","沙尘暴","vc5","Spell","2","0","0","0","0","0","0","0","1","沙尘暴","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_sandstorm.asset",""
+,"card_vc5_rune_shield","元素护盾","vc5","Spell","2","0","0","0","0","0","0","0","1","元素护盾","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_shield.asset",""
+,"card_vc5_rune_steam","蒸汽爆发","vc5","Spell","2","0","0","3","0","0","0","0","1","蒸汽爆发","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_steam.asset",""
+,"card_vc5_rune_swamp","沼泽术","vc5","Spell","2","0","0","0","0","0","0","0","1","沼泽术","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_swamp.asset",""
+,"card_vc5_rune_transfer","符文转移","vc5","Spell","1","0","0","0","0","0","0","0","1","符文转移","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_transfer.asset",""
+,"card_vc5_rune_water","水流符文","vc5","Spell","1","0","0","0","0","0","0","0","1","水流符文","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_water.asset",""
+,"card_vc5_rune_wind","疾风符文","vc5","Spell","1","0","0","0","0","0","0","0","1","疾风符文","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_wind.asset",""
+,"card_vc5_rune_wisdom","奥术智慧","vc5","Spell","1","0","0","0","0","0","0","0","1","奥术智慧","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_rune_wisdom.asset",""
+,"card_vc5_wild_awaken","兽性觉醒","vc5","Spell","1","0","0","0","0","0","0","0","1","兽性觉醒","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_awaken.asset",""
+,"card_vc5_wild_bear","召唤棕熊","vc5","Spell","2","0","0","0","0","0","0","0","1","召唤棕熊","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_bear.asset",""
+,"card_vc5_wild_blood","血腥味","vc5","Secret","1","0","0","0","0","0","0","0","1","血腥味","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_blood.asset",""
+,"card_vc5_wild_burst","生态爆发","vc5","Spell","2","0","0","0","0","0","0","0","1","生态爆发","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_burst.asset",""
+,"card_vc5_wild_calm","自然安抚","vc5","Spell","1","0","0","0","0","0","0","0","1","自然安抚","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_calm.asset",""
+,"card_vc5_wild_falcon","召唤猎鹰","vc5","Spell","1","0","0","0","0","0","0","0","1","召唤猎鹰","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_falcon.asset",""
+,"card_vc5_wild_forest","召唤树林","vc5","Spell","1","0","0","0","0","0","0","0","1","召唤树林","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_forest.asset",""
+,"card_vc5_wild_fusion","野兽融合","vc5","Spell","2","0","0","0","0","0","0","0","1","野兽融合","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_fusion.asset",""
+,"card_vc5_wild_grass","种植草地","vc5","Spell","0","0","0","0","0","0","0","0","1","种植草地","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_grass.asset",""
+,"card_vc5_wild_heal","自然治愈","vc5","Spell","1","0","0","0","0","0","0","0","1","自然治愈","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_heal.asset",""
+,"card_vc5_wild_humanity","人性回归","vc5","Spell","1","0","0","0","0","0","0","0","1","人性回归","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_humanity.asset",""
+,"card_vc5_wild_meditate","冥想宁静","vc5","Spell","1","0","0","0","0","0","0","0","1","冥想宁静","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_meditate.asset",""
+,"card_vc5_wild_moon","月光洗礼","vc5","Spell","2","0","0","0","0","0","0","0","1","月光洗礼","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_moon.asset",""
+,"card_vc5_wild_pack","野兽军团","vc5","Spell","3","0","0","0","0","0","0","0","1","野兽军团","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_pack.asset",""
+,"card_vc5_wild_release","野性释放","vc5","Spell","2","0","0","0","0","0","0","0","1","野性释放","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_release.asset",""
+,"card_vc5_wild_roar","战斗怒吼","vc5","Spell","0","0","0","0","0","0","0","0","1","战斗怒吼","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_roar.asset",""
+,"card_vc5_wild_snake","召唤蟒蛇","vc5","Spell","1","0","0","0","0","0","0","0","1","召唤蟒蛇","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_snake.asset",""
+,"card_vc5_wild_thorns","荆棘之路","vc5","Spell","1","0","0","0","0","0","0","0","1","荆棘之路","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_thorns.asset",""
+,"card_vc5_wild_wolf_pup","召唤幼狼","vc5","Spell","1","0","0","0","0","0","0","0","1","召唤幼狼","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_wolf_pup.asset",""
+,"card_vc5_wild_wrath","自然之怒","vc5","Spell","3","0","0","0","0","0","0","0","1","自然之怒","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wild_wrath.asset",""
+"1","cave","Cave","","Artifact","2","0","0","0","5","2","2","0","1","All red creatures gain: ""Take 1 damage to gain +1 attack"".","asset","Assets/TcgEngine/Resources/Cards/Fire/cave.asset",""
+"1","coin","Coin","","Spell","0","0","0","0","0","2","2","0","0","Gain 1 mana.","asset","Assets/TcgEngine/Resources/Cards/Summon/coin.asset",""
+"1","crab_mana","Mana Crab","","Character","2","0","0","3","1","2","2","0","1","When attacking a player, gain 2 mana.","asset","Assets/TcgEngine/Resources/Cards/Water/crab_mana.asset",""
+"1","dark_stallion","Dark Stallion","","Character","4","0","0","4","5","2","2","0","1","<b>Cast (2):</b> Roll a D6, on 4+ return target to hand.","asset","Assets/TcgEngine/Resources/Cards/Fire/dark_stallion.asset",""
+"1","dragon_blue","Blue Dragon","","Character","7","0","0","8","8","2","2","0","1","Spell Immunity","asset","Assets/TcgEngine/Resources/Cards/Water/dragon_blue.asset",""
+"1","dragon_egg","Dragon Egg","","Spell","2","0","0","0","0","2","2","0","1","Discover a Dragon.","asset","Assets/TcgEngine/Resources/Cards/Summon/dragon_egg.asset",""
+"1","dragon_green","Green Dragon","","Character","7","0","0","7","9","2","2","0","1","Spell Immunity","asset","Assets/TcgEngine/Resources/Cards/Forest/dragon_green.asset",""
+"1","dragon_red","Red Dragon","","Character","7","0","0","9","7","2","2","0","1","Spell Immunity","asset","Assets/TcgEngine/Resources/Cards/Fire/dragon_red.asset",""
+"1","eel","Electric Eel","","Character","4","0","0","5","2","2","2","0","1","<b>Play:</b> Target character's attack is reduced to 1.","asset","Assets/TcgEngine/Resources/Cards/Water/eel.asset",""
+"1","elf_swordsman","精灵剑士","","Character","1","0","0","2","20","2","1","0","0","通常：学会了剑术的精灵。以快速的攻击作弄敌人。 ","asset","Assets/TcgEngine/Resources/Cards/vc5/hero_elf_swordsman.asset",""
+"1","equip_ring","Mana Ring","","Equipment","1","0","0","0","3","2","2","0","1","Gain 2 extra mana per turn for 3 turns.","asset","Assets/TcgEngine/Resources/Cards/Water/equip_ring.asset",""
+"1","equip_shield","Wooden Shield","","Equipment","2","0","0","0","2","2","2","0","1","Bearer gains 2 armor and taunt.","asset","Assets/TcgEngine/Resources/Cards/Forest/equip_shield.asset",""
+"1","equip_sword","Fire Sword","","Equipment","2","0","0","0","2","2","2","0","1","Attack +1.
+Bearer receives no damage when attacking.","asset","Assets/TcgEngine/Resources/Cards/Fire/equip_sword.asset",""
+"1","fire_chicken","Roasted Chicken","","Character","2","0","0","1","1","2","2","0","1","<b>Death:</b> Summon an egg.","asset","Assets/TcgEngine/Resources/Cards/Fire/fire_chicken.asset",""
+"1","fire_element","Fire Element","","Character","5","0","0","7","3","2","2","0","1","<b>Play:</b> Damage all by 2.","asset","Assets/TcgEngine/Resources/Cards/Fire/fire_element.asset",""
+"1","firefox","Firefox","","Character","4","0","0","4","4","2","2","0","1","<b>Cast (2):</b> Return a spell to your hand.","asset","Assets/TcgEngine/Resources/Cards/Fire/firefox.asset",""
+"1","fish","Fish","","Character","1","0","0","1","1","2","2","0","1","<b>Death:</b> Draw a card.","asset","Assets/TcgEngine/Resources/Cards/Water/fish.asset",""
+"1","flame_eagle","Flame Eagle","","Character","1","0","0","1","1","2","2","0","0","Flying
+Haste","asset","Assets/TcgEngine/Resources/Cards/Summon/flame_eagle.asset",""
+"1","gorilla","Gorilla","","Character","4","0","0","0","6","2","2","0","1","<b>Play:</b> Roll a D6 to know your attack.","asset","Assets/TcgEngine/Resources/Cards/Forest/gorilla.asset",""
+"1","hell_hound","Hell Hound","","Character","4","0","0","4","2","2","2","0","1","Fury","asset","Assets/TcgEngine/Resources/Cards/Fire/hell_hound.asset",""
+"1","imp","Imp","","Character","2","0","0","2","1","2","2","0","1","<b>Play:</b> Deal 1 damage.","asset","Assets/TcgEngine/Resources/Cards/Fire/imp.asset",""
+"1","killer_whale","Killer Whale","","Character","5","0","0","5","4","2","2","0","1","<b>Play:</b> Destroy a character with 4 or less attack.","asset","Assets/TcgEngine/Resources/Cards/Water/killer_whale.asset",""
+"1","kraken","Kraken","","Character","6","0","0","5","5","2","2","0","1","Haste","asset","Assets/TcgEngine/Resources/Cards/Water/kraken.asset",""
+"1","lava_beast","Lava Beast","","Character","3","0","0","2","3","2","2","0","1","After playing a spell, gain +2 attack.","asset","Assets/TcgEngine/Resources/Cards/Fire/lava_beast.asset",""
+"1","mammoth","Mammoth","","Character","6","0","0","7","6","2","2","0","1","Trample","asset","Assets/TcgEngine/Resources/Cards/Forest/mammoth.asset",""
+"1","null","白板","","Character","0","0","0","1","1","2","2","0","0","测试用白板","asset","Assets/TcgEngine/Resources/Cards/Monster/monster_null.asset",""
+"1","octopus","Octopus","","Character","4","0","0","2","5","2","2","0","1","When attacking, roll a D6. On 4+ gain +6 attack.","asset","Assets/TcgEngine/Resources/Cards/Water/octopus.asset",""
+"1","owl","Owl","","Character","3","0","0","2","3","2","2","0","1","Silence target card.","asset","Assets/TcgEngine/Resources/Cards/Forest/owl.asset",""
+"1","phoenix","Phoenix","","Character","6","0","0","6","6","2","2","0","1","<b>Cast (3):</b> Deal 2 damage.
+<b>Death:</b> Summon an egg.","asset","Assets/TcgEngine/Resources/Cards/Fire/phoenix.asset",""
+"1","phoenix_egg","Phoenix Egg","","Artifact","0","0","0","0","3","2","2","0","0","After 3 turns, transforms into a Phoenix.","asset","Assets/TcgEngine/Resources/Cards/Summon/phoenix_egg.asset",""
+"1","poison_frog","Poison Frog","","Character","3","0","0","2","2","2","2","0","1","Deathtouch","asset","Assets/TcgEngine/Resources/Cards/Water/poison_frog.asset",""
+"1","potion_blue","Blue Potion","","Spell","2","0","0","0","0","2","2","0","1","Target gains shell and fully heals.","asset","Assets/TcgEngine/Resources/Cards/Water/potion_blue.asset",""
+"1","potion_green","Green Potion","","Spell","2","0","0","0","0","2","2","0","1","Target gains 2 HP and Taunt.","asset","Assets/TcgEngine/Resources/Cards/Forest/potion_green.asset",""
+"1","potion_red","Red Potion","","Spell","2","0","0","0","0","2","2","0","1","Target gains 1 attack and fury.","asset","Assets/TcgEngine/Resources/Cards/Fire/potion_red.asset",""
+"1","pufferfish","Pufferfish","","Character","3","0","0","2","5","2","2","0","1","Has +3 attack during the opponent's turn.","asset","Assets/TcgEngine/Resources/Cards/Water/pufferfish.asset",""
+"1","raccoon","Raccoon","","Character","2","0","0","2","3","2","2","0","1","<b>Play:</b> Return a character to your hand.","asset","Assets/TcgEngine/Resources/Cards/Forest/raccoon.asset",""
+"1","reaper","Hell Reaper","","Character","6","0","0","6","6","2","2","0","1","<b>Each turn:</b> Kill characters with the lowest attack.","asset","Assets/TcgEngine/Resources/Cards/Fire/reaper.asset",""
+"1","sasquatch","Sasquatch","","Character","5","0","0","6","4","2","2","0","1","<b>End Turn:</b> Go in stealth if you have other characters.","asset","Assets/TcgEngine/Resources/Cards/Forest/sasquatch.asset",""
+"1","sea_monster","Sea Monster","","Character","6","0","0","4","7","2","2","0","1","Enemy characters have -1 attack.
+<b>Action:</b> +1 attack to allies.","asset","Assets/TcgEngine/Resources/Cards/Water/sea_monster.asset",""
+"1","seagull","Seagull","","Character","2","0","0","2","2","2","2","0","1","Flying","asset","Assets/TcgEngine/Resources/Cards/Water/seagull.asset",""
+"1","shark","Shark","","Character","4","0","0","4","4","2","2","0","1","Whenever another character dies, draw 1 card.","asset","Assets/TcgEngine/Resources/Cards/Water/shark.asset",""
+"1","snake_venom","Viper","","Character","2","0","0","1","3","2","2","0","1","<b>Attack:</b> Poison.","asset","Assets/TcgEngine/Resources/Cards/Forest/snake_venom.asset",""
+"1","spell_aerial_strike","Aerial Strike","","Spell","3","0","0","0","0","2","2","0","1","Summon 3 eagles into your hand.","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_aerial_strike.asset",""
+"1","spell_ally_attack_damage","黏黏重击！","","Spell","1","0","0","0","0","2","2","0","1","选择一个我方随从，然后选择一个敌人。对敌人造成我方随从攻击力+1的伤害。","asset","Assets/TcgEngine/Resources/Cards/vc5/spell_ally_attack_damage.asset",""
+"1","spell_armageddon","Armageddon","","Spell","5","0","0","0","0","2","2","0","1","Destroy all creatures on the board","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_armageddon.asset",""
+"1","spell_burn","Burn","","Spell","4","0","0","0","0","2","2","0","1","Destroy target.","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_burn.asset",""
+"1","spell_extinct","Extinct","","Spell","2","0","0","0","0","2","2","0","1","Target card gains ""When an allied character enters play, destroy this"".","asset","Assets/TcgEngine/Resources/Cards/Forest/spell_extinct.asset",""
+"1","spell_flood","Flood","","Spell","3","0","0","0","0","2","2","0","1","Reduce the hp of all characters to 1.","asset","Assets/TcgEngine/Resources/Cards/Water/spell_flood.asset",""
+"1","spell_growth","Growth","","Spell","5","0","0","0","0","2","2","0","1","All allied characters gain +2/2","asset","Assets/TcgEngine/Resources/Cards/Forest/spell_growth.asset",""
+"1","spell_hibernate","Hibernate","","Spell","3","0","0","0","0","2","2","0","1","Target gains +4/4 and goes to sleep for the next 2 turns.","asset","Assets/TcgEngine/Resources/Cards/Forest/spell_hibernate.asset",""
+"1","spell_projectiles","Projectiles","","Spell","999","0","0","0","0","2","2","0","1","Deal 1 damage to a random card.
+Repeat X times.","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_projectiles.asset",""
+"1","spell_roots","Roots","","Spell","3","0","0","0","0","2","2","0","1","Paralyse target for 3 turns.","asset","Assets/TcgEngine/Resources/Cards/Forest/spell_roots.asset",""
+"1","spell_split","Ground Split","","Spell","2","0","0","0","0","2","2","0","1","Target creature gains ""Suffer 3 damage before attacking"".","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_split.asset",""
+"1","spell_stomp","Stomp","","Spell","2","0","0","0","0","2","2","0","1","Destroy the character with the lowest HP.","asset","Assets/TcgEngine/Resources/Cards/Forest/spell_stomp.asset",""
+"1","spell_stones","Hot Stones","","Spell","2","0","0","0","0","2","2","0","1","Deal 1 damage.
+Draw a card.","asset","Assets/TcgEngine/Resources/Cards/Fire/spell_stones.asset",""
+"1","spell_storm","Sea Storm","","Spell","5","0","0","0","0","2","2","0","1","All cards return to their owner's hand.","asset","Assets/TcgEngine/Resources/Cards/Water/spell_storm.asset",""
+"1","spell_submerge","Submerge","","Spell","2","0","0","0","0","2","2","0","1","Target card gains ""When attacked, opponent must discard 1 random card"".","asset","Assets/TcgEngine/Resources/Cards/Water/spell_submerge.asset",""
+"1","spell_treasure","Lost Treasure","","Spell","3","0","0","0","0","2","2","0","1","Look at the next 7 cards in your deck, and choose two.","asset","Assets/TcgEngine/Resources/Cards/Water/spell_treasure.asset",""
+"1","spell_wave","Wave","","Spell","3","0","0","0","0","2","2","0","1","Return target to owner's hand.","asset","Assets/TcgEngine/Resources/Cards/Water/spell_wave.asset",""
+"1","town_forest","Forest Town","","Artifact","3","0","0","0","7","2","2","0","1","All green cards have +2 HP.","asset","Assets/TcgEngine/Resources/Cards/Forest/town_forest.asset",""
+"1","town_underwater","Underwater Town","","Artifact","3","0","0","0","7","2","2","0","1","All blue cards cost 1 less.","asset","Assets/TcgEngine/Resources/Cards/Water/town_underwater.asset",""
+"1","town_volcano","Volcano Town","","Artifact","3","0","0","0","7","2","2","0","1","All red creatures have +2 attack.","asset","Assets/TcgEngine/Resources/Cards/Fire/town_volcano.asset",""
+"1","trap_explosive","Bomb Trap","","Secret","3","0","0","0","0","2","2","0","1","<b>Trap:</b> Damage all by 2.","asset","Assets/TcgEngine/Resources/Cards/Fire/trap_explosive.asset",""
+"1","trap_fish","Fish Trap","","Secret","3","0","0","0","0","2","2","0","1","<b>Trap:</b> Transform into fish.","asset","Assets/TcgEngine/Resources/Cards/Water/trap_fish.asset",""
+"1","trap_spike","Spike Trap","","Secret","3","0","0","0","0","2","2","0","1","<b>Trap:</b> Paralyse the next attacker.","asset","Assets/TcgEngine/Resources/Cards/Forest/trap_spike.asset",""
+"1","tree_angry","Angry Tree","","Character","3","0","0","3","5","2","2","0","1","Regeneration","asset","Assets/TcgEngine/Resources/Cards/Forest/tree_angry.asset",""
+"1","turtle","Turtle","","Character","3","0","0","2","3","2","2","0","1","Taunt
+Shell","asset","Assets/TcgEngine/Resources/Cards/Water/turtle.asset",""
+"1","unicorn","Unicorn","","Character","6","0","0","5","6","2","2","0","1","<b>Play:</b> Give +2/2.
+<b>Action:</b> Charge.","asset","Assets/TcgEngine/Resources/Cards/Forest/unicorn.asset",""
+,"vc5_dragon_berserker_soul","\u72c2\u6218\u58eb\u4e4b\u9b42","vc5","Spell","2","0","0","0","0","2","2","0","1","大幅提升攻击力","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_berserker_soul.asset","从战士迁移"
+,"vc5_dragon_blood_boil","\u9f99\u8840\u6cb8\u817e","vc5","Spell","2","0","0","0","0","2","2","0","1","支付2生命，获得4层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_blood_boil.asset",""
+,"vc5_dragon_blood_frenzy","\u9f99\u8840\u72c2\u70ed","vc5","Spell","3","0","0","0","0","2","2","0","1","本回合每有1层龙息攻击额外造成1伤害，消耗3层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_blood_frenzy.asset",""
+,"vc5_dragon_blood_retaliate","\u8840\u6027\u53cd\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","受伤时反击","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_blood_retaliate.asset","从战士迁移"
+,"vc5_dragon_blood_sacrifice","\u9f99\u8840\u796d\u732e","vc5","Spell","2","0","0","0","0","2","2","0","1","支付2生命获得1层尖锐，获得3层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_blood_sacrifice.asset",""
+,"vc5_dragon_blood_whirl","\u8840\u8272\u65cb\u98ce","vc5","Spell","3","0","0","0","0","2","2","0","1","自残并对周围敌人造成伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_blood_whirl.asset","从战士迁移"
+,"vc5_dragon_breath_infuse","\u9f99\u606f\u704c\u6ce8","vc5","Spell","2","0","0","0","0","2","2","0","1","本回合攻击力+龙息层数/2，消耗4层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_breath_infuse.asset",""
+,"vc5_dragon_breath_store","\u9f99\u606f\u50a8\u5b58","vc5","Spell","1","0","0","0","0","2","2","0","1","本回合攻击力+2，获得3层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_breath_store.asset",""
+,"vc5_dragon_claw_strike","\u9f99\u722a\u51fb","vc5","Spell","1","0","0","0","0","2","2","0","1","造成2+攻击力伤害，龙族使用获得3层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_claw_strike.asset",""
+,"vc5_dragon_flame_burst","\u70c8\u7130\u7206\u53d1","vc5","Spell","3","0","0","0","0","2","2","0","1","造成等同于龙息层数的龙焰伤害，消耗所有龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_flame_burst.asset",""
+,"vc5_dragon_flame_chain","\u70c8\u7130\u8fde\u9501","vc5","Spell","3","0","0","0","0","2","2","0","1","对攻击距离内所有敌人造成1+攻击力伤害并附加1层龙焰，每击中1个敌人获得1层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_flame_chain.asset",""
+,"vc5_dragon_flame_enchant","\u70c8\u7130\u9644\u9b54","vc5","Spell","2","0","0","0","0","2","2","0","1","下1次攻击附加龙息层数/4的龙焰伤害，消耗2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_flame_enchant.asset",""
+,"vc5_dragon_flame_ignite","\u70c8\u7130\u70b9\u71c3","vc5","Spell","1","0","0","0","0","2","2","0","1","造成1点龙焰伤害，龙族使用获得2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_flame_ignite.asset",""
+,"vc5_dragon_flame_spray","\u70c8\u7130\u55b7\u5c04","vc5","Spell","2","0","0","0","0","2","2","0","1","对攻击距离内所有敌人造成龙息层数/3的龙焰伤害，消耗6层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_flame_spray.asset",""
+,"vc5_dragon_gaze","\u9f99\u4e4b\u51dd\u89c6","vc5","Spell","1","0","0","0","0","2","2","0","1","查看对方手牌，龙族使用获得2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_gaze.asset",""
+,"vc5_dragon_heart_awaken","\u9f99\u5fc3\u89c9\u9192","vc5","Spell","2","0","0","0","0","2","2","0","1","抽1张牌，龙族使用获得3层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_heart_awaken.asset",""
+,"vc5_dragon_heart_recover","\u9f99\u5fc3\u6062\u590d","vc5","Spell","2","0","0","0","0","2","2","0","1","恢复2生命，龙族使用每3层龙息额外恢复1生命","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_heart_recover.asset",""
+,"vc5_dragon_heavy_strike","\u91cd\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","造成高额伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_heavy_strike.asset","从战士迁移"
+,"vc5_dragon_rage_strike","\u6012\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","消耗生命造成额外伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_rage_strike.asset","从战士迁移"
+,"vc5_dragon_roar_fury","\u9f99\u543c\u4e4b\u6012","vc5","Spell","3","0","0","0","0","2","2","0","1","造成2+攻击力伤害，龙息≥8时眩晕目标，获得2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_roar_fury.asset",""
+,"vc5_dragon_roar_minor","\u5c0f\u9f99\u543c","vc5","Spell","1","0","0","0","0","2","2","0","1","攻击范围内敌人移动力-1，龙族使用获得4层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_roar_minor.asset",""
+,"vc5_dragon_scale_armor","\u9f99\u9cde\u7532","vc5","Spell","2","0","0","0","0","2","2","0","1","获得2点护盾，龙族使用获得2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_scale_armor.asset",""
+,"vc5_dragon_scale_retaliate","\u9f99\u9cde\u53cd\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","受到伤害时对攻击者造成龙息层数/2的伤害，消耗2层龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_scale_retaliate.asset",""
+,"vc5_dragon_scale_shield","\u9f99\u9cde\u76fe","vc5","Spell","2","0","0","0","0","2","2","0","1","获得等同于龙息层数/2的护盾，不消耗龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_scale_shield.asset",""
+,"vc5_dragon_slash","\u65a9\u51fb","vc5","Spell","1","0","0","0","0","2","2","0","1","对范围内敌人造成伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_slash.asset","从战士迁移"
+,"vc5_dragon_soul_shield","\u9f99\u9b42\u4e4b\u76fe","vc5","Spell","2","0","0","0","0","2","2","0","1","获得等同于龙息层数的护盾，消耗所有龙息","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_soul_shield.asset",""
+,"vc5_dragon_war_cry","\u6218\u543c","vc5","Spell","2","0","0","0","0","2","2","0","1","范围控制效果","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_war_cry.asset","从战士迁移"
+,"vc5_dragon_warrior_heart","\u6218\u58eb\u4e4b\u5fc3","vc5","Spell","2","0","0","0","0","2","2","0","1","恢复生命值","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_warrior_heart.asset","从战士迁移"
+,"vc5_dragon_warrior_sacrifice","\u6218\u58eb\u796d\u732e","vc5","Spell","1","0","0","0","0","2","2","0","1","牺牲自身为友军提供增益","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_dragon_warrior_sacrifice.asset","从战士迁移"
+,"vc5_shared_brave_charge","\u52c7\u6562\u51b2\u950b","vc5","Spell","2","0","0","0","0","2","2","0","1","冲锋并提升攻击力","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_shared_brave_charge.asset","龙族风灵共享"
+,"vc5_shared_fearless_charge","\u65e0\u754f\u51b2\u950b","vc5","Spell","3","0","0","0","0","2","2","0","1","冲锋并附加伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_shared_fearless_charge.asset","龙族风灵共享"
+,"vc5_shared_wild_charge","\u72c2\u91ce\u51b2\u950b","vc5","Spell","2","0","0","0","0","2","2","0","1","向某方向冲锋对路径上敌人造成伤害","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_shared_wild_charge.asset","龙族风灵共享"
+"1","vc5_slime_attach","粘液附着","黏黏","Spell","0","0","0","0","0","0","0","1","1","【效果】对攻击距离+1内任意单位施加1层粘液，并无法移动，持续1阶段。
+【特殊效果】可对己方黏黏使用，效果变为获得1层尖锐，持续2阶段。","runtime_vc5","",""
+"1","vc5_slime_boom_card","黏黏爆炸","黏黏","Spell","0","0","0","0","0","0","0","0","1","【效果】以己方1个单位为对象发动，使用后该单位死亡，对周围1格内所有单位造成其当前生命值伤害；对黏黏幼崽使用时可同时引爆所有幼崽。
+【特殊效果】若使用者为黏黏，对场上随机存活敌人附加粘液，重复次数等于该单位生命值。","runtime_vc5","",""
+"1","vc5_slime_combo_strike","黏黏连打","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】让一个我方英雄，对攻击距离内的一个任意单位造成1+攻击力的伤害。
+【特殊效果】若本卡由黏黏使用，额外释放一次。","runtime_vc5","",""
+"1","vc5_slime_detonate_card","粘液引爆","黏黏","Spell","2","0","0","0","0","0","0","0","1","【效果】对任意单位造成1伤害。
+【特殊效果】若目标身上存在粘液，消耗1层粘液，再次执行该效果，直到无法继续。","runtime_vc5","",""
+"1","vc5_slime_heavy_strike","黏黏重击","黏黏","Spell","0","0","0","0","0","0","0","0","1","【效果】让一个我方英雄，对攻击距离内的一个任意敌人造成2+攻击力的伤害。
+【特殊效果】若本卡由黏黏使用，额外附加1层粘液。","runtime_vc5","",""
+"1","vc5_slime_merge_card","黏黏合体","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】以己方1只黏黏幼崽为对象，消灭其余黏黏幼崽，将被消灭幼崽的属性以加法叠加至对象身上。","runtime_vc5","",""
+"1","vc5_slime_pool","粘液池","","Artifact","0","0","0","0","1","0","0","0","0","【效果】召唤粘液池，不可被攻击，持续若干回合。
+【特殊效果】若己方存在腐蚀黏黏，持续回合+1。","runtime_vc5","",""
+"1","vc5_slime_pool_spell","粘液池","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】在己方任意角色2格范围内无单位的格子召唤粘液池，不可被攻击，持续2回合。
+【特殊效果】若己方存在腐蚀黏黏，持续回合+1。","runtime_vc5","",""
+"1","vc5_slime_run","黏黏快跑","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】移动2格。
+【特殊效果】若使用者为黏黏，可直接移动到场上任意黏黏幼崽所在格。","runtime_vc5","",""
+"1","vc5_slime_sharpen","黏黏磨刀","黏黏","Spell","1","0","0","0","0","0","0","1","1","【效果】使用者本回合造成伤害+2。
+【特殊效果】若使用者为黏黏，额外消耗随机2层粘液，本回合造成伤害再+2。","runtime_vc5","",""
+"1","vc5_slime_spawn","黏黏幼崽","","Character","0","0","0","1","1","1","1","0","0","【效果】1血1攻，敌方不可通过；友方可通过，若停留其上可吞噬并回复1生命。
+【特殊效果】无","runtime_vc5","",""
+"1","vc5_slime_split_card","黏黏分裂","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】消耗所有附着有粘液的角色身上的粘液，每消耗2层粘液，在其周围可召唤格召唤1只黏黏幼崽（至少1只）。
+【特殊效果】幼崽死亡时为击杀者附加1层粘液。","runtime_vc5","",""
+"1","vc5_slime_spray","粘液喷射","黏黏","Spell","1","0","0","0","0","0","0","0","1","【效果】让一个我方英雄，对攻击距离+1内的一个任意单位施加2层粘液。
+【特殊效果】可对己方黏黏使用，效果变为恢复3生命。","runtime_vc5","",""
+,"vc5_wind_accelerate","\u98ce\u4e4b\u52a0\u901f","vc5","Spell","1","0","0","0","0","2","2","0","1","本回合可移动2次，消耗5层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_accelerate.asset",""
+,"vc5_wind_blink","\u98ce\u4e4b\u95ea\u73b0","vc5","Spell","2","0","0","0","0","2","2","0","1","移动至任意空格，消耗8层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_blink.asset",""
+,"vc5_wind_charge","\u98ce\u4e4b\u51b2\u950b","vc5","Spell","2","0","0","0","0","2","2","0","1","向某方向移动2格对路径敌人造成1风伤，风灵使用获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_charge.asset",""
+,"vc5_wind_domain","\u98ce\u4e4b\u9886\u57df","vc5","Spell","3","0","0","0","0","2","2","0","1","创建风墙（持续2回合）流风≥15时持续3回合，获得2层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_domain.asset",""
+,"vc5_wind_double_move","\u53cc\u91cd\u79fb\u52a8","vc5","Spell","2","0","0","0","0","2","2","0","1","本回合可额外移动2次，获得5层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_double_move.asset",""
+,"vc5_wind_guard_spell","\u98ce\u4e4b\u5b88\u62a4\u6cd5","vc5","Spell","2","0","0","0","0","2","2","0","1","获得等同于流风层数/3的护盾，消耗4层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_guard_spell.asset",""
+,"vc5_wind_haste","\u6025\u884c\u5982\u98ce","vc5","Spell","1","0","0","0","0","2","2","0","1","本回合移动力+2，获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_haste.asset",""
+,"vc5_wind_howl","\u98ce\u4e4b\u5486\u54ee","vc5","Spell","2","0","0","0","0","2","2","0","1","攻击范围内敌人移动力-1，风灵使用获得4层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_howl.asset",""
+,"vc5_wind_lightness","\u8eab\u8f7b\u5982\u71d5","vc5","Spell","1","0","0","0","0","2","2","0","1","本回合不受减少移动效果影响，风灵使用获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_lightness.asset",""
+,"vc5_wind_loop_strike","\u8ff9\u98ce\u8fde\u51fb","vc5","Spell","3","0","0","0","0","2","2","0","1","移动2格对终点周围敌人造成2风伤，获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_loop_strike.asset",""
+,"vc5_wind_pull","\u98ce\u4e4b\u62c9\u62fd","vc5","Spell","2","0","0","0","0","2","2","0","1","将1个敌人向自己方向位移2格，流风≥10时位移3格消耗3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_pull.asset",""
+,"vc5_wind_pursuit","\u98ce\u4e4b\u8ffd\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","对移动距离内敌人造成流风层数/2的风伤，不消耗流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_pursuit.asset",""
+,"vc5_wind_recover","\u98ce\u4e4b\u6062\u590d","vc5","Spell","2","0","0","0","0","2","2","0","1","恢复2生命，风灵使用每4层流风额外恢复1生命","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_recover.asset",""
+,"vc5_wind_retaliate","\u98ce\u4e4b\u53cd\u51fb","vc5","Spell","2","0","0","0","0","2","2","0","1","受到攻击时移动1格并造成1点风伤，消耗4层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_retaliate.asset",""
+,"vc5_wind_sacrifice","\u98ce\u4e4b\u796d\u732e","vc5","Spell","1","0","0","0","0","2","2","0","1","支付2生命移动力+2本回合，获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_sacrifice.asset",""
+,"vc5_wind_sense","\u98ce\u4e4b\u611f\u5e94","vc5","Spell","1","0","0","0","0","2","2","0","1","查看对方下1张牌，风灵使用获得2层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_sense.asset",""
+,"vc5_wind_swift_step","\u8fc5\u6377\u6b65\u4f10","vc5","Spell","1","0","0","0","0","2","2","0","1","移动3格，获得4层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_swift_step.asset",""
+,"vc5_wind_swiftness","\u98ce\u4e4b\u8fc5\u6377","vc5","Spell","2","0","0","0","0","2","2","0","1","本回合移动力+1，风灵使用获得3层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_swiftness.asset",""
+,"vc5_wind_unimpeded","\u98ce\u65e0\u963b\u6321","vc5","Spell","1","0","0","0","0","2","2","0","1","下1次移动不消耗移动力，获得2层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_unimpeded.asset",""
+,"vc5_wind_vortex","\u98ce\u4e4b\u6f29\u6da1","vc5","Spell","3","0","0","0","0","2","2","0","1","将攻击距离内所有敌人位移1格（随机方向），消耗6层流风","asset","Assets/TcgEngine/Resources/Cards/vc5/card_vc5_wind_vortex.asset",""
+"1","wolf_alpha","Alpha Wolf","","Character","3","0","0","3","2","2","2","0","1","<b>Play</b>: Summon a baby wolf.
+All Wolves +1 attack.","asset","Assets/TcgEngine/Resources/Cards/Forest/wolf_alpha.asset",""
+"1","wolf_baby","Baby Wolf","","Character","1","0","0","1","1","2","2","0","0","","asset","Assets/TcgEngine/Resources/Cards/Summon/wolf_baby.asset",""
+"1","wolf_furious","Furious Wolf","","Character","5","0","0","3","4","2","2","0","1","Fury
+Each turn, gain +1 attack.","asset","Assets/TcgEngine/Resources/Cards/Fire/wolf_furious.asset",""
+"1","wolf_stalker","Wolf Stalker","","Character","3","0","0","4","2","2","2","0","1","Stealth","asset","Assets/TcgEngine/Resources/Cards/Forest/wolf_stalker.asset",""
+"1","woodland","Woodland","","Artifact","2","0","0","0","5","2","2","0","1","<b>Start of turn: </b>All green cards heal by 3.","asset","Assets/TcgEngine/Resources/Cards/Forest/woodland.asset",""

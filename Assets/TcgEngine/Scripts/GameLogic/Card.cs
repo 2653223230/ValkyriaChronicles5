@@ -32,6 +32,11 @@ namespace TcgEngine
 
         public string equipped_uid = null;
 
+        //------ Awakening System ---------
+        public string awakening_id = null;              // 关联的觉醒数据ID
+        public AwakeningStage awakening_stage = AwakeningStage.None;  // 当前觉醒阶段
+        public int awakening_progress = 0;              // 当前觉醒进度（用于快速检查）
+
         public List<CardTrait> traits = new List<CardTrait>();
         public List<CardTrait> ongoing_traits = new List<CardTrait>();
 
