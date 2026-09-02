@@ -25,10 +25,16 @@ namespace TcgEngine.FX
 
         void Update()
         {
-            if (!GameClient.Get().IsReady())
-                return;
+            if (GameClient.Get() != null && GameClient.Get().IsReady())
+                RefreshLine();
+            else
+                points.Clear();
+            RefreshRender();
+        }
 
-            RefreshLine();
+        private void OnDisable()
+        {
+            points.Clear();
             RefreshRender();
         }
 
@@ -37,16 +43,8 @@ namespace TcgEngine.FX
             points.Clear();
 
             Game gdata = GameClient.Get().GetGameData();
-            PlayerControls controls = PlayerControls.Get();
-            BoardCard bcard = controls.GetSelected();
-
             bool visible = false;
             Vector3 source = Vector3.zero;
-            if (bcard != null)
-            {
-                source = bcard.transform.position;
-                visible = true;
-            }
 
             HandCard drag = HandCard.GetDrag();
             if (drag != null)

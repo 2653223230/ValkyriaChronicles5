@@ -1,6 +1,12 @@
 # VC5 AI 行动逻辑
 
-更新时间：2026-08-18
+更新时间：2026-09-02
+
+版本快照：`demo_v2_20260830` 继续使用本文所述 `AIType.Vc5Demo`、C3 规划器与行动表现。版本封存只审计文档，没有调整 AI 评分、选择链或联网消息。
+
+2026-08-28 已修复斥候快移空放：目标必须为一格内未占用空格。技能可用性以斥候自身检查，不读取上一行动残留角色；AI 选目标阶段不得选择棋子来结算只支持格子的效果。被包围时跳过该技能，仍保留零费、快速、每回合一次规则。
+
+实现：`ConditionVc5SlotMoveFromTriggerer` 明确拒绝 Card、Player、CardData 目标，按实体棋盘及敌我统一占格校验 Slot；`Vc5DemoGrid.GetMovingActor` 对 Activate 使用 caster，对移动牌后续效果使用 ability_triggerer，条件、效果和 AI 格子评分共用这一判断。未改变 AI 消息类型或联网流程。新增 6 项回归覆盖双方视角、残留触发者、包围与快速移动牌第二次选择；完整门禁 182/182 通过，含九种组合共 90 局自动对战。
 
 本文档记录当前试玩 demo 中“可与玩家对战的 AI”的行为逻辑和实现方式。后续如果希望修改 AI 行为，优先修改本文档，再按本文档同步代码。
 
@@ -12,16 +18,25 @@
 | 枚举值 | `20` |
 | 默认配置 | `Assets/TcgEngine/Resources/GameplayData.asset` 中 `ai_type: 20` |
 | AI 卡组来源 | `GameplayData.ai_decks` |
-| 默认 AI 卡组 | `deck_vc5_demo_mobile_assault`、`deck_vc5_demo_ranged_pressure` |
+| 已注册 AI 卡组 | `deck_vc5_demo_mobile_assault`、`deck_vc5_demo_ranged_pressure`、`deck_vc5_demo_ranged_pressure_c3` |
 
 `Vc5DemoBootstrap.Register()` 会在运行时兜底：
 
 - 将 `GameplayData.ai_type` 设置为 `AIType.Vc5Demo`。
-- 将 B/C 两套 demo 卡组加入 `free_decks`。
-- 将 B/C 两套 demo 卡组加入 `ai_decks`。
+- 将 B/C/C3 三套 demo 卡组加入 `free_decks`。
+- 将 B/C/C3 三套 demo 卡组加入 `ai_decks`。
 - 对 `DeckData.deck_list`、`free_decks`、`ai_decks` 做同 ID 去重，避免 Unity 热重载后重复出现。
 
 ## 代码入口
+
+### 2026-08-27 C3 接入
+
+- 新增独立 `deck_vc5_demo_ranged_pressure_c3` 到玩家与 AI 可选卡组；旧 B/C 不替换。
+- C3 出牌前遍历己方棋子，用 `Vc5C3Rules.Plan` 排除没有合法目标/路线的棋子，不能仅因某棋子攻击高就忽略实际可行动的棋子。
+- 四种伤害牌优先考虑有效伤害与击杀，群体牌累计多个目标收益；自动选敌和落点完全沿用玩家规则，不允许 AI 改选目标。
+- 精确移动继续使用选格流程，倾向推进得分区；射程增益优先给攻击较高的棋子，临时校准已存在时不重复浪费该牌。
+- 伤害评分是轻量启发式，不等于多回合搜索；预览/实际结算的确定性由共享规则保障。AI 的数值强度和策略质量仍需人工试玩。
+- 已新增 C3 对 B、C、C3 及反向组合共 50 局自动对战防卡死测试，连同原 B/C 40 局共 90 局通过；2026-08-27 完整门禁 156/156，报告 `TestResults/c3-gate-reviewed.xml`。这验证流程能结束，不等于 AI 强度或平衡已通过人工验收。
 
 | 文件 | 职责 |
 |---|---|
@@ -30,6 +45,26 @@
 | `Assets/TcgEngine/Scripts/AI/Vc5DemoAIPlanner.cs` | 规则式决策核心，负责选择下一步行动或选择链目标 |
 | `Assets/TcgEngine/Scripts/Data/Vc5DemoBootstrap.cs` | 注册 demo 卡组，并同步默认 AI 配置 |
 | `Assets/TcgEngine/Scripts/Testing/Editor/Vc5DemoAITests.cs` | AI 行为回归测试 |
+| `Assets/TcgEngine/Scripts/UI/Vc5DemoBattleFeedback.cs` | 订阅权威客户端事件，展示 AI 出牌、技能、行动者、目标和结果 |
+| `Assets/TcgEngine/Scripts/UI/Vc5DemoBattleFeedbackModel.cs` | 最近三条行动记录、比分摘要和胜负原因的纯显示模型 |
+| `Assets/TcgEngine/Scripts/Testing/Editor/Vc5DemoBattleFeedbackTests.cs` | AI 行动文案、记录容量、计分预测和胜负原因回归测试 |
+
+## AI 行动表现层
+
+2026-08-25 已为 B/C Solo Demo 增加第一版 AI 行动表现层，不修改 `Vc5DemoAIPlanner` 的决策优先级，也不修改联网消息语义：
+
+- AI 出牌时在屏幕上方显示卡名、费用和一行简短效果。
+- AI 使用主动技能、移动或攻击时显示对应行动提示。
+- 棋盘上的行动者使用青色框，目标单位或目标格使用黄色框短暂高亮。
+- 左侧保留最近 3 条行动记录，包含目标、伤害、治疗、死亡和得分等结果。
+- AI 行动权切回玩家时明确记录「AI 放弃行动」，避免玩家误以为 AI 卡住。
+- 表现层只读取 `GameClient` 已接收的出牌、移动、技能、攻击、伤害、弃置、回合和全量刷新事件，不自行执行效果或修改游戏状态。
+
+当前边界：
+
+- 当前实现高亮行动者和最终目标/落点，不绘制完整移动路径线。
+- 当前不为了动画强行阻塞服务端或联网流程；行动节奏继续沿用 `AIPlayerVc5Demo` 的执行等待，人工测试后再决定是否增加可跳过的表现队列。
+- 若以后调整 AI 播放速度，必须同时验证选择链不会超时、行动权不会重复切换、Multiplayer 消息顺序不受影响。
 
 ## 总体设计目标
 

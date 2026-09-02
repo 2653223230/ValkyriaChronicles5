@@ -85,6 +85,7 @@ namespace TcgEngine.UI
             List<DeckData> decks = new List<DeckData>();
             AddDeck(decks, Vc5DemoBootstrap.MobileAssaultDeckId);
             AddDeck(decks, Vc5DemoBootstrap.RangedPressureDeckId);
+            AddDeck(decks, Vc5DemoBootstrap.RangedPressureC3DeckId);
             return decks.ToArray();
         }
 
@@ -119,7 +120,8 @@ namespace TcgEngine.UI
         private static void EnsureDemoDecksRegistered()
         {
             if (DeckData.Get(Vc5DemoBootstrap.MobileAssaultDeckId) == null
-                || DeckData.Get(Vc5DemoBootstrap.RangedPressureDeckId) == null)
+                || DeckData.Get(Vc5DemoBootstrap.RangedPressureDeckId) == null
+                || DeckData.Get(Vc5DemoBootstrap.RangedPressureC3DeckId) == null)
             {
                 Vc5DemoBootstrap.Register();
             }

@@ -30,6 +30,7 @@
 
 # Visual Studio cache directory
 .vs/
+.obsidian/
 
 # Gradle cache directory
 .gradle/

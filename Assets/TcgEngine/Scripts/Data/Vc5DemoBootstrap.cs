@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace TcgEngine
 {
-    public static class Vc5DemoBootstrap
+    public static partial class Vc5DemoBootstrap
     {
         public const string MobileAssaultDeckId = "deck_vc5_demo_mobile_assault";
         public const string RangedPressureDeckId = "deck_vc5_demo_ranged_pressure";
+        public const string RangedPressureC3DeckId = "deck_vc5_demo_ranged_pressure_c3";
 
         private static readonly object registerLock = new object();
         private static bool registered;
@@ -22,6 +23,7 @@ namespace TcgEngine
 
                 RegisterMobileAssault();
                 RegisterRangedPressure();
+                RegisterRangedPressureC3();
                 registered = true;
             }
         }
@@ -422,6 +424,7 @@ namespace TcgEngine
             CardData existing = CardData.Get(card.id);
             if (existing == null)
             {
+                ApplyDemoArt(card);
                 CardData.card_list.Add(card);
                 CardData.card_dict[card.id] = card;
                 return card;
@@ -442,6 +445,7 @@ namespace TcgEngine
             existing.fast_action = card.fast_action;
             existing.deckbuilding = card.deckbuilding;
             existing.series = card.series;
+            ApplyDemoArt(existing);
             return existing;
         }
 

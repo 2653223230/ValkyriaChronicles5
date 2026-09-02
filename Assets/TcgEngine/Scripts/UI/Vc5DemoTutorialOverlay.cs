@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
@@ -6,47 +7,79 @@ using TcgEngine.Client;
 namespace TcgEngine.UI
 {
     /// <summary>
-    /// Two-page onboarding overlay for VC5 Demo Solo battles.
-    /// It is created at runtime so the existing game prefab and network flows stay unchanged.
+    /// Interactive six-step onboarding for the C3 Solo Demo match.
+    /// Built at runtime so scene prefabs and network flows remain unchanged.
     /// </summary>
     public class Vc5DemoTutorialOverlay : MonoBehaviour
     {
         public const string RootName = "VC5 Demo Tutorial Overlay";
+        public const string MobileShotId = "vc5_demo_c3_mobile_shot";
 
-        private static readonly Color DimColor = new Color(0.012f, 0.02f, 0.03f, 0.58f);
-        private static readonly Color PanelColor = new Color(0.055f, 0.075f, 0.095f, 0.96f);
-        private static readonly Color InkColor = new Color(0.035f, 0.055f, 0.075f, 1f);
-        private static readonly Color CyanColor = new Color(0.10f, 0.92f, 0.88f, 1f);
-        private static readonly Color YellowColor = new Color(1f, 0.76f, 0.14f, 1f);
-        private static readonly Color MutedColor = new Color(0.79f, 0.85f, 0.88f, 1f);
+        public enum TutorialStep
+        {
+            Intro,
+            WaitCardDrag,
+            Preview,
+            Result,
+            HudInfo,
+            ScoreFlow
+        }
 
-        private Font uiFont;
-        
-        private static Sprite generatedBadgeSprite;
-        private Sprite badgeSprite;
-        private Transform contentParent;
-        private GameObject page1;
-        private GameObject page2;
+        private static readonly Color Panel = new Color(0.035f, 0.085f, 0.11f, 0.98f);
+        private static readonly Color Ink = new Color(0.025f, 0.075f, 0.095f, 1f);
+        private static readonly Color Cyan = new Color(0.09f, 0.90f, 0.87f, 1f);
+        private static readonly Color Yellow = new Color(0.96f, 0.76f, 0.27f, 1f);
+        private static readonly Color Red = new Color(0.94f, 0.35f, 0.35f, 1f);
+        private static readonly Color Muted = new Color(0.82f, 0.88f, 0.90f, 1f);
+
+        private static Vc5DemoTutorialOverlay active;
+
+        private readonly List<GameObject> pages = new List<GameObject>();
+        private Font font;
+        private TutorialStep step;
+        private string trackedCardUid;
+        private float releasedAt = -1f;
+        private float showResultAt = -1f;
+
+        public TutorialStep CurrentStep => step;
+        public static bool IsBlockingDemoAI => active != null && active.isActiveAndEnabled;
+
+        public static bool IsDemoSoloMatch(GameType gameType, string playerDeckId, string aiDeckId)
+        {
+            return gameType == GameType.Solo && IsDemoDeck(playerDeckId) && IsDemoDeck(aiDeckId);
+        }
 
         public static bool ShouldShowFor(GameType gameType, string playerDeckId, string aiDeckId)
         {
-            return gameType == GameType.Solo
-                && IsDemoDeck(playerDeckId)
-                && IsDemoDeck(aiDeckId);
+            return IsDemoSoloMatch(gameType, playerDeckId, aiDeckId)
+                && playerDeckId == Vc5DemoBootstrap.RangedPressureC3DeckId;
         }
 
         public static bool ShouldShowCurrentMatch()
         {
-            string playerDeckId = GameClient.player_settings != null
-                && GameClient.player_settings.deck != null
-                ? GameClient.player_settings.deck.tid
-                : "";
-            string aiDeckId = GameClient.ai_settings != null
-                && GameClient.ai_settings.deck != null
-                ? GameClient.ai_settings.deck.tid
-                : "";
+            return ShouldShowFor(GameClient.game_settings.game_type, GetPlayerDeckId(), GetAIDeckId());
+        }
 
-            return ShouldShowFor(GameClient.game_settings.game_type, playerDeckId, aiDeckId);
+        public static bool IsCurrentDemoSoloMatch()
+        {
+            return IsDemoSoloMatch(GameClient.game_settings.game_type, GetPlayerDeckId(), GetAIDeckId());
+        }
+
+        public static bool CanBeginTutorialCardDrag(string cardId)
+        {
+            if (!IsBlockingDemoAI)
+                return true;
+            return (active.step == TutorialStep.WaitCardDrag || active.step == TutorialStep.Preview)
+                && cardId == MobileShotId;
+        }
+
+        public static bool CanPlayTutorialCardOnTarget(string cardId, string targetCardId)
+        {
+            if (!IsBlockingDemoAI)
+                return true;
+            return (active.step == TutorialStep.WaitCardDrag || active.step == TutorialStep.Preview)
+                && cardId == MobileShotId
+                && targetCardId == Vc5C3Rules.Ranger;
         }
 
         public static Vc5DemoTutorialOverlay Show(Transform parent)
@@ -57,28 +90,25 @@ namespace TcgEngine.UI
             Vc5DemoTutorialOverlay existing = parent.GetComponentInChildren<Vc5DemoTutorialOverlay>(true);
             if (existing != null)
             {
+                active = existing;
                 existing.gameObject.SetActive(true);
-                existing.ShowFirstPage();
+                existing.SetStep(TutorialStep.Intro);
                 existing.transform.SetAsLastSibling();
                 return existing;
             }
 
-            GameObject root = new GameObject(RootName, typeof(RectTransform), typeof(CanvasGroup), typeof(Vc5DemoTutorialOverlay));
+            GameObject root = new GameObject(RootName, typeof(RectTransform), typeof(CanvasGroup),
+                typeof(Vc5DemoTutorialOverlay));
             root.layer = parent.gameObject.layer;
             root.transform.SetParent(parent, false);
-
-            RectTransform rect = root.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            Stretch(root.GetComponent<RectTransform>());
 
             CanvasGroup group = root.GetComponent<CanvasGroup>();
             group.interactable = true;
             group.blocksRaycasts = true;
-            group.ignoreParentGroups = false;
 
             Vc5DemoTutorialOverlay overlay = root.GetComponent<Vc5DemoTutorialOverlay>();
+            active = overlay;
             overlay.Build();
             root.transform.SetAsLastSibling();
             return overlay;
@@ -86,289 +116,326 @@ namespace TcgEngine.UI
 
         public void Dismiss()
         {
+            if (active == this)
+                active = null;
             if (Application.isPlaying)
                 Destroy(gameObject);
             else
                 DestroyImmediate(gameObject);
         }
 
-        private void Build()
+        public void ShowResultAfterSuccessfulPlay()
         {
-            uiFont = FindFont();
-            badgeSprite = GetBadgeSprite();
-
-            Image dim = CreateImage("DimMask", transform, Vector2.zero, new Vector2(1920f, 1080f), DimColor, true);
-            SetStretch(dim.rectTransform);
-
-            page1 = CreatePage("TutorialPage_1");
-            page2 = CreatePage("TutorialPage_2");
-
-            contentParent = page1.transform;
-            BuildFirstPage();
-
-            contentParent = page2.transform;
-            BuildSecondPage();
-
-            contentParent = null;
-            ShowFirstPage();
+            trackedCardUid = null;
+            releasedAt = -1f;
+            showResultAt = -1f;
+            SetStep(TutorialStep.Result);
         }
 
-        private GameObject CreatePage(string name)
+        private void OnDestroy()
+        {
+            if (active == this)
+                active = null;
+        }
+
+        private void Update()
+        {
+            if (step != TutorialStep.WaitCardDrag && step != TutorialStep.Preview)
+                return;
+
+            if (showResultAt >= 0f && Time.unscaledTime >= showResultAt)
+            {
+                ShowResultAfterSuccessfulPlay();
+                return;
+            }
+
+            HandCard dragging = HandCard.GetDrag();
+            Card card = dragging != null ? dragging.GetCard() : null;
+            if (card != null && card.card_id == MobileShotId)
+            {
+                trackedCardUid = card.uid;
+                releasedAt = -1f;
+                Card actor = GetHoveredBoardCard();
+                bool correctTarget = actor != null
+                    && actor.card_id == Vc5C3Rules.Ranger
+                    && actor.player_id == GameClient.Get().GetPlayerID();
+                SetStep(correctTarget ? TutorialStep.Preview : TutorialStep.WaitCardDrag);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(trackedCardUid))
+            {
+                SetStep(TutorialStep.WaitCardDrag);
+                return;
+            }
+
+            if (!IsTrackedCardStillInHand())
+            {
+                if (showResultAt < 0f)
+                    showResultAt = Time.unscaledTime + 0.8f;
+                return;
+            }
+
+            if (releasedAt < 0f)
+                releasedAt = Time.unscaledTime;
+            if (Time.unscaledTime - releasedAt >= 0.25f)
+            {
+                trackedCardUid = null;
+                releasedAt = -1f;
+                SetStep(TutorialStep.WaitCardDrag);
+            }
+        }
+
+        private void Build()
+        {
+            font = FindFont();
+            BuildIntro();
+            BuildWaitCardDrag();
+            BuildPreview();
+            BuildResult();
+            BuildHudInfo();
+            BuildScoreFlow();
+            SetStep(TutorialStep.Intro);
+        }
+
+        private void BuildIntro()
+        {
+            Transform page = CreatePage("Tutorial_INTRO", 0.48f, true);
+            Transform panel = CreatePanel("ObjectivePanel", page, new Vector2(70f, 150f), new Vector2(650f, 610f), Cyan);
+            TextAt("Intro_Eyebrow", panel, "最重要的事：", 23, FontStyle.Bold, new Vector2(50f, 55f), new Vector2(550f, 38f), Yellow);
+            TextAt("Intro_Title", panel, "你只需要打牌！", 42, FontStyle.Bold, new Vector2(50f, 110f), new Vector2(550f, 64f), Color.white);
+            TextAt("Intro_Body", panel, "棋子的移动、攻击和战术行动，都通过打牌完成。\n把卡牌交给棋子，他会自动执行效果！",
+                25, FontStyle.Normal, new Vector2(50f, 200f), new Vector2(550f, 120f), Muted);
+            Transform goal = CreatePanel("GoalChip", panel, new Vector2(60f, 370f), new Vector2(530f, 82f), Yellow);
+            TextAt("GoalText", goal, "目标：率先获得 9 分", 26, FontStyle.Bold, Vector2.zero, new Vector2(530f, 82f), Color.white, TextAnchor.MiddleCenter);
+            Button start = ButtonAt("StartTutorialButton", panel, new Vector2(80f, 500f), new Vector2(490f, 70f));
+            start.onClick.AddListener(() => SetStep(TutorialStep.WaitCardDrag));
+            TextAt("StartTutorialLabel", start.transform, "试着打出一张牌吧！ →", 26, FontStyle.Bold,
+                Vector2.zero, new Vector2(490f, 70f), Ink, TextAnchor.MiddleCenter);
+            PageLabel(page, "教学 1 / 6");
+        }
+
+        private void BuildWaitCardDrag()
+        {
+            Transform page = CreateInteractivePage("Tutorial_WAIT_CARD_DRAG", 0.40f);
+            Transform panel = CreatePanel("WaitPromptPanel", page, new Vector2(70f, 160f), new Vector2(560f, 310f), Cyan);
+            TextAt("WaitStep", panel, "现在，轮到你操作了!", 22, FontStyle.Bold, new Vector2(45f, 50f), new Vector2(440f, 38f), Yellow);
+            TextAt("WaitTitle", panel, "按住「移动射击」, 打出他！", 36, FontStyle.Bold, new Vector2(45f, 105f), new Vector2(470f, 55f), Color.white);
+            TextAt("WaitBody", panel, "从手牌按住这张牌，\n<color=#F6C344>拖到</color>青色框内的「游骑射手」。", 24, FontStyle.Normal,
+                new Vector2(45f, 185f), new Vector2(470f, 86f), Muted);
+            Highlight("Highlight_Hand", page, new Vector2(600f, 800f), new Vector2(720f, 265f), Cyan, 0.05f);
+            Highlight("Highlight_MobileShot", page, new Vector2(585f, 913f), new Vector2(126f, 167f), Yellow, 0.04f);
+            Highlight("Highlight_Ranger", page, new Vector2(815f, 715f), new Vector2(120f, 130f), Cyan, 0.08f);
+            TextAt("MobileShotLabel", page, "按住并拖动到棋子上！", 20, FontStyle.Bold,
+                new Vector2(370f, 958f), new Vector2(230f, 39f), Yellow, TextAnchor.MiddleCenter);
+            TextAt("RangerLabel", page, "正确目标\n游骑射手", 21, FontStyle.Bold,
+                new Vector2(770f, 650f), new Vector2(210f, 60f), Cyan, TextAnchor.MiddleCenter);
+            Transform waiting = CreatePanel("WaitingChip", page, new Vector2(725f, 520f), new Vector2(470f, 62f), Yellow);
+            TextAt("WaitingText", waiting, "等待你拖动卡牌……", 22, FontStyle.Bold, Vector2.zero,
+                new Vector2(470f, 62f), Yellow, TextAnchor.MiddleCenter);
+            TextAt("WrongHint", page, "拖到其他位置：卡牌返回手牌，不扣法力，教程继续等待。", 18, FontStyle.Normal,
+                new Vector2(105f, 500f), new Vector2(560f, 45f), Muted);
+            PageLabel(page, "操作 2 / 6");
+        }
+
+        private void BuildPreview()
+        {
+            Transform page = CreateInteractivePage("Tutorial_PREVIEW", 0.25f);
+            Transform header = CreatePanel("PreviewHeader", page, new Vector2(315f, 45f), new Vector2(1290f, 145f), Yellow);
+            TextAt("PreviewTitle", header, "这是效果预览：保持按住，先看结果", 34, FontStyle.Bold,
+                new Vector2(35f, 20f), new Vector2(1220f, 48f), Color.white, TextAnchor.MiddleCenter);
+            TextAt("PreviewBody", header, "黄色路线是移动路径 · 青色框是落点 · 红色框是将被攻击的敌人", 22,
+                FontStyle.Normal, new Vector2(85f, 82f), new Vector2(1120f, 34f), Muted, TextAnchor.MiddleCenter);
+            Highlight("Preview_Ranger", page, new Vector2(815f, 715f), new Vector2(120f, 130f), Cyan, 0.10f);
+            Highlight("Preview_Destination", page, new Vector2(827f, 437f), new Vector2(108f, 103f), Cyan, 0.18f);
+            Highlight("Preview_Enemy", page, new Vector2(822f, 265f), new Vector2(105f, 105f), Red, 0.08f);
+            RectAt("PreviewRouteMove", page, new Vector2(875f, 540f), new Vector2(10f, 175f), Yellow, false);
+            RectAt("PreviewRouteAttack", page, new Vector2(875f, 370f), new Vector2(10f, 67f), Red, false);
+            TextAt("PreviewRangerLabel", page, "目标正确", 22, FontStyle.Bold, new Vector2(740f, 615f), new Vector2(260f, 36f), Cyan, TextAnchor.MiddleCenter);
+            TextAt("PreviewDestinationLabel", page, "自动落点", 22, FontStyle.Bold, new Vector2(775f, 455f), new Vector2(210f, 36f), Cyan, TextAnchor.MiddleCenter);
+            TextAt("PreviewEnemyLabel", page, "正对面的敌方棋子\n预计受到伤害", 21, FontStyle.Bold, new Vector2(755f, 205f), new Vector2(245f, 60f), Red, TextAnchor.MiddleCenter);
+            Transform legend = CreatePanel("PreviewLegend", page, new Vector2(1335f, 720f), new Vector2(500f, 245f), Cyan);
+            TextAt("PreviewLegendTitle", legend, "无需再选择敌人", 25, FontStyle.Bold, new Vector2(45f, 30f), new Vector2(410f, 38f), Cyan);
+            TextAt("PreviewLegendBody", legend, "系统已经自动决定：\n1. 移动路线和最终落点\n2. 攻击正对面的敌方棋子\n3. 预计伤害与技能加成",
+                20, FontStyle.Normal, new Vector2(45f, 85f), new Vector2(405f, 130f), Muted);
+            TextAt("ReleaseHint", page, "现在松开鼠标，执行这个效果", 24, FontStyle.Bold,
+                new Vector2(665f, 898f), new Vector2(590f, 38f), Yellow, TextAnchor.MiddleCenter);
+            PageLabel(page, "操作 3 / 6");
+        }
+
+        private void BuildResult()
+        {
+            Transform page = CreatePage("Tutorial_RESULT", 0.42f, true);
+            Transform header = CreatePanel("ResultHeader", page, new Vector2(430f, 50f), new Vector2(1060f, 145f), Cyan);
+            TextAt("ResultTitle", header, "一张牌完成移动和攻击", 38, FontStyle.Bold,
+                new Vector2(40f, 20f), new Vector2(980f, 52f), Color.white, TextAnchor.MiddleCenter);
+            TextAt("ResultBody", header, "预览中的移动和伤害已经执行。", 22, FontStyle.Normal,
+                new Vector2(90f, 85f), new Vector2(880f, 34f), Muted, TextAnchor.MiddleCenter);
+            Highlight("Result_Enemy", page, new Vector2(825f, 270f), new Vector2(105f, 105f), Red, 0.08f);
+            Highlight("Result_Landing", page, new Vector2(825f, 455f), new Vector2(105f, 125f), Cyan, 0.10f);
+            RectAt("ResultMoveRoute", page, new Vector2(872f, 580f), new Vector2(10f, 170f), Yellow, false);
+            RectAt("ResultAttackRoute", page, new Vector2(872f, 375f), new Vector2(10f, 80f), Red, false);
+            TextAt("ResultEnemyLabel", page, "正对面的敌人\n生命值降低", 22, FontStyle.Bold,
+                new Vector2(755f, 205f), new Vector2(245f, 60f), Red, TextAnchor.MiddleCenter);
+            TextAt("ResultLandingLabel", page, "移动落点", 24, FontStyle.Bold,
+                new Vector2(935f, 495f), new Vector2(140f, 36f), Cyan);
+            TextAt("ResultAttackLabel", page, "随后攻击 ↑", 22, FontStyle.Bold,
+                new Vector2(890f, 395f), new Vector2(180f, 38f), Red);
+            Transform passive = CreatePanel("PassivePanel", page, new Vector2(145f, 680f), new Vector2(550f, 245f), Cyan);
+            TextAt("PassiveTitle", passive, "为什么伤害增加？", 27, FontStyle.Bold,
+                new Vector2(40f, 35f), new Vector2(470f, 38f), Cyan);
+            TextAt("PassiveBody", passive, "游骑射手移动后触发「机动火力」：\n下一张伤害牌伤害 +1。\n这里只说明结果，不要求额外操作。",
+                21, FontStyle.Normal, new Vector2(40f, 100f), new Vector2(465f, 115f), Color.white);
+            Button next = ButtonAt("ResultContinueButton", page, new Vector2(1345f, 930f), new Vector2(445f, 72f));
+            next.onClick.AddListener(() => SetStep(TutorialStep.HudInfo));
+            TextAt("ResultContinueLabel", next.transform, "看懂了，继续教学", 24, FontStyle.Bold,
+                Vector2.zero, new Vector2(445f, 72f), Ink, TextAnchor.MiddleCenter);
+            PageLabel(page, "结果 4 / 6");
+        }
+
+        private void BuildHudInfo()
+        {
+            Transform page = CreatePage("Tutorial_HUD_INFO", 0.42f, true);
+            Transform panel = CreatePanel("ResourcePanel", page, new Vector2(70f, 180f), new Vector2(650f, 390f), Cyan);
+            TextAt("HudEyebrow", panel, "看懂左下角", 22, FontStyle.Bold, new Vector2(45f, 45f), new Vector2(500f, 38f), Yellow);
+            TextAt("HudTitle", panel, "得分和法力是两回事", 36, FontStyle.Bold, new Vector2(45f, 100f), new Vector2(550f, 55f), Color.white);
+            TextAt("HudBody", panel, "0/9：当前得分 / 获胜所需分数。\n蓝色圆点：当前可用法力，打牌会消耗。每回合+1\n\n卡牌左上角的橙色数字是费用。",
+                23, FontStyle.Normal, new Vector2(45f, 180f), new Vector2(550f, 170f), Muted);
+            Highlight("Highlight_CurrentScore", page, new Vector2(125f, 985f), new Vector2(135f, 82f), Yellow, 0.08f);
+            Highlight("Highlight_Mana", page, new Vector2(255f, 985f), new Vector2(185f, 82f), Cyan, 0.08f);
+            TextAt("CurrentScoreLabel", page, "当前得分", 20, FontStyle.Bold, new Vector2(110f, 935f), new Vector2(165f, 40f), Yellow, TextAnchor.MiddleCenter);
+            TextAt("ManaLabel", page, "法力值", 20, FontStyle.Bold, new Vector2(255f, 935f), new Vector2(185f, 40f), Cyan, TextAnchor.MiddleCenter);
+            Button next = ButtonAt("HudContinueButton", page, new Vector2(1350f, 900f), new Vector2(420f, 72f));
+            next.onClick.AddListener(() => SetStep(TutorialStep.ScoreFlow));
+            TextAt("HudContinueLabel", next.transform, "继续", 24, FontStyle.Bold, Vector2.zero, new Vector2(420f, 72f), Ink, TextAnchor.MiddleCenter);
+            PageLabel(page, "界面 5 / 6");
+        }
+
+        private void BuildScoreFlow()
+        {
+            Transform page = CreatePage("Tutorial_SCORE_FLOW", 0.38f, true);
+            Highlight("Highlight_ScoreZone", page, new Vector2(805f, 395f), new Vector2(315f, 315f), Cyan, 0.10f);
+            Transform flow = CreatePanel("TurnFlowPanel", page, new Vector2(350f, 60f), new Vector2(1220f, 270f), Cyan);
+            TextAt("TurnFlowTitle", flow, "接下来，一回合会这样进行", 27, FontStyle.Bold,
+                new Vector2(0f, 25f), new Vector2(1220f, 45f), Yellow, TextAnchor.MiddleCenter);
+            FlowStep(flow, "FlowStep1", new Vector2(50f, 90f), Cyan, "① 你打出一张牌\n通常交出行动权");
+            FlowStep(flow, "FlowStep2", new Vector2(450f, 90f), Yellow, "② AI 行动\n然后再次轮到你");
+            FlowStep(flow, "FlowStep3", new Vector2(850f, 90f), Red, "③ 双方都放弃\n结算得分并进入弃牌");
+            TextAt("FastCardNote", flow, "快速牌使用后不交出行动权", 18, FontStyle.Normal,
+                new Vector2(310f, 195f), new Vector2(600f, 34f), Yellow, TextAnchor.MiddleCenter);
+            Transform panel = CreatePanel("ScoreZonePanel", page, new Vector2(70f, 360f), new Vector2(630f, 310f), Cyan);
+            TextAt("ZoneEyebrow", panel, "地图上的得分目标", 22, FontStyle.Bold, new Vector2(45f, 45f), new Vector2(500f, 38f), Yellow);
+            TextAt("ZoneTitle", panel, "中央七格是得分区", 36, FontStyle.Bold, new Vector2(45f, 100f), new Vector2(540f, 55f), Color.white);
+            TextAt("ZoneBody", panel, "得分阶段，得分区人数更多的一方 +2 分；\n人数相同，双方各 +1 分。", 23, FontStyle.Normal,
+                new Vector2(45f, 185f), new Vector2(540f, 88f), Muted);
+            TextAt("ZoneLabel", page, "得分区", 28, FontStyle.Bold, new Vector2(835f, 520f), new Vector2(255f, 50f), Color.white, TextAnchor.MiddleCenter);
+            Button finish = ButtonAt("FinishTutorialButton", page, new Vector2(1350f, 900f), new Vector2(420f, 72f));
+            finish.onClick.AddListener(Dismiss);
+            TextAt("FinishTutorialLabel", finish.transform, "知道了，开始自由对战", 24, FontStyle.Bold,
+                Vector2.zero, new Vector2(420f, 72f), Ink, TextAnchor.MiddleCenter);
+            PageLabel(page, "目标 6 / 6");
+        }
+
+        private void SetStep(TutorialStep next)
+        {
+            step = next;
+            for (int i = 0; i < pages.Count; i++)
+                pages[i].SetActive(i == (int)next);
+        }
+
+        private Transform CreatePage(string name, float dimAlpha, bool blocksRaycasts)
         {
             GameObject page = new GameObject(name, typeof(RectTransform));
             page.layer = gameObject.layer;
             page.transform.SetParent(transform, false);
-            SetStretch(page.GetComponent<RectTransform>());
+            Stretch(page.GetComponent<RectTransform>());
+            pages.Add(page);
+            Image dim = RectAt("DimMask", page.transform, Vector2.zero, new Vector2(1920f, 1080f),
+                new Color(0.01f, 0.03f, 0.045f, dimAlpha), blocksRaycasts);
+            Stretch(dim.rectTransform);
+            return page.transform;
+        }
+
+        private Transform CreateInteractivePage(string name, float dimAlpha)
+        {
+            Transform page = CreatePage(name, dimAlpha, false);
+            // Leave only the first hand-card area open. Pointer drag/up events continue
+            // to the originating HandCard while the cursor crosses these blockers.
+            RectAt("InputBlocker_Top", page, Vector2.zero, new Vector2(1920f, 820f), Color.clear, true);
+            RectAt("InputBlocker_Left", page, new Vector2(0f, 820f), new Vector2(580f, 260f), Color.clear, true);
+            RectAt("InputBlocker_Right", page, new Vector2(790f, 820f), new Vector2(1130f, 260f), Color.clear, true);
             return page;
         }
 
-        private void ShowFirstPage()
+        private void FlowStep(Transform parent, string name, Vector2 position, Color border, string value)
         {
-            if (page1 != null)
-                page1.SetActive(true);
-            if (page2 != null)
-                page2.SetActive(false);
+            Transform box = CreatePanel(name, parent, position, new Vector2(320f, 82f), border);
+            TextAt(name + "Text", box, value, 20, FontStyle.Bold, Vector2.zero, new Vector2(320f, 82f), Color.white, TextAnchor.MiddleCenter);
         }
 
-        private void ShowSecondPage()
+        private void PageLabel(Transform page, string value)
         {
-            if (page1 != null)
-                page1.SetActive(false);
-            if (page2 != null)
-                page2.SetActive(true);
+            TextAt("PageLabel", page, value, 20, FontStyle.Bold, new Vector2(1680f, 35f), new Vector2(170f, 36f), Muted, TextAnchor.MiddleCenter);
         }
 
-        private void BuildFirstPage()
+        private Transform CreatePanel(string name, Transform parent, Vector2 position, Vector2 size, Color border)
         {
-            CreatePanel("CoreMessage", new Vector2(72f, 52f), new Vector2(560f, 140f), YellowColor);
-            CreateText("CoreMessage_Title", Find("CoreMessage"), "你只需要打牌", 38, FontStyle.Bold,
-                new Vector2(28f, 20f), new Vector2(504f, 58f), Color.white, TextAnchor.MiddleCenter);
-            CreateText("CoreMessage_Subtitle", Find("CoreMessage"), "移动、攻击、战术行动，都从手牌开始", 20, FontStyle.Normal,
-                new Vector2(28f, 78f), new Vector2(504f, 36f), MutedColor, TextAnchor.MiddleCenter);
-            CreateText("PageIndicator_1", contentParent, "1 / 2", 20, FontStyle.Bold,
-                new Vector2(860f, 64f), new Vector2(100f, 44f), MutedColor, TextAnchor.MiddleCenter);
-
-            CreateHighlight("Highlight_Hand", new Vector2(591f, 847f), new Vector2(629f, 233f));
-            CreateBadge("Badge_1", "1", new Vector2(565f, 824f));
-            CreateCallout("Callout_Hand", new Vector2(124f, 824f), new Vector2(430f, 120f),
-                "拖出一张卡牌", "移动和攻击都要先打牌。拖出卡牌并松开，开始行动。");
-
-            CreateHighlight("Highlight_Board", new Vector2(720f, 170f), new Vector2(486f, 660f));
-            CreateBadge("Badge_2", "2", new Vector2(1192f, 146f));
-            CreateCallout("Callout_Board", new Vector2(1270f, 153f), new Vector2(420f, 143f),
-                "按照提示选择目标", "打出卡牌后，按提示选择己方棋子、敌人或目标格。");
-
-            CreateHighlight("Highlight_Score", new Vector2(830f, 393f), new Vector2(260f, 300f));
-            CreateBadge("Badge_3", "3", new Vector2(804f, 367f));
-            CreateCallout("Callout_Score", new Vector2(366f, 460f), new Vector2(430f, 120f),
-                "占领中央得分区", "让棋子进入得分区来获得分数，先达到 9 分获胜。");
-
-            CreateHighlight("Highlight_PhaseButton", new Vector2(1656f, 815f), new Vector2(190f, 226f));
-            CreateBadge("Badge_4", "4", new Vector2(1630f, 795f));
-            CreateCallout("Callout_Phase", new Vector2(1282f, 675f), new Vector2(450f, 120f),
-                "没有想继续打的牌？", "点击“放弃行动”，结束当前主要阶段。");
-
-            Button next = CreateButton("NextButton", contentParent, new Vector2(1240f, 979f), new Vector2(390f, 74f));
-            next.onClick.AddListener(ShowSecondPage);
-            CreateText("NextButton_Label", next.transform, "下一页：资源与技能", 24, FontStyle.Bold,
-                Vector2.zero, new Vector2(390f, 74f), InkColor, TextAnchor.MiddleCenter);
+            Image image = RectAt(name, parent, position, size, Panel, false);
+            Outline outline = image.gameObject.AddComponent<Outline>();
+            outline.effectColor = border;
+            outline.effectDistance = new Vector2(3f, -3f);
+            outline.useGraphicAlpha = false;
+            return image.transform;
         }
 
-        private void BuildSecondPage()
+        private Image Highlight(string name, Transform parent, Vector2 position, Vector2 size, Color color, float alpha)
         {
-            CreatePanel("CoreMessage_Page2", new Vector2(72f, 52f), new Vector2(650f, 140f), YellowColor);
-            CreateText("CoreMessage_Page2_Title", Find("CoreMessage_Page2"), "资源、得分与棋子技能", 36, FontStyle.Bold,
-                new Vector2(28f, 16f), new Vector2(594f, 58f), Color.white, TextAnchor.MiddleCenter);
-            CreateText("CoreMessage_Page2_Subtitle", Find("CoreMessage_Page2"), "看懂左下角，再决定怎样赢下对局", 20,
-                FontStyle.Normal, new Vector2(28f, 76f), new Vector2(594f, 38f), MutedColor, TextAnchor.MiddleCenter);
-            CreateText("PageIndicator_2", contentParent, "2 / 2", 20, FontStyle.Bold,
-                new Vector2(860f, 64f), new Vector2(100f, 44f), MutedColor, TextAnchor.MiddleCenter);
-
-            CreateHighlight("Highlight_PlayerResources", new Vector2(0f, 850f), new Vector2(380f, 225f));
-            CreateBadge("Badge_Resources", "1", new Vector2(356f, 824f));
-            CreateCallout("Callout_Resources", new Vector2(400f, 785f), new Vector2(500f, 170f),
-                "法力值与胜利分数", "蓝色法力点用于打牌和主动技能；0/9 显示当前得分，先达到 9 分获胜。");
-
-            Transform scoring = CreatePanel("ScoringMethods", new Vector2(72f, 235f), new Vector2(550f, 330f), CyanColor);
-            CreateText("ScoringMethods_Title", scoring, "两种得分方式", 28, FontStyle.Bold,
-                new Vector2(28f, 20f), new Vector2(494f, 48f), Color.white, TextAnchor.MiddleLeft);
-            Image killChip = CreateImage("ScoreChip_Kill", scoring, new Vector2(28f, 92f), new Vector2(92f, 72f), YellowColor, false);
-            CreateText("ScoreChip_Kill_Text", killChip.transform, "+3", 30, FontStyle.Bold,
-                Vector2.zero, new Vector2(92f, 72f), InkColor, TextAnchor.MiddleCenter);
-            CreateText("ScoreKill_Title", scoring, "击杀敌方棋子", 23, FontStyle.Bold,
-                new Vector2(146f, 86f), new Vector2(350f, 40f), Color.white, TextAnchor.MiddleLeft);
-            CreateText("ScoreKill_Body", scoring, "敌方棋子死亡时，你获得 3 分。", 18, FontStyle.Normal,
-                new Vector2(146f, 124f), new Vector2(350f, 42f), MutedColor, TextAnchor.MiddleLeft);
-
-            Image zoneChip = CreateImage("ScoreChip_Zone", scoring, new Vector2(28f, 202f), new Vector2(92f, 82f),
-                new Color(CyanColor.r, CyanColor.g, CyanColor.b, 0.82f), false);
-            CreateText("ScoreChip_Zone_Text", zoneChip.transform, "+2 / +1", 22, FontStyle.Bold,
-                Vector2.zero, new Vector2(92f, 82f), InkColor, TextAnchor.MiddleCenter);
-            CreateText("ScoreZone_Title", scoring, "得分阶段", 23, FontStyle.Bold,
-                new Vector2(146f, 196f), new Vector2(350f, 40f), Color.white, TextAnchor.MiddleLeft);
-            CreateText("ScoreZone_Body", scoring, "得分区人数更多的一方 +2 分；人数相同，双方各 +1 分。", 18, FontStyle.Normal,
-                new Vector2(146f, 234f), new Vector2(360f, 64f), MutedColor, TextAnchor.MiddleLeft);
-            CreateBadge("Badge_Scoring", "2", new Vector2(596f, 209f));
-
-            CreateHighlight("Highlight_PlayerUnits", new Vector2(695f, 630f), new Vector2(505f, 215f));
-            CreateBadge("Badge_Skills", "3", new Vector2(1174f, 606f));
-            CreateCallout("Callout_Skills", new Vector2(1240f, 520f), new Vector2(520f, 250f),
-                "查看与使用棋子技能",
-                "把鼠标移到棋子上，可以查看主动技能和被动技能。\n\n点击己方棋子，会显示可用主动技能；再点击技能按钮即可释放。被动技能会自动生效。");
-
-            Button back = CreateSecondaryButton("BackButton", contentParent, new Vector2(930f, 979f), new Vector2(74f, 74f));
-            back.onClick.AddListener(ShowFirstPage);
-            CreateText("BackButton_Label", back.transform, "←", 24, FontStyle.Bold,
-                Vector2.zero, new Vector2(74f, 74f), Color.white, TextAnchor.MiddleCenter);
-
-            Button confirm = CreateButton("ConfirmButton_Page2", contentParent,
-                new Vector2(1030f, 979f), new Vector2(560f, 74f));
-            confirm.onClick.AddListener(Dismiss);
-            CreateText("ConfirmButton_Page2_Label", confirm.transform, "知道了，开始对战", 24, FontStyle.Bold,
-                Vector2.zero, new Vector2(560f, 74f), InkColor, TextAnchor.MiddleCenter);
+            // The legacy Game UI material renders low-alpha Image fills as opaque on
+            // some cameras. Build an explicit hollow frame so highlights never cover
+            // the card, unit, score zone, or HUD value they are explaining.
+            Image image = RectAt(name, parent, position, size, Color.clear, false);
+            const float border = 5f;
+            RectAt(name + "_Top", image.transform, Vector2.zero, new Vector2(size.x, border), color, false);
+            RectAt(name + "_Bottom", image.transform, new Vector2(0f, size.y - border),
+                new Vector2(size.x, border), color, false);
+            RectAt(name + "_Left", image.transform, Vector2.zero, new Vector2(border, size.y), color, false);
+            RectAt(name + "_Right", image.transform, new Vector2(size.x - border, 0f),
+                new Vector2(border, size.y), color, false);
+            return image;
         }
 
-
-
-
-
-
-        private static bool IsDemoDeck(string deckId)
+        private Button ButtonAt(string name, Transform parent, Vector2 position, Vector2 size)
         {
-            return deckId == Vc5DemoBootstrap.MobileAssaultDeckId
-                || deckId == Vc5DemoBootstrap.RangedPressureDeckId;
+            Image image = RectAt(name, parent, position, size, Cyan, true);
+            Button button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            return button;
         }
 
-        private void CreateHighlight(string name, Vector2 position, Vector2 size)
-        {
-            Image image = CreateImage(name, contentParent != null ? contentParent : transform, position, size,
-                new Color(CyanColor.r, CyanColor.g, CyanColor.b, 0.08f), false);
-
-            CreateBorder(image.transform, "Border_Top",
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 6f), new Vector2(0f, -3f));
-            CreateBorder(image.transform, "Border_Bottom",
-                new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(0f, 3f));
-            CreateBorder(image.transform, "Border_Left",
-                new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(6f, 0f), new Vector2(3f, 0f));
-            CreateBorder(image.transform, "Border_Right",
-                new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(6f, 0f), new Vector2(-3f, 0f));
-        }
-
-        private void CreateBorder(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax,
-            Vector2 sizeDelta, Vector2 anchoredPosition)
+        private Image RectAt(string name, Transform parent, Vector2 position, Vector2 size, Color color, bool raycast)
         {
             GameObject obj = new GameObject(name, typeof(RectTransform), typeof(Image));
             obj.layer = gameObject.layer;
             obj.transform.SetParent(parent, false);
-
-            RectTransform rect = obj.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-
-            Image border = obj.GetComponent<Image>();
-            border.color = YellowColor;
-            border.raycastTarget = false;
-        }
-
-
-        private void CreateBadge(string name, string value, Vector2 position)
-        {
-            Image image = CreateImage(name, contentParent != null ? contentParent : transform,
-                position, new Vector2(52f, 52f), YellowColor, false);
-            if (badgeSprite != null)
-                image.sprite = badgeSprite;
-            AddOutline(image.gameObject, InkColor, 3f);
-            CreateText(name + "_Text", image.transform, value, 25, FontStyle.Bold,
-                Vector2.zero, new Vector2(52f, 52f), InkColor, TextAnchor.MiddleCenter);
-        }
-
-        private void CreateCallout(string name, Vector2 position, Vector2 size, string title, string body)
-        {
-            Transform panel = CreatePanel(name, position, size, new Color(CyanColor.r, CyanColor.g, CyanColor.b, 0.72f));
-            float contentWidth = size.x - 44f;
-            CreateText(name + "_Title", panel, title, 24, FontStyle.Bold,
-                new Vector2(22f, 14f), new Vector2(contentWidth, 40f), Color.white, TextAnchor.MiddleLeft);
-            CreateText(name + "_Body", panel, body, 19, FontStyle.Normal,
-                new Vector2(22f, 51f), new Vector2(contentWidth, size.y - 60f), MutedColor, TextAnchor.UpperLeft);
-        }
-
-        private Transform CreatePanel(string name, Vector2 position, Vector2 size, Color border)
-        {
-            Image panel = CreateImage(name, contentParent != null ? contentParent : transform,
-                position, size, PanelColor, false);
-            AddOutline(panel.gameObject, border, 2f);
-            Shadow shadow = panel.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = new Color(0f, 0f, 0f, 0.32f);
-            shadow.effectDistance = new Vector2(0f, -8f);
-            shadow.useGraphicAlpha = true;
-            return panel.transform;
-        }
-
-        private Button CreateButton(string name, Transform parent, Vector2 position, Vector2 size)
-        {
-            Image image = CreateImage(name, parent, position, size, YellowColor, true);
-            AddOutline(image.gameObject, new Color(1f, 1f, 1f, 0.65f), 2f);
-
-            Button button = image.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            ColorBlock colors = button.colors;
-            colors.normalColor = YellowColor;
-            colors.highlightedColor = new Color(1f, 0.84f, 0.34f, 1f);
-            colors.pressedColor = new Color(0.86f, 0.61f, 0.08f, 1f);
-            colors.selectedColor = YellowColor;
-            button.colors = colors;
-            return button;
-        }
-
-        private Button CreateSecondaryButton(string name, Transform parent, Vector2 position, Vector2 size)
-        {
-            Image image = CreateImage(name, parent, position, size, PanelColor, true);
-            AddOutline(image.gameObject, CyanColor, 2f);
-
-            Button button = image.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            ColorBlock colors = button.colors;
-            colors.normalColor = PanelColor;
-            colors.highlightedColor = new Color(0.10f, 0.18f, 0.22f, 1f);
-            colors.pressedColor = new Color(0.04f, 0.10f, 0.13f, 1f);
-            colors.selectedColor = PanelColor;
-            button.colors = colors;
-            return button;
-        }
-
-        private Image CreateImage(string name, Transform parent, Vector2 position, Vector2 size, Color color, bool raycast)
-        {
-            GameObject obj = new GameObject(name, typeof(RectTransform), typeof(Image));
-            obj.layer = gameObject.layer;
-            obj.transform.SetParent(parent, false);
-
-            RectTransform rect = obj.GetComponent<RectTransform>();
-            SetTopLeft(rect, position, size);
-
+            SetTopLeft(obj.GetComponent<RectTransform>(), position, size);
             Image image = obj.GetComponent<Image>();
             image.color = color;
             image.raycastTarget = raycast;
             return image;
         }
 
-        private Text CreateText(string name, Transform parent, string value, int fontSize, FontStyle fontStyle,
-            Vector2 position, Vector2 size, Color color, TextAnchor alignment)
+        private Text TextAt(string name, Transform parent, string value, int size, FontStyle style,
+            Vector2 position, Vector2 bounds, Color color, TextAnchor alignment = TextAnchor.UpperLeft)
         {
             GameObject obj = new GameObject(name, typeof(RectTransform), typeof(Text));
             obj.layer = gameObject.layer;
             obj.transform.SetParent(parent, false);
-
-            RectTransform rect = obj.GetComponent<RectTransform>();
-            SetTopLeft(rect, position, size);
-
+            SetTopLeft(obj.GetComponent<RectTransform>(), position, bounds);
             Text text = obj.GetComponent<Text>();
-            text.font = uiFont;
+            text.font = font;
             text.text = value;
-            text.fontSize = fontSize;
-            text.fontStyle = fontStyle;
+            text.fontSize = size;
+            text.fontStyle = style;
             text.color = color;
             text.alignment = alignment;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -377,36 +444,52 @@ namespace TcgEngine.UI
             return text;
         }
 
-        private static void AddOutline(GameObject target, Color color, float width)
+        private Card GetHoveredBoardCard()
         {
-            Outline outline = target.AddComponent<Outline>();
-            outline.effectColor = color;
-            outline.effectDistance = new Vector2(width, -width);
-            outline.useGraphicAlpha = false;
+            GameClient client = GameClient.Get();
+            GameBoard board = GameBoard.Get();
+            if (client == null || board == null || !client.IsReady())
+                return null;
+            Vector3 world = board.RaycastMouseBoard();
+            BSlot bslot = BSlot.GetNearest(world);
+            if (bslot == null)
+                return null;
+            return Vc5DemoGrid.GetDisplayedSlotCard(client.GetGameData(), bslot.GetSlot(world));
+        }
+
+        private bool IsTrackedCardStillInHand()
+        {
+            GameClient client = GameClient.Get();
+            Player player = client != null ? client.GetPlayer() : null;
+            return player != null && player.GetHandCard(trackedCardUid) != null;
         }
 
         private Font FindFont()
         {
             Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas != null)
-            {
-                Text source = canvas.GetComponentInChildren<Text>(true);
-                if (source != null && source.font != null)
-                    return source.font;
-            }
-
+            Text source = canvas != null ? canvas.GetComponentInChildren<Text>(true) : null;
+            if (source != null && source.font != null)
+                return source.font;
             return Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
 
-        private Transform Find(string name)
+        private static string GetPlayerDeckId()
         {
-            Transform[] children = GetComponentsInChildren<Transform>(true);
-            for (int i = 0; i < children.Length; i++)
-            {
-                if (children[i].name == name)
-                    return children[i];
-            }
-            return transform;
+            return GameClient.player_settings != null && GameClient.player_settings.deck != null
+                ? GameClient.player_settings.deck.tid : string.Empty;
+        }
+
+        private static string GetAIDeckId()
+        {
+            return GameClient.ai_settings != null && GameClient.ai_settings.deck != null
+                ? GameClient.ai_settings.deck.tid : string.Empty;
+        }
+
+        private static bool IsDemoDeck(string deckId)
+        {
+            return deckId == Vc5DemoBootstrap.MobileAssaultDeckId
+                || deckId == Vc5DemoBootstrap.RangedPressureDeckId
+                || deckId == Vc5DemoBootstrap.RangedPressureC3DeckId;
         }
 
         private static void SetTopLeft(RectTransform rect, Vector2 position, Vector2 size)
@@ -418,49 +501,12 @@ namespace TcgEngine.UI
             rect.sizeDelta = size;
         }
 
-        private static void SetStretch(RectTransform rect)
+        private static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = Vector2.zero;
-            rect.sizeDelta = Vector2.zero;
-        }
-    
-
-        private static Sprite GetBadgeSprite()
-        {
-            if (generatedBadgeSprite != null)
-                return generatedBadgeSprite;
-
-            const int size = 64;
-            Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            texture.name = "VC5 Tutorial Badge Circle";
-            texture.filterMode = FilterMode.Bilinear;
-            texture.wrapMode = TextureWrapMode.Clamp;
-            texture.hideFlags = HideFlags.HideAndDontSave;
-
-            Color32[] pixels = new Color32[size * size];
-            float center = (size - 1) * 0.5f;
-            float radiusSquared = center * center;
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    float dx = x - center;
-                    float dy = y - center;
-                    byte alpha = dx * dx + dy * dy <= radiusSquared ? (byte)255 : (byte)0;
-                    pixels[y * size + x] = new Color32(255, 255, 255, alpha);
-                }
-            }
-
-            texture.SetPixels32(pixels);
-            texture.Apply(false, true);
-            generatedBadgeSprite = Sprite.Create(texture, new Rect(0f, 0f, size, size),
-                new Vector2(0.5f, 0.5f), 100f);
-            generatedBadgeSprite.name = "VC5 Tutorial Badge Circle";
-            generatedBadgeSprite.hideFlags = HideFlags.HideAndDontSave;
-            return generatedBadgeSprite;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
     }
 }

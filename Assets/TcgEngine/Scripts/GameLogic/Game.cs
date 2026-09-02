@@ -119,7 +119,7 @@ namespace TcgEngine
 
             if (card.CardData.IsBoardCard())
             {
-                if (!slot.IsValid() || Vc5DemoGrid.GetDisplayedSlotCard(this, slot) != null)
+                if (!Vc5DemoGrid.IsPlayableBoardCell(slot) || Vc5DemoGrid.GetDisplayedSlotCard(this, slot) != null)
                     return false;   //Slot already occupied
                 if (Slot.GetP(card.player_id) != slot.p)
                     return false; //Cant play on opponent side
@@ -151,7 +151,7 @@ namespace TcgEngine
         //检查是否允许卡移动到插槽
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false, bool ignore_range = false)
         {
-            if (card == null || !slot.IsValid())
+            if (card == null || !Vc5DemoGrid.IsPlayableBoardCell(slot))
                 return false;
 
             if (!IsOnBoard(card))

@@ -15,19 +15,34 @@ public class Vc5DemoStartupTests : Vc5LogicTestBase
     {
         private const string MenuScene = "Assets/TcgEngine/Scenes/Menu/Menu.unity";
         private const string GameScene = "Assets/TcgEngine/Scenes/Game/Game.unity";
+        private const string AppIconPath = "Assets/TcgEngine/Images/VC5/AppIcon.png";
 
         [Test]
-        public void BuildSettings_StartsWithMenuAndIncludesGameScene()
+        public void BuildSettings_ContainsOnlyMenuThenGame()
         {
-            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
-            Assert.IsNotEmpty(scenes);
-            Assert.IsTrue(scenes[0].enabled);
+            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes
+                .Where(scene => scene.enabled)
+                .ToArray();
+
+            Assert.AreEqual(2, scenes.Length);
             Assert.AreEqual(MenuScene, scenes[0].path);
-            Assert.IsTrue(scenes.Any(scene => scene.enabled && scene.path == GameScene));
+            Assert.AreEqual(GameScene, scenes[1].path);
         }
 
         [Test]
-        public void MenuScene_CreatesDemoPanelWithOnlyTwoPlayableDecks()
+        public void AndroidBranding_UsesValkyriaNameAndProjectIcon()
+        {
+            Texture2D expectedIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
+            Texture2D[] configuredIcons = UnityEditor.PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.Android);
+
+            Assert.AreEqual("ValkyriaChronicles5", UnityEditor.PlayerSettings.productName);
+            Assert.NotNull(expectedIcon, $"Android icon must be imported at {AppIconPath}.");
+            CollectionAssert.Contains(configuredIcons, expectedIcon,
+                "Android legacy icons must include the VC5 project icon.");
+        }
+
+        [Test]
+        public void MenuScene_CreatesDemoPanelWithThreePlayableDecks()
         {
             string restoreScene = GetRestorableScene();
             try
@@ -43,9 +58,9 @@ public class Vc5DemoStartupTests : Vc5LogicTestBase
                 Assert.NotNull(panel);
                 Assert.IsTrue(panel.gameObject.activeSelf);
                 Assert.AreEqual("VC5 Demo AI Battle Panel", panel.gameObject.name);
-                Assert.AreEqual(2, decks.Length);
+                Assert.AreEqual(3, decks.Length);
                 CollectionAssert.AreEquivalent(
-                    new[] { Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureDeckId },
+                    new[] { Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.RangedPressureC3DeckId },
                     decks.Select(deck => deck.id).ToArray());
             }
             finally

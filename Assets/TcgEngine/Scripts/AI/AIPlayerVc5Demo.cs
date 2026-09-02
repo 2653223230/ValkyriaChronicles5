@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using TcgEngine.Gameplay;
+using TcgEngine.UI;
 
 namespace TcgEngine.AI
 {
@@ -17,7 +18,7 @@ namespace TcgEngine.AI
 
         public override void Update()
         {
-            if (!CanPlay() || is_playing)
+            if (!CanPlay() || is_playing || IsTutorialBlocked())
                 return;
 
             Game data = gameplay.GetGameData();
@@ -37,6 +38,11 @@ namespace TcgEngine.AI
                 is_playing = true;
                 TimeTool.StartCoroutine(AiStep());
             }
+        }
+
+        public static bool IsTutorialBlocked()
+        {
+            return Vc5DemoTutorialOverlay.IsBlockingDemoAI;
         }
 
         private IEnumerator AiStep()

@@ -40,6 +40,11 @@ namespace TcgEngine
         /// <summary>VC5 黏黏磨刀等：每次结算伤害时由攻击/施法来源附加的额外伤害（非攻击力加成）。</summary>
         Vc5DealDamageBonus = 57,
         Vc5AttackRangeBonus = 58,
+        Vc5C3PermanentRange = 59,
+        Vc5C3TemporaryRange = 60,
+        Vc5C3MobileFire = 61,
+        Vc5C3MovedThisTurn = 62,
+        Vc5C3GuardMoveUsed = 63,
 
 
     }

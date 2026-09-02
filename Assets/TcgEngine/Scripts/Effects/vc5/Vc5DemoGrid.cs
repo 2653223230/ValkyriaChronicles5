@@ -9,6 +9,12 @@ namespace TcgEngine
         private const int BoardRotationXSum = 10;
         private const int BoardRotationYSum = 6;
 
+        public static Card GetMovingActor(Game data, AbilityData ability, Card caster)
+        {
+            // Activate is also queried before ResolveCardAbility sets ability_triggerer.
+            return ability.trigger == AbilityTrigger.Activate ? caster : data.GetCard(data.ability_triggerer);
+        }
+
         private static readonly int[,] NeighborOffsets =
         {
             { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 1, -1 }, { -1, 1 }
@@ -33,7 +39,8 @@ namespace TcgEngine
 
         public static int AttackRange(Card card)
         {
-            return card != null ? Mathf.Max(0, card.attack_Range + card.GetStatusValue(StatusType.Vc5AttackRangeBonus)) : 0;
+            return card != null ? Mathf.Max(0, card.attack_Range + card.GetStatusValue(StatusType.Vc5AttackRangeBonus)
+                + card.GetStatusValue(StatusType.Vc5C3PermanentRange) + card.GetStatusValue(StatusType.Vc5C3TemporaryRange)) : 0;
         }
 
         public static bool InAttackRange(Card attacker, Card target)
@@ -71,9 +78,31 @@ namespace TcgEngine
             return null;
         }
 
+        public static bool IsPlayableBoardCell(Slot slot)
+        {
+            if (!slot.IsValid() || slot.IsPlayerSlot())
+                return false;
+
+            // The physical board has asymmetric edges; validate one canonical perspective.
+            slot = ToPerspective(slot, Slot.GetP(0));
+            switch (slot.y)
+            {
+                case 1:
+                case 2:
+                    return slot.x >= 3 && slot.x <= 9;
+                case 3:
+                case 4:
+                    return slot.x >= 2 && slot.x <= 8;
+                case 5:
+                    return slot.x >= 2 && slot.x <= 7;
+                default:
+                    return false;
+            }
+        }
+
         public static bool IsEmptyBoardSlot(Game data, Slot slot, Card ignoredCard = null)
         {
-            return slot.IsValid() && !slot.IsPlayerSlot()
+            return IsPlayableBoardCell(slot)
                 && GetDisplayedSlotCard(data, slot, ignoredCard) == null;
         }
 
@@ -159,7 +188,7 @@ namespace TcgEngine
                 for (int y = origin.y - range; y <= origin.y + range; y++)
                 {
                     Slot slot = new Slot(x, y, origin.p);
-                    if (slot.IsValid() && HexDistance(origin, slot) <= range)
+                    if (IsPlayableBoardCell(slot) && HexDistance(origin, slot) <= range)
                         yield return slot;
                 }
             }

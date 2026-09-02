@@ -138,8 +138,16 @@ namespace TcgEngine.UI
 
         private void OnGameStart()
         {
+            if (top_canvas != null)
+                Vc5C3PreviewOverlay.Show(top_canvas.transform);
+            if (top_canvas != null && Vc5DemoTutorialOverlay.IsCurrentDemoSoloMatch())
+            {
+                Vc5DemoBattleFeedback.Show(top_canvas.transform);
+            }
             if (top_canvas != null && Vc5DemoTutorialOverlay.ShouldShowCurrentMatch())
+            {
                 Vc5DemoTutorialOverlay.Show(top_canvas.transform);
+            }
         }
 
         private void OnNewTurn(int player_id)

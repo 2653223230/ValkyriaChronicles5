@@ -94,11 +94,22 @@ namespace TcgEngine.UI
                 other_avatar.sprite = avat2.avatar;
 
             if (pwinner != null && pwinner == player)
-                winner_text.text = "Victory";
+            {
+                winner_text.text = Vc5DemoBattleFeedbackModel.BuildEndReason(
+                    true, player.kill_count, oplayer.kill_count,
+                    player.cards_deck.Count, oplayer.cards_deck.Count);
+            }
             else if (pwinner != null)
-                winner_text.text = "Defeat";
+            {
+                winner_text.text = Vc5DemoBattleFeedbackModel.BuildEndReason(
+                    false, player.kill_count, oplayer.kill_count,
+                    player.cards_deck.Count, oplayer.cards_deck.Count);
+            }
             else
-                winner_text.text = "Tie";
+            {
+                winner_text.text = "平局";
+            }
+            winner_text.text += "\n最终比分  " + player.kill_count + " : " + oplayer.kill_count;
 
             if (pwinner == player)
                 winner_glow.rectTransform.anchoredPosition = player_avatar.rectTransform.anchoredPosition;

@@ -687,6 +687,7 @@ namespace TcgEngine.Gameplay
             //洗牌
             if (puzzle == null || !puzzle.dont_shuffle_deck)
                 ShuffleDeck(player.cards_deck);
+            PrioritizeVc5C3TutorialOpening(player);
         }
 
         //Set deck using custom deck in save file or database
@@ -727,6 +728,24 @@ namespace TcgEngine.Gameplay
             //Shuffle deck
             //洗牌
             ShuffleDeck(player.cards_deck);
+            PrioritizeVc5C3TutorialOpening(player);
+        }
+
+        private void PrioritizeVc5C3TutorialOpening(Player player)
+        {
+            if (player == null || player.player_id != 0 || game_data == null
+                || game_data.settings.game_type != GameType.Solo
+                || player.deck != Vc5DemoBootstrap.RangedPressureC3DeckId)
+                return;
+
+            int index = player.cards_deck.FindIndex(card => card != null
+                && card.card_id == "vc5_demo_c3_mobile_shot");
+            if (index <= 0)
+                return;
+
+            Card tutorialCard = player.cards_deck[index];
+            player.cards_deck.RemoveAt(index);
+            player.cards_deck.Insert(0, tutorialCard);
         }
 
         private void FillDeployHeroIdsFromUserDeck(Player player, UserDeckData deck)
@@ -891,6 +910,11 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardMoved?.Invoke(card, slot);
+                if (card.card_id.StartsWith(Vc5C3Rules.Prefix))
+                {
+                    Vc5C3Rules.OnMoved(this, card, hexDistance);
+                    RefreshData();
+                }
                 resolve_queue.ResolveAll(0.2f);
             }
         }
@@ -1189,10 +1213,10 @@ namespace TcgEngine.Gameplay
         //创建一张新卡并将其发送到董事会
         public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
         {
-            if (!slot.IsValid())
+            if (!Vc5DemoGrid.IsPlayableBoardCell(slot))
                 return null;
 
-            if (game_data.GetSlotCard(slot) != null)
+            if (Vc5DemoGrid.GetDisplayedSlotCard(game_data, slot) != null)
                 return null;
 
             Card acard = SummonCardHand(player, card, variant);
@@ -2562,7 +2586,8 @@ namespace TcgEngine.Gameplay
         private static bool IsVc5DemoDeck(string deckId)
         {
             return deckId == Vc5DemoBootstrap.MobileAssaultDeckId
-                || deckId == Vc5DemoBootstrap.RangedPressureDeckId;
+                || deckId == Vc5DemoBootstrap.RangedPressureDeckId
+                || deckId == Vc5DemoBootstrap.RangedPressureC3DeckId;
         }
 
 

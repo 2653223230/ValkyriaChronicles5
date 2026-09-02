@@ -17,6 +17,11 @@ public class Vc5DemoAIMatchTests : Vc5LogicTestBase
         [TestCase(Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureDeckId)]
         [TestCase(Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.MobileAssaultDeckId)]
         [TestCase(Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.RangedPressureDeckId)]
+        [TestCase(Vc5DemoBootstrap.RangedPressureC3DeckId, Vc5DemoBootstrap.MobileAssaultDeckId)]
+        [TestCase(Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureC3DeckId)]
+        [TestCase(Vc5DemoBootstrap.RangedPressureC3DeckId, Vc5DemoBootstrap.RangedPressureDeckId)]
+        [TestCase(Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.RangedPressureC3DeckId)]
+        [TestCase(Vc5DemoBootstrap.RangedPressureC3DeckId, Vc5DemoBootstrap.RangedPressureC3DeckId)]
         public void DemoAI_CompletesTenMatchesWithoutGettingStuck(string deck0Id, string deck1Id)
         {
             int totalTurns = 0;

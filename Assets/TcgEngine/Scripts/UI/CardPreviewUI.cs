@@ -26,6 +26,27 @@ namespace TcgEngine.UI
         private float preview_timer = 0f;
         private Vector2[] start_pos;
 
+        private void LateUpdate()
+        {
+            Vc5DemoBattleFeedback.SetCardPreviewVisible(ui_panel != null
+                && ui_panel.gameObject.activeInHierarchy && (ui_panel.IsVisible() || ui_panel.GetAlpha() > 0.01f));
+        }
+
+        private void OnDisable()
+        {
+            Vc5DemoBattleFeedback.SetCardPreviewVisible(false);
+        }
+
+        public static string BuildAdditionalDescription(CardData card)
+        {
+            string description = card.GetDesc();
+            if (Vc5DemoBootstrap.HasDemoArt(card.id) && description == card.GetDisplayText())
+                description = "";
+            string abilities = card.GetAbilitiesDesc();
+            if (string.IsNullOrWhiteSpace(description)) return abilities;
+            return string.IsNullOrWhiteSpace(abilities) ? description : description + "\n\n" + abilities;
+        }
+
         private void Start()
         {
             start_pos = new Vector2[side_rows.Length];
@@ -78,12 +99,7 @@ namespace TcgEngine.UI
                 CardData icard = pcard.CardData;
                 card_ui.SetCard(icard, pcard.VariantData);
 
-                string cdesc = icard.GetDesc();
-                string adesc = icard.GetAbilitiesDesc();
-                if (!string.IsNullOrWhiteSpace(cdesc))
-                    this.desc.text = cdesc + "\n\n" + adesc;
-                else
-                    this.desc.text = adesc;
+                desc.text = BuildAdditionalDescription(icard);
 
                 //Abilities
                 int index = 0;

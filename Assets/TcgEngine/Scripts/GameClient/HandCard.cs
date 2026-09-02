@@ -193,6 +193,11 @@ namespace TcgEngine.Client
             if (GameUI.IsOverUILayer("UI"))
                 return;
 
+            Card tutorialCard = GetCard();
+            if (!Vc5DemoTutorialOverlay.CanBeginTutorialCardDrag(
+                tutorialCard != null ? tutorialCard.card_id : string.Empty))
+                return;
+
             UnselectAll();
             drag_start_screen_pos = Input.mousePosition;
             drag = true;
@@ -223,7 +228,9 @@ namespace TcgEngine.Client
                 return;
             }
 
-            if (drag && mpos.y > 0.25f)
+            bool confirmC3 = Vc5C3Rules.IsCard(card)
+                && Vector2.Distance(drag_start_screen_pos, Input.mousePosition) >= Vc5DiscardDragThreshold;
+            if (drag && (Vc5C3Rules.IsCard(card) ? confirmC3 : mpos.y > 0.25f))
                 TryPlayCard(board_pos);//尝试出牌
             else if (!GameTool.IsMobile())
                 HandCardArea.Get().SortCards();
@@ -253,6 +260,15 @@ namespace TcgEngine.Client
                 slot = bslot.GetSlot(board_pos);
 
             Card slot_card = bslot?.GetSlotCard(board_pos);
+            if (Vc5C3Rules.IsCard(card))
+            {
+                slot_card = bslot != null ? Vc5DemoGrid.GetDisplayedSlotCard(gdata, bslot.GetSlot(board_pos)) : null;
+                slot = slot_card != null ? slot_card.slot : Slot.None;
+            }
+            if (!Vc5DemoTutorialOverlay.CanPlayTutorialCardOnTarget(
+                card != null ? card.card_id : string.Empty,
+                slot_card != null ? slot_card.card_id : string.Empty))
+                return;
             if (bslot != null && card.CardData.IsRequireTargetSpell() && slot_card != null && slot_card.HasStatus(StatusType.SpellImmunity))
             {
                 WarningText.ShowSpellImmune();

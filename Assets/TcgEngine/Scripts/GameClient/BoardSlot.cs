@@ -84,13 +84,16 @@ namespace TcgEngine.Client
 
             BoardCard focus_card = BoardCard.GetFocus();
             Card hover_card = focus_card != null ? focus_card.GetCard() : null;
+            if (Vc5C3Rules.IsCard(dcard) || (gdata.selector != SelectorType.None
+                && Vc5C3Rules.IsCard(gdata.GetCard(gdata.selector_caster_uid))))
+                hover_card = null;
             if (hover_card != null && hover_card.CardData.IsCharacter() && slot.p == hover_card.slot.p)
             {
                 int dx = slot.x - hover_card.slot.x;
                 int dy = slot.y - hover_card.slot.y;
                 int dz = (hover_card.slot.x + hover_card.slot.y) - (slot.x + slot.y);
                 int hexDistance = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-                if (hexDistance > 0 && hexDistance <= hover_card.attack_Range)
+                if (hexDistance > 0 && hexDistance <= Vc5DemoGrid.AttackRange(hover_card))
                 {
                     target_alpha = 1f;
                     color_r = 255;

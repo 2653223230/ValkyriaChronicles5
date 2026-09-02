@@ -13,6 +13,15 @@ namespace TcgEngine.Client
             if (astatus == null)
                 return "";
 
+            switch (astatus.type)
+            {
+                case StatusType.Vc5C3PermanentRange: return "改装：射程 +" + astatus.value;
+                case StatusType.Vc5C3TemporaryRange: return "校准：射程 +1（本回合）";
+                case StatusType.Vc5C3MobileFire: return "机动火力：下一张伤害 +1";
+                case StatusType.Vc5C3MovedThisTurn: return "已移动：稳固射击失效";
+                case StatusType.Vc5C3GuardMoveUsed: return "行进警戒：本回合已用";
+            }
+
             StatusData istats = StatusData.Get(astatus.type);
             if (istats == null || string.IsNullOrEmpty(istats.title))
                 return "";

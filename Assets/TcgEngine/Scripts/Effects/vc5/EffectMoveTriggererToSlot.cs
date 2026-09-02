@@ -8,7 +8,7 @@ namespace TcgEngine
     {
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
-            Card triggerer = logic.GameData.GetCard(logic.GameData.ability_triggerer);
+            Card triggerer = Vc5DemoGrid.GetMovingActor(logic.GameData, ability, caster);
             if (triggerer == null)
                 return;
             logic.MoveCard(triggerer, target, true);

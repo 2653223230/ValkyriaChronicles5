@@ -48,6 +48,9 @@ namespace TcgEngine.Client
         private float status_alpha_target = 0f;
         private float delayed_damage_timer = 0f;
         private int prev_hp = 0;
+        private Slot visualSlot = Slot.None;
+        private List<Slot> c3Route = new List<Slot>();
+        private int c3RouteIndex;
 
         private bool back_to_hand;
         private Vector3 back_to_hand_target;
@@ -108,6 +111,14 @@ namespace TcgEngine.Client
                 prev_hp = card.GetHP();
 
             bool selected = controls.GetSelected() == this;
+            if (card.slot != visualSlot)
+            {
+                Card played = data.GetCard(data.last_played);
+                c3Route = !destroyed && visualSlot.IsValid() && Vc5C3Rules.IsCard(played)
+                    ? Vc5C3Rules.VisualPath(data, card, visualSlot) : new List<Slot>();
+                c3RouteIndex = 1;
+                visualSlot = card.slot;
+            }
             Vector3 targ_pos = GetTargetPos();
             float speed = 12f;
 
@@ -174,6 +185,20 @@ namespace TcgEngine.Client
             Game data = GameClient.Get().GetGameData();
             Card card = data.GetCard(card_uid);
 
+            if (!destroyed && c3RouteIndex < c3Route.Count)
+            {
+                Slot next = Vc5DemoGrid.ToPerspective(c3Route[c3RouteIndex], Slot.GetP(GameClient.Get().GetPlayerID()));
+                BSlot waypoint = BSlot.Get(next);
+                if (waypoint != null)
+                {
+                    Vector3 point = waypoint.GetPosition(next);
+                    if (Vector3.Distance(transform.position, point) > 0.04f) return point;
+                    c3RouteIndex++;
+                    if (c3RouteIndex < c3Route.Count) return GetTargetPos();
+                }
+                else c3RouteIndex = c3Route.Count;
+            }
+
             if (destroyed && back_to_hand && timer > 0.5f)
                 return back_to_hand_target;
 
@@ -221,6 +246,7 @@ namespace TcgEngine.Client
         public void SetCard(Card card)
         {
             this.card_uid = card.uid;
+            visualSlot = card.slot;
 
             transform.position = GetTargetPos();
             prev_hp = card.GetHP();

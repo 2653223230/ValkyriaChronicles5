@@ -154,6 +154,38 @@ public class Vc5MobileAssaultCardTests : Vc5LogicTestBase
         }
 
         [Test]
+        public void MissingPhysicalBoardCell_RejectsGenericMoveAndBoardCardPlay()
+        {
+            CreateLogic(out Game game);
+            ClearBoard(game);
+            Card mover = Place(game, 0, "vc5_demo_cavalry", 7, 4);
+            Card characterInHand = Vc5LogicTestHarness.GiveHandCard(game, 0, "vc5_demo_scout");
+            Slot missingSceneCell = new Slot(9, 3, Slot.GetP(0));
+
+            Assert.IsTrue(missingSceneCell.IsValid(),
+                "This regression requires a coordinate accepted by the legacy rectangular Slot bounds.");
+            Assert.IsFalse(game.CanMoveCard(mover, missingSceneCell, skip_cost: true, ignore_range: true),
+                "Generic movement must reject a coordinate without a BoardSlot in Game.unity.");
+            Assert.IsFalse(game.CanPlayCard(characterInHand, missingSceneCell, skip_cost: true),
+                "Playing a board card must reject a coordinate without a BoardSlot in Game.unity.");
+        }
+
+        [Test]
+        public void CloseAssault_SkipsAdjacentCoordinateWithoutPhysicalBoardSlot()
+        {
+            CreateLogic(out Game game);
+            ClearBoard(game);
+            Card mover = Place(game, 0, "vc5_demo_scout", 7, 5);
+            Card target = Place(game, 1, "vc5_demo_guard", 2, 3);
+            Place(game, 0, "vc5_demo_cavalry", 8, 4);
+            Place(game, 0, "vc5_demo_assassin", 7, 4);
+
+            Assert.IsTrue(Vc5DemoGrid.FindBestAdjacentSlot(game, mover, target, -1, out Slot predicted));
+            Assert.AreEqual(new Slot(7, 3, Slot.GetP(0)), predicted,
+                "Close assault must skip (9,3), which is inside Slot bounds but absent from Game.unity.");
+        }
+
+        [Test]
         public void BasicAttack_RejectsEnemyOutsideSelectedAttackRange()
         {
             GameLogic logic = CreateLogic(out Game game);

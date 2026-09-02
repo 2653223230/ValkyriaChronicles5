@@ -93,6 +93,20 @@ namespace TcgEngine.AI
             if (card == null)
                 return Slot.None;
 
+            if (Vc5C3Rules.IsCard(card))
+            {
+                Card best = null;
+                int score = int.MinValue;
+                foreach (Card actor in player.cards_board)
+                {
+                    Vc5C3Plan plan = Vc5C3Rules.Plan(data, card, actor);
+                    if (!plan.valid) continue;
+                    int candidate = ScoreC3(card, actor, plan);
+                    if (candidate > score) { best = actor; score = candidate; }
+                }
+                return best != null ? best.slot : Slot.None;
+            }
+
             if (card.CardData.IsBoardCard())
                 return player.GetRandomEmptySlot(new System.Random());
 
@@ -102,6 +116,11 @@ namespace TcgEngine.AI
 
         private static int ScorePlayableCard(Game data, Player player, Card card)
         {
+            if (Vc5C3Rules.IsCard(card))
+            {
+                Card actor = data.GetSlotCard(ChoosePlaySlotForCard(data, player, card));
+                return actor != null ? ScoreC3(card, actor, Vc5C3Rules.Plan(data, card, actor)) : int.MinValue;
+            }
             string id = card.card_id;
             Card ally = ChoosePreferredAlly(data, player, id, null);
             Card enemy = ChoosePreferredEnemy(data, player, ally, id, null);
@@ -132,6 +151,27 @@ namespace TcgEngine.AI
                 return ally != null && IsThreatened(data, ally) ? 420 : 120;
 
             return 100 + card.GetMana() * 10;
+        }
+
+        private static int ScoreC3(Card spell, Card actor, Vc5C3Plan plan)
+        {
+            if (plan.targets.Count > 0)
+            {
+                int damage = Vc5C3Rules.CardDamage(actor, spell.card_id.EndsWith("heavy_break") ? 1 : 0);
+                if (plan.path.Count > 1 && actor.card_id == Vc5C3Rules.Ranger && !actor.HasStatus(StatusType.Vc5C3MobileFire)) damage++;
+                if (plan.path.Count > 1 && actor.card_id == Vc5C3Rules.Sniper && !actor.HasStatus(StatusType.Vc5C3MovedThisTurn)) damage--;
+                int score = 650;
+                foreach (Card target in plan.targets)
+                {
+                    int dealt = Mathf.Max(0, damage - target.GetStatusValue(StatusType.Armor));
+                    score += Mathf.Min(dealt, target.GetHP()) * 35 + (dealt >= target.GetHP() ? 350 : 0);
+                }
+                return score;
+            }
+            if (Vc5C3Rules.IsPreciseMove(spell))
+                return 420 + DistanceToScoring(actor.slot) * 35 + (spell.CardData.fast_action ? 50 : 0);
+            if (spell.card_id.EndsWith("temp_calibration") && actor.HasStatus(StatusType.Vc5C3TemporaryRange)) return int.MinValue;
+            return 220 + actor.GetAttack() * 25;
         }
 
         private static AIAction ChooseActivatedAbility(Game data, Player player)
@@ -221,7 +261,7 @@ namespace TcgEngine.AI
 
         private static Slot ChooseSlotTarget(Game data, Player player, Card caster, AbilityData ability)
         {
-            Card mover = data.GetCard(data.ability_triggerer);
+            Card mover = Vc5DemoGrid.GetMovingActor(data, ability, caster);
             Slot best = Slot.None;
             int bestScore = int.MinValue;
 
