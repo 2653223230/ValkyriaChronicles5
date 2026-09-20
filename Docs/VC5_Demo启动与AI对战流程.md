@@ -461,3 +461,10 @@ Menu 的 Demo 选项新增独立 R4（`deck_vc5_demo_command_r4`），原 C3 和
 06C 保留现有标题与操作规则，只修正黄色目标框：`SelectionIndex < 0` 时框住运行时列表中的第一张可弃牌；`SelectionIndex >= 0` 时不再合并卡牌和按钮的矩形，而是只框住「确定弃牌」。玩家再次点击已选牌取消后，提示恢复到第一张牌。该变化只属于 C3-V3R4 教学覆盖层，不改变正式对局的 `CardSelector` 点击、取消或确认行为。
 
 验证记录：聚焦 EditMode `1/1 Passed`（作业 `030bd2f3290f404fa1a8c1dc6b9af814`）；实际 R4 教学场景先检查未选牌状态，再通过真实 EventSystem 点击第一张候选牌检查已选状态，两个框均对齐运行时目标。截图保存在 `Assets/Screenshots/r4-fix-06c-first-card-20260920.png` 和 `r4-fix-06c-confirm-discard-20260920.png`。这不代表真人鼠标、触屏、设备或发布包验收。
+
+### 2026-09-20 v3 发布包启动范围
+
+- Windows 与 Android v3 构建只包含索引 0 `Assets/TcgEngine/Scenes/Menu/Menu.unity` 和索引 1 `Assets/TcgEngine/Scenes/Game/Game.unity`；启动后首先进入 Menu，玩家通过「VC5 Demo 对战」窗口选择卡组并开始游戏。
+- Windows 分发 ZIP：`Builds/Direct/VC5_Demo_v3_20260920_Windows_x64.zip`；Android 分发 APK：`Builds/Direct/Android/VC5_Demo_v3_20260920_Android.apk`。应用/EXE 名为 `ValkyriaChronicles5`，两个平台统一使用 `Assets/TcgEngine/Images/VC5/AppIcon.png`。
+- 本机 Windows Player 仅完成 12 秒不崩溃冒烟；Android 仅完成 APK manifest/ABI 回读。Menu 实际点击、完整 R4 对 B-AI1 对局、外部 Windows、Android 真机触控和 P2P 仍需人工验收。
+- Android APK 版本为 `3.0.0` / versionCode `3`，实际 ABI 为 `armeabi-v7a`。当前直装试玩包不包含 `arm64-v8a`，如需上架 Google Play 或覆盖 64 位专用设备，应另启 IL2CPP/ARM64 构建与设备门禁。

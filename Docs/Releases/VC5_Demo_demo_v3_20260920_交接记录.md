@@ -5,7 +5,7 @@
 版本标识：Git Tag `demo_v3_20260920`
 计划提交说明：`release: 封存 demo_v3_20260920`
 Unity：`2021.3.33f1c1 (682b9db7927c)`
-版本性质：Git 源码封存发布；未附带已验收的 Windows/Android 二进制发布包
+版本性质：Git 源码已封存；Windows x64 与 Android APK 发布包已生成，外部设备验收待完成
 
 ## 精确版本与回滚
 
@@ -48,6 +48,19 @@ git diff --stat demo_v2_20260830..demo_v3_20260920
 - 已保存 04B、06B、06C、06D、指挥官详情和两张卡图的实际 Unity 场景截图；自动操控截图不等于策划真人鼠标、触屏或设备验收。
 - 扩展运行时夹具 `Menu_CommanderSelection_AndTemporaryPreview` 仍有既知空引用/跨 PlayMode 调度问题，没有记为通过，也没有用空判或延时掩盖。
 - 本版未完成 Windows 非 Development 候选包外部电脑验收、ZIP/EXE SHA-256、Android、触屏、设备与双机 P2P 验收。
+
+## 二进制发布包结果
+
+- 产品/EXE 应用名：`ValkyriaChronicles5`。
+- 版本号：`3.0.0`；Android versionCode：`3`。
+- 正式图标：`Assets/TcgEngine/Images/VC5/AppIcon.png`。其 SHA-256 为 `25667CF6D8C077AAE0A878851ACF48E1FC2FEE15756882E3CE40B85022BF5FF5`；策划提供的参考 PNG 与该资源哈希一致。
+- 启用场景严格为两个：索引 0 `Assets/TcgEngine/Scenes/Menu/Menu.unity`，索引 1 `Assets/TcgEngine/Scenes/Game/Game.unity`。玩家从 Menu 的「VC5 Demo 对战」窗口进入游戏。
+- Windows：x64、非 Development 干净构建成功。EXE 为 `Builds/Direct/Windows/ValkyriaChronicles5/ValkyriaChronicles5.exe`；版本化 ZIP 为 `Builds/Direct/VC5_Demo_v3_20260920_Windows_x64.zip`，`90,246,822` 字节，SHA-256 `586F15C33F1BD64D2D68AEBC74858870B73D6290E9D208C2F09893458E9F0D84`。ZIP 已排除 `ValkyriaChronicles5_BurstDebugInformation_DoNotShip`。
+- Windows 本机启动冒烟：独立 Player 隐藏窗口运行 12 秒仍存活，随后由验证脚本正常停止；日志确认引擎、D3D11、程序集和输入初始化完成。没有自动点击 Menu 或完成一局，不能代替外部电脑人工验收。
+- Android：非 Development APK 干净构建成功，最低 Android 7.0/API 24、targetSdk 33、横屏。版本化文件为 `Builds/Direct/Android/VC5_Demo_v3_20260920_Android.apk`，`83,597,024` 字节，SHA-256 `69F4817C37B6C4EF9138DCB32E87BD88D7490AD70A80CCCE516188E174902A87`。
+- Android 首次构建因批处理环境未传递 `ANDROID_NDK_ROOT` 而在 Burst 阶段失败；显式使用 Unity 自带 SDK/NDK/OpenJDK 后重试成功。成功日志为 `Builds/Direct/AndroidBuild-v3-20260920-retry.log`，失败日志保留为 `AndroidBuild-v3-20260920.log`，不得把首次失败隐藏掉。
+- APK manifest 已回读应用名、版本、SDK 与图标；当前 Mono 后端的实际 native ABI 只有 `armeabi-v7a`，不是 ARM64/Google Play 64 位包。Android 真机安装、启动、旋转、触控和完整对局尚未执行。
+- 二进制对应的版本配置与构建记录以追加 Tag `demo_v3_20260920_build1` 固定；原 `demo_v3_20260920` 源码封存 Tag 不移动。
 
 ## 发布与提交检查
 

@@ -2,7 +2,7 @@
 
 创建日期：2026-09-03
 最近更新：2026-09-20
-当前状态：`demo_v3_20260920 Git 源码封存发布；Windows 外部候选包、设备与双机 P2P 仍未验收`
+当前状态：`demo_v3_20260920 源码已封存；Windows x64 与 Android APK 发布包已生成，外部设备验收待完成`
 开发基线：分支 `main`，Git Tag `demo_v2_20260830`，封存提交 `5fc2895e6699fa248fbfc90de041778f088ee6cc`
 
 ## 文档用途
@@ -137,7 +137,7 @@ v3 发布候选版本至少应满足：
 | D-03 | “解决卡手”的允许边界：弃牌转换、换牌、生成基础牌、费用调整或保底技能 | 可能触及牌库耗尽、手牌和资源规则 | 策划决定 | `已完成`：每回合一次非临时弃牌换临时指令；费用 1/1/0 |
 | D-04 | v3 教学是扩展现有六状态，还是重新拆分为首次教学与情境提示 | 决定 Figma 和教学状态机范围 | 策划决定，Codex 提案 | `已完成`：R4 独立十状态实操教学；原 C3 六状态保留 |
 | D-05 | v3 主要试玩组合采用玩家 R4 对 AI B-AI1；原 C3/旧卡组保留回归 | 决定平衡结论的适用范围 | 策划决定 | `方向已确认`；人工样本及验收结论待记录 |
-| D-06 | v3 是否只发布 Windows，Android 是否另立后续门禁 | 决定 UI 分辨率、触控和构建排期 | 策划决定 | `待策划审核` |
+| D-06 | v3 是否只发布 Windows，Android 是否另立后续门禁 | 决定 UI 分辨率、触控和构建排期 | 策划决定 | `已决定`：2026-09-20 策划要求同时构建 Windows x64 与 Android APK；设备体验仍分别验收 |
 
 ### V3-0 验收标准
 
@@ -298,7 +298,7 @@ v3 发布候选版本至少应满足：
 
 ## V3-5：发布候选、构建与封存
 
-状态：`部分完成`。2026-09-20 按策划指令先完成 Git 源码封存与远端备份；本次不构建或宣称 Windows 外部候选包、Android、设备与双机 P2P 已通过。
+状态：`待外部设备验收`。2026-09-20 已完成 Git 源码封存、Windows x64 与 Android APK 构建、版本化分发包和 SHA-256；本机 Windows 启动冒烟通过。外部电脑完整对局、Android 真机安装/触控及双机 P2P 仍由策划另行验收。
 
 ### 发布前门禁
 
@@ -330,7 +330,7 @@ v3 发布候选版本至少应满足：
 | G3 | 教学与交互 | `待人工验证`：Unity 已实现，教学回归 7/7 通过 | Codex/Figma 实施，策划与新玩家验收 | 新玩家完成真实操作并能复述核心流程 |
 | G4 | 数值、对手卡组与 AI | `待人工验证`（B-AI1）；全局平衡未开始 | Codex 调整，策划人工判断 | 受控对比有记录，无明显破坏体验的问题 |
 | G5 | 自动化与回归 | `已完成`（本次 B-AI1 范围）；发布前需复验 | Codex | 门禁 211/211；最终小修后定向 8/8，运行时 1/1；独立双机 P2P 尚未验证 |
-| G6 | Windows 候选与外部验收 | `未开始` | Codex 构建，策划验收 | 外部电脑完成一局，包与哈希记录完整 |
+| G6 | Windows/Android 候选与外部验收 | `待外部设备验收`：两个分发包、日志与哈希已生成 | Codex 构建，策划验收 | 包结构与哈希完整；外部 Windows 和 Android 真机分别完成验收 |
 | G7 | v3 封存 | `已完成（Git 源码）`：`demo_v3_20260920`；二进制发布包另行验收 | Codex 整理，策划确认 | 提交、Tag、交接和发布证据一致 |
 
 ## 验证证据分层
@@ -742,3 +742,12 @@ v3 发布候选版本至少应满足：
 实际画面：自动操控真实 R4 教学场景保存 `Assets/Screenshots/r4-fix-04b-ranger-skill-20260920.png`、`r4-fix-06b-commander-skill-20260920.png`、`r4-fix-06d-command-choice-20260920.png`，均为当前 Game View 的 `1191×670`。04B 的技能按钮屏幕边界约为 `952.85,291.57 → 1161.28,358.57`，空心框四边对应目标外扩约 5 个实际屏幕像素（Canvas 参考空间为 8）；06D 三按钮并集为 `635.29,96.17 → 833.71,308.31`，高亮为 `630.33,91.21 → 838.67,313.27`，完整包住三项且四边一致。截图和数值读取属于自动操控证据，仍需策划真人操作确认观感。
 
 边界：本轮触及 R4 开火指令规则与对应预览/描述，但不改 AI 决策、P2P/网络消息、行动经济、其他卡牌、原 C3 教学或教学推进条件。`Menu_CommanderSelection_AndTemporaryPreview` 的 MCP 作业仍出现 `running/0`、编辑器实际空闲，另一次 PlayMode 调用返回 0 tests；两者均未记为通过。
+
+### 2026-09-20 v3 Windows/Android 发布包（构建完成，待设备验收）
+
+策划要求同时发布 Windows 与 Android Demo，应用/EXE 名固定为 `ValkyriaChronicles5`，正式图标使用 `Assets/TcgEngine/Images/VC5/AppIcon.png`。发布版本设为 `3.0.0`，Android versionCode 为 `3`。Build Settings 仍严格只有索引 0 `Menu.unity` 与索引 1 `Game.unity`，启动后从 Menu 的「VC5 Demo 对战」窗口进入游戏。
+
+- Windows x64 非 Development 干净构建成功，Unity 报告 `231,346,097` 字节。版本化分发包 `Builds/Direct/VC5_Demo_v3_20260920_Windows_x64.zip` 为 `90,246,822` 字节，SHA-256 `586F15C33F1BD64D2D68AEBC74858870B73D6290E9D208C2F09893458E9F0D84`；ZIP 排除 `ValkyriaChronicles5_BurstDebugInformation_DoNotShip`。本机隐藏窗口启动 12 秒保持运行，Player 日志确认引擎、D3D11、程序集和输入初始化完成，未发现崩溃；未自动点击 Menu 或完成对局。
+- Android 首次干净构建在 Burst 阶段失败，根因是批处理环境未传递已安装 NDK 的 `ANDROID_NDK_ROOT`，不是项目编译错误。显式传入 Unity 自带 SDK/NDK/OpenJDK 后，同一干净构建成功。版本化 APK `Builds/Direct/Android/VC5_Demo_v3_20260920_Android.apk` 为 `83,597,024` 字节，SHA-256 `69F4817C37B6C4EF9138DCB32E87BD88D7490AD70A80CCCE516188E174902A87`。
+- APK manifest 回读：应用名 `ValkyriaChronicles5`、versionName `3.0.0`、versionCode `3`、minSdk 24、targetSdk 33、横屏配置沿用构建入口，六档 mipmap 图标存在。当前 Mono 后端的 APK 实际 native ABI 为 `armeabi-v7a`；虽然项目目标架构配置含 ARM64，本包没有打入 `arm64-v8a`，不能称为 Google Play 64 位包。
+- 本轮没有重新运行玩法测试。Windows 外部电脑完整操作、Android 真机安装/旋转/触控/系统遮挡、完整对局、正式签名以及双机 P2P 均未验证，不能以构建成功替代。
