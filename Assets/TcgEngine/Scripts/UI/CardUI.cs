@@ -49,6 +49,7 @@ namespace TcgEngine.UI
         private Image demoBackground;
         private Image[] templateGradients;
         private bool[] originalGradientEnabled;
+        private Vc5TemporaryCardGraphic temporaryFrame;
 
         void Awake()
         {
@@ -82,6 +83,45 @@ namespace TcgEngine.UI
 
             this.card = card;
             this.variant = variant;
+            if (Vc5R4Rules.IsTemporary(card.id) && temporaryFrame == null)
+            {
+                GameObject marker = new GameObject("Temporary dashed frame", typeof(RectTransform), typeof(Vc5TemporaryCardGraphic));
+                marker.layer = gameObject.layer;
+                marker.transform.SetParent(transform, false);
+                RectTransform rect = marker.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(5f, 5f);
+                rect.offsetMax = new Vector2(-5f, -5f);
+                temporaryFrame = marker.GetComponent<Vc5TemporaryCardGraphic>();
+                temporaryFrame.raycastTarget = false;
+                GameObject badge = new GameObject("Temporary label", typeof(RectTransform), typeof(Image));
+                badge.layer = gameObject.layer;
+                badge.transform.SetParent(marker.transform, false);
+                RectTransform badgeRect = badge.GetComponent<RectTransform>();
+                badgeRect.anchorMin = new Vector2(0.1f, 0.77f);
+                badgeRect.anchorMax = new Vector2(0.9f, 0.84f);
+                badgeRect.offsetMin = badgeRect.offsetMax = Vector2.zero;
+                badge.GetComponent<Image>().color = new Color(0.025f, 0.15f, 0.18f, 0.95f);
+                badge.GetComponent<Image>().raycastTarget = false;
+                GameObject label = new GameObject("Text", typeof(RectTransform), typeof(Text));
+                label.layer = gameObject.layer;
+                label.transform.SetParent(badge.transform, false);
+                Text text = label.GetComponent<Text>();
+                text.rectTransform.anchorMin = Vector2.zero;
+                text.rectTransform.anchorMax = Vector2.one;
+                text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
+                text.font = card_title.font;
+                text.fontSize = card_title.fontSize;
+                text.resizeTextForBestFit = true;
+                text.resizeTextMinSize = 10;
+                text.resizeTextMaxSize = card_title.fontSize;
+                text.text = "临时 · 本回合";
+                text.alignment = TextAnchor.MiddleCenter;
+                text.color = new Color(0.45f, 1f, 0.95f);
+                text.raycastTarget = false;
+            }
+            if (temporaryFrame != null) temporaryFrame.gameObject.SetActive(Vc5R4Rules.IsTemporary(card.id));
 
             if(card_image != null)
                 card_image.sprite = card.GetFullArt(variant);

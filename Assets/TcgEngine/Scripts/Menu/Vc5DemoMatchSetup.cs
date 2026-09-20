@@ -11,6 +11,25 @@ namespace TcgEngine.UI
     public static class Vc5DemoMatchSetup
     {
         private const string DemoUsername = "VC5_Demo_Player";
+        private static bool pendingFormalR4Match;
+
+        public static bool HasPendingFormalR4Match => pendingFormalR4Match;
+
+        public static void RequestFormalR4Match()
+        {
+            pendingFormalR4Match = true;
+        }
+
+        public static bool TryStartPendingFormalR4Match(MainMenu menu, out string error)
+        {
+            error = "";
+            if (!pendingFormalR4Match)
+                return false;
+
+            pendingFormalR4Match = false;
+            return TryStartSoloAIMatch(menu, Vc5DemoBootstrap.CommandR4DeckId,
+                Vc5DemoBootstrap.SteadyAssaultDeckId, out error);
+        }
 
         public static string GetDefaultPlayerDeckId()
         {
@@ -86,6 +105,8 @@ namespace TcgEngine.UI
             AddDeck(decks, Vc5DemoBootstrap.MobileAssaultDeckId);
             AddDeck(decks, Vc5DemoBootstrap.RangedPressureDeckId);
             AddDeck(decks, Vc5DemoBootstrap.RangedPressureC3DeckId);
+            AddDeck(decks, Vc5DemoBootstrap.CommandR4DeckId);
+            AddDeck(decks, Vc5DemoBootstrap.SteadyAssaultDeckId);
             return decks.ToArray();
         }
 
@@ -121,7 +142,9 @@ namespace TcgEngine.UI
         {
             if (DeckData.Get(Vc5DemoBootstrap.MobileAssaultDeckId) == null
                 || DeckData.Get(Vc5DemoBootstrap.RangedPressureDeckId) == null
-                || DeckData.Get(Vc5DemoBootstrap.RangedPressureC3DeckId) == null)
+                || DeckData.Get(Vc5DemoBootstrap.RangedPressureC3DeckId) == null
+                || DeckData.Get(Vc5DemoBootstrap.CommandR4DeckId) == null
+                || DeckData.Get(Vc5DemoBootstrap.SteadyAssaultDeckId) == null)
             {
                 Vc5DemoBootstrap.Register();
             }

@@ -32,6 +32,14 @@ namespace TcgEngine
 
         public string equipped_uid = null;
 
+        // R4 per-card state travels and clones with the authoritative game state.
+        public string r4_commander_uid;
+        public string r4_pending_discard_uid;
+        public int r4_shield;
+        public int r4_shield_rounds;
+        public bool r4_watch;
+        public Slot bai1_destination;
+
         public List<CardTrait> traits = new List<CardTrait>();
         public List<CardTrait> ongoing_traits = new List<CardTrait>();
 
@@ -57,6 +65,11 @@ namespace TcgEngine
             ClearOngoing(); Refresh(); damage = 0; status.Clear(); 
             SetCard(CardData, VariantData); //Reset to initial stats
             equipped_uid = null;
+            r4_shield = 0;
+            r4_shield_rounds = 0;
+            r4_watch = false;
+            r4_pending_discard_uid = null;
+            bai1_destination = Slot.None;
         }
 
         public virtual int GetAttack() { return Mathf.Max(attack + attack_ongoing, 0); }
@@ -623,6 +636,12 @@ namespace TcgEngine
             dest.attack_Range = source.attack_Range;
 
             dest.equipped_uid = source.equipped_uid;
+            dest.r4_commander_uid = source.r4_commander_uid;
+            dest.r4_pending_discard_uid = source.r4_pending_discard_uid;
+            dest.r4_shield = source.r4_shield;
+            dest.r4_shield_rounds = source.r4_shield_rounds;
+            dest.r4_watch = source.r4_watch;
+            dest.bai1_destination = source.bai1_destination;
 
             CardTrait.CloneList(source.traits, dest.traits);
             CardTrait.CloneList(source.ongoing_traits, dest.ongoing_traits);

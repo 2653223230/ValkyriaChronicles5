@@ -66,9 +66,11 @@ namespace TcgEngine.UI
         void Update()
         {
             GameClient client = GameClient.Get();
-            if (client == null || !client.IsReady() || !client.IsYourTurn() || GameUI.IsUIOpened()) { Hide(); return; }
+            if (client == null || !client.IsReady()) { Data = null; Hide(); return; }
             Game game = client.GetGameData();
+            Data = game;
             if (game == null || game.HasEnded() || game.phase != GamePhase.Main) { Hide(); return; }
+            if (!client.IsYourTurn() || GameUI.IsUIOpened()) { Hide(); return; }
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + 0.08f;
             Vector3 mouse = GameBoard.Get().RaycastMouseBoard();
@@ -77,22 +79,33 @@ namespace TcgEngine.UI
             Card spell = drag != null ? drag.GetCard() : null;
             Card actor = slot != null ? Vc5DemoGrid.GetDisplayedSlotCard(game, slot.GetSlot(mouse)) : null;
             Slot? destination = null;
+            Card selectedEnemy = null;
+            bool rangerSelection = game.selector == SelectorType.SelectTarget && game.selector_ability_id == Vc5R4Rules.MoveSkill;
             if (game.selector == SelectorType.SelectTarget && game.selector_player_id == client.GetPlayerID())
             {
                 spell = game.GetCard(game.selector_caster_uid);
-                actor = game.GetCard(game.ability_triggerer);
-                if (!Vc5C3Rules.IsPreciseMove(spell)) { Hide(); return; }
-                if (slot != null) destination = slot.GetSlot(mouse);
+                bool moveSkill = game.selector_ability_id == Vc5R4Rules.MoveSkill;
+                actor = moveSkill ? spell : game.GetCard(game.ability_triggerer);
+                if (Vc5BAI1Rules.IsCard(spell) && game.selector_ability_id.EndsWith("_target"))
+                {
+                    if (Vc5BAI1Rules.IsCharge(spell)) destination = spell.bai1_destination;
+                    selectedEnemy = slot != null ? Vc5DemoGrid.GetDisplayedSlotCard(game, slot.GetSlot(mouse)) : null;
+                }
+                else
+                {
+                    if (!moveSkill && !Vc5C3Rules.IsPreciseMove(spell)) { Hide(); return; }
+                    if (slot != null) destination = slot.GetSlot(mouse);
+                }
             }
-            if (!Vc5C3Rules.IsCard(spell)) { Hide(); return; }
+            if (!Vc5C3Rules.IsCard(spell) && !rangerSelection) { Hide(); return; }
             CardDetailPreview.Hide();
-            Refresh(game, spell, actor, destination);
+            Refresh(game, spell, actor, destination, selectedEnemy);
         }
 
-        public void Refresh(Game game, Card spell, Card actor, Slot? destination = null)
+        public void Refresh(Game game, Card spell, Card actor, Slot? destination = null, Card selectedTarget = null)
         {
             Data = game; Spell = spell; Actor = actor;
-            Preview = Vc5C3Preview.Build(game, spell, actor, destination);
+            Preview = Vc5C3Preview.Build(game, spell, actor, destination, selectedTarget);
             graphic.enabled = true;
             graphic.SetVerticesDirty();
             summary.gameObject.SetActive(true);
@@ -114,12 +127,13 @@ namespace TcgEngine.UI
                 Position(label.rectTransform, Project(board.transform.position) + new Vector2(0f, 52f), new Vector2(150f, 32f));
             }
             bool moving = Preview.plan.valid && Preview.plan.path.Count > 1 && actor != null;
-            bool rangeBuff = Preview.plan.valid && (spell.card_id == Vc5C3Rules.Prefix + "temp_calibration"
-                || spell.card_id == Vc5C3Rules.Prefix + "scope_upgrade");
+            string id = Vc5C3Rules.CanonicalId(spell);
+            bool rangeBuff = Preview.plan.valid && (id == Vc5C3Rules.Prefix + "temp_calibration"
+                || id == Vc5C3Rules.Prefix + "scope_upgrade");
             actorNote.gameObject.SetActive(rangeBuff);
             if (rangeBuff)
             {
-                actorNote.text = spell.card_id == Vc5C3Rules.Prefix + "temp_calibration" ? "射程 +1（本回合）" : "射程 +1（本局）";
+                actorNote.text = id == Vc5C3Rules.Prefix + "temp_calibration" ? "射程 +1（本回合）" : "射程 +1（本局）";
                 Position(actorNote.rectTransform, Point(actor.slot) + new Vector2(0f, 58f), new Vector2(200f, 30f));
             }
             ghost.gameObject.SetActive(moving);
@@ -131,7 +145,7 @@ namespace TcgEngine.UI
                 Position(ghost.rectTransform, point, new Vector2(62f, 82f));
                 Position(ghostTitle.rectTransform, point + new Vector2(0f, -48f), new Vector2(140f, 28f));
                 ghostTitle.text = actor.CardData.title + " 落点";
-                if (spell.card_id == Vc5C3Rules.Prefix + "forced_march" && Preview.plan.path.Count - 1 > actor.move_Range)
+                if (id == Vc5C3Rules.Prefix + "forced_march" && Preview.plan.path.Count - 1 > actor.move_Range)
                     ghostTitle.text = "强行军落点";
             }
         }
@@ -139,7 +153,12 @@ namespace TcgEngine.UI
         void Hide()
         {
             Preview = null;
-            if (graphic != null) graphic.enabled = false;
+            Spell = null; Actor = null;
+            if (graphic != null)
+            {
+                graphic.enabled = Data != null && Data.phase == GamePhase.Main && !Data.HasEnded();
+                if (graphic.enabled) graphic.SetVerticesDirty();
+            }
             if (summary != null) summary.gameObject.SetActive(false);
             if (ghost != null) ghost.gameObject.SetActive(false);
             if (ghostTitle != null) ghostTitle.gameObject.SetActive(false);

@@ -40,6 +40,8 @@ namespace TcgEngine.Client
         private CardUI card_ui;
         private BoardCardFX card_fx;
         private Canvas canvas;
+        private Image r4ShieldIcon;
+        private Text r4ShieldText;
 
         private string card_uid = "";
         private bool destroyed = false;
@@ -71,6 +73,8 @@ namespace TcgEngine.Client
 
             if (status_group != null)
                 status_group.alpha = 0f;
+
+            CreateR4ShieldBadge();
         }
 
         void OnDestroy()
@@ -149,6 +153,12 @@ namespace TcgEngine.Client
             armor.text = armor_val.ToString();
             armor.enabled = armor_val > 0;
             armor_icon.enabled = armor_val > 0;
+            if (r4ShieldText != null && r4ShieldIcon != null)
+            {
+                r4ShieldText.text = card.r4_shield.ToString();
+                r4ShieldText.enabled = card.r4_shield > 0;
+                r4ShieldIcon.enabled = card.r4_shield > 0;
+            }
 
             //Update card image
             Sprite sprite = card.CardData.GetBoardArt(card.VariantData);
@@ -213,6 +223,12 @@ namespace TcgEngine.Client
                 return mirrored_pos;
 
             return transform.position;
+        }
+
+        public bool IsAtTargetPosition(float tolerance = 0.02f)
+        {
+            Vector3 targetPosition = GetTargetPos();
+            return (transform.position - targetPosition).sqrMagnitude <= tolerance * tolerance;
         }
 
         // `Game.unity` 当前只有一套 `PlayerSelf` 棋盘格。
@@ -363,16 +379,34 @@ namespace TcgEngine.Client
         public string GetStatusText()
         {
             Card card = GetCard();
-            string txt = "";
-            foreach (CardStatus astatus in card.GetAllStatus())
+            return Vc5StatusDisplay.FormatAll(card);
+        }
+
+        private void CreateR4ShieldBadge()
+        {
+            if (armor_icon == null || armor == null || r4ShieldIcon != null)
+                return;
+
+            GameObject badge = Instantiate(armor_icon.gameObject, armor_icon.transform.parent);
+            badge.name = "R4ShieldIcon";
+            RectTransform rect = badge.GetComponent<RectTransform>();
+            if (rect != null)
             {
-                string seg = Vc5StatusDisplay.FormatSingle(astatus);
-                if (!string.IsNullOrEmpty(seg))
-                    txt += seg + ", ";
+                rect.anchoredPosition = new Vector2(Mathf.Abs(rect.anchoredPosition.x), rect.anchoredPosition.y);
+                rect.sizeDelta = new Vector2(66f, 55f);
             }
-            if (txt.Length > 2)
-                txt = txt.Substring(0, txt.Length - 2);
-            return txt;
+            r4ShieldIcon = badge.GetComponent<Image>();
+            r4ShieldIcon.color = new Color(0.72f, 0.72f, 0.72f, 1f);
+            r4ShieldText = badge.GetComponentInChildren<Text>(true);
+            r4ShieldIcon.enabled = false;
+            if (r4ShieldText != null)
+            {
+                r4ShieldText.fontSize = 30;
+                RectTransform textRect = r4ShieldText.rectTransform;
+                textRect.anchoredPosition = Vector2.zero;
+                textRect.sizeDelta = new Vector2(60f, 55f);
+                r4ShieldText.enabled = false;
+            }
         }
 
         public string GetTraitText()

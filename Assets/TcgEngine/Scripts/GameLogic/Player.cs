@@ -563,7 +563,7 @@ namespace TcgEngine
                 return false;
             if (card.CardData.hp_cost > 0 && hp <= card.CardData.hp_cost)
                 return false;
-            if (cards_hand.Count < card.CardData.discard_cost + 1)
+            if (card.CardData.discard_cost > 0 && GetDiscardCostCards(card).Count < card.CardData.discard_cost)
                 return false;
             return true;
         }
@@ -577,15 +577,18 @@ namespace TcgEngine
                 hp = 0;
             for (int i = 0; i < card.CardData.discard_cost; i++)
             {
-                if (cards_hand.Count == 0)
+                List<Card> eligible = GetDiscardCostCards(card);
+                if (eligible.Count == 0)
                     break;
-                int idx = UnityEngine.Random.Range(0, cards_hand.Count);
-                Card to_discard = cards_hand[idx];
-                if (to_discard.uid == card.uid && cards_hand.Count > 1)
-                    idx = (idx + 1) % cards_hand.Count;
-                cards_hand.RemoveAt(idx);
+                Card to_discard = eligible[UnityEngine.Random.Range(0, eligible.Count)];
+                cards_hand.Remove(to_discard);
                 cards_discard.Add(to_discard);
             }
+        }
+
+        public List<Card> GetDiscardCostCards(Card excluded = null)
+        {
+            return cards_hand.FindAll(c => c != excluded && !Vc5R4Rules.IsTemporary(c));
         }
 
         public virtual bool CanPayAbility(Card card, AbilityData ability)
@@ -593,7 +596,7 @@ namespace TcgEngine
             bool exhaust = !card.exhausted || !ability.exhaust;
             bool mana_ok = mana >= ability.mana_cost;
             bool hp_ok = ability.hp_cost <= 0 || hp > ability.hp_cost;
-            bool discard_ok = cards_hand.Count >= ability.discard_cost;
+            bool discard_ok = ability.discard_cost <= 0 || GetDiscardCostCards().Count >= ability.discard_cost;
             return exhaust && mana_ok && hp_ok && discard_ok;
         }
 

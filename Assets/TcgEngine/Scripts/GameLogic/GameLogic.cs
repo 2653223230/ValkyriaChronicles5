@@ -11,7 +11,7 @@ namespace TcgEngine.Gameplay
     /// 执行并解析游戏规则和逻辑
     /// </summary>
 
-    public class GameLogic
+    public partial class GameLogic
     {
         public UnityAction onGameStart;
         public UnityAction<Player> onGameEnd;          //Winner
@@ -347,6 +347,7 @@ namespace TcgEngine.Gameplay
                 Debug.Log("双方结束主要阶段，进入得分阶段");
                 game_data.selector = SelectorType.None;
                 game_data.phase = GamePhase.Scoring;
+                Vc5R4Rules.EndMainPhase(game_data);
 
                 resolve_queue.AddCallback(ResolveScoringZonePhase);
                 resolve_queue.ResolveAll(0.2f);
@@ -489,6 +490,7 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
 
             RestoreMoveRangesForAllPlayers();
+            Vc5R4Rules.EndRound(game_data);
 
             foreach (Player aplayer in game_data.players)
             {
@@ -595,14 +597,11 @@ namespace TcgEngine.Gameplay
             List<Card> discarded = null;
             for (int i = 0; i < card.CardData.discard_cost; i++)
             {
-                if (player.cards_hand.Count == 0)
+                List<Card> eligible = player.GetDiscardCostCards(card);
+                if (eligible.Count == 0)
                     break;
-                int idx = random.Next(0, player.cards_hand.Count);
-                Card to_discard = player.cards_hand[idx];
-                if (to_discard.uid == card.uid && player.cards_hand.Count > 1)
-                    idx = (idx + 1) % player.cards_hand.Count;
-                to_discard = player.cards_hand[idx];
-                player.cards_hand.RemoveAt(idx);
+                Card to_discard = eligible[random.Next(0, eligible.Count)];
+                player.cards_hand.Remove(to_discard);
                 player.cards_discard.Add(to_discard);
 
                 if (discarded == null)
@@ -687,7 +686,7 @@ namespace TcgEngine.Gameplay
             //洗牌
             if (puzzle == null || !puzzle.dont_shuffle_deck)
                 ShuffleDeck(player.cards_deck);
-            PrioritizeVc5C3TutorialOpening(player);
+            PrioritizeVc5TutorialOpening(player);
         }
 
         //Set deck using custom deck in save file or database
@@ -728,18 +727,21 @@ namespace TcgEngine.Gameplay
             //Shuffle deck
             //洗牌
             ShuffleDeck(player.cards_deck);
-            PrioritizeVc5C3TutorialOpening(player);
+            PrioritizeVc5TutorialOpening(player);
         }
 
-        private void PrioritizeVc5C3TutorialOpening(Player player)
+        private void PrioritizeVc5TutorialOpening(Player player)
         {
             if (player == null || player.player_id != 0 || game_data == null
-                || game_data.settings.game_type != GameType.Solo
-                || player.deck != Vc5DemoBootstrap.RangedPressureC3DeckId)
+                || !TcgEngine.UI.Vc5DemoTutorialOverlay.ShouldPrioritizeTutorialOpening(
+                    game_data.settings.game_type, player.deck))
                 return;
 
+            string tutorialCardId = player.deck == Vc5DemoBootstrap.CommandR4DeckId
+                ? TcgEngine.UI.Vc5DemoTutorialOverlay.R4MobileShotId
+                : TcgEngine.UI.Vc5DemoTutorialOverlay.MobileShotId;
             int index = player.cards_deck.FindIndex(card => card != null
-                && card.card_id == "vc5_demo_c3_mobile_shot");
+                && card.card_id == tutorialCardId);
             if (index <= 0)
                 return;
 
@@ -787,7 +789,8 @@ namespace TcgEngine.Gameplay
             {
                 //获取卡牌的所有玩家
                 Player player = game_data.GetPlayer(card.player_id);
-                if (!skip_cost && !card.CardData.fast_action)
+                if (!skip_cost && !card.CardData.fast_action
+                    && !TcgEngine.UI.Vc5DemoTutorialOverlay.KeepsTutorialActionOpportunity(player.deck, card.card_id))
                 {
                     if (!game_data.IsVc5TestMode(player))
                     {
@@ -832,7 +835,7 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     //否则加入弃牌堆，并保存槽位
-                    player.cards_discard.Add(card);
+                    if (!Vc5R4Rules.IsTemporary(card)) player.cards_discard.Add(card);
                     card.slot = slot; //Save slot in case spell has PlayTarget
                 }
 
@@ -875,6 +878,8 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanMoveCard(card, slot, skip_cost, ignore_range))
             {
+                if (!Vc5R4Rules.ResolveWatchMovement(this, card, slot))
+                { RefreshData(); return; }
                 Card slot_card = game_data.GetSlotCard(slot);
                 if (slot_card != null && slot_card.player_id == card.player_id && slot_card.HasTrait(TraitSlimeSpawn))
                 {
@@ -910,7 +915,7 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardMoved?.Invoke(card, slot);
-                if (card.card_id.StartsWith(Vc5C3Rules.Prefix))
+                if (card.card_id.StartsWith(Vc5C3Rules.Prefix) || card.card_id.StartsWith(Vc5R4Rules.Prefix) || card.card_id.StartsWith(Vc5BAI1Rules.Prefix))
                 {
                     Vc5C3Rules.OnMoved(this, card, hexDistance);
                     RefreshData();
@@ -923,6 +928,12 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanCastAbility(card, iability))
             {
+                if (Vc5R4Rules.IsSkill(iability.id))
+                {
+                    if (iability.id == Vc5R4Rules.MoveSkill) GoToSelectTarget(iability, card);
+                    else GoToSelectorCard(iability, card);
+                    return;
+                }
                 Player player = game_data.GetPlayer(card.player_id);
                 if (!iability.fast_action && !game_data.IsVc5TestMode(player))
                 {
@@ -931,6 +942,7 @@ namespace TcgEngine.Gameplay
                     resolve_queue.AddCallback(() => CompleteMainActionOpportunity(actionPlayerId));
                 }
                 card.IncrementAbilityUse(iability.id);
+                card.r4_watch = false;
                 if (!is_ai_predict && iability.target != AbilityTarget.SelectTarget)
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
@@ -962,6 +974,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanAttackTarget(attacker, target, skip_cost))
             {
+                attacker.r4_watch = false;
                 Player player = game_data.GetPlayer(attacker.player_id);
                 if (!is_ai_predict)
                     player.AddHistory(GameAction.Attack, attacker, target);
@@ -1344,6 +1357,7 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.SpellImmunity))
                 return; //Spell immunity
 
+            value = Vc5R4Rules.Absorb(target, value);
             target.damage += value;
 
             onCardDamaged?.Invoke(target, value);
@@ -1398,6 +1412,7 @@ namespace TcgEngine.Gameplay
 
             //Damage
             //损坏
+            value = Vc5R4Rules.Absorb(target, value);
             int damage_max = Mathf.Min(value, target.GetHP());
             int extra = value - target.GetHP();
             target.damage += value;
@@ -1492,7 +1507,8 @@ namespace TcgEngine.Gameplay
 
             //Remove card from board and add to discard
             player.RemoveCardFromAllGroups(card);
-            player.cards_discard.Add(card);
+            if (!Vc5R4Rules.IsTemporary(card)) player.cards_discard.Add(card);
+            card.r4_watch = false;
             game_data.last_destroyed = card.uid;
 
             //Remove from bearer
@@ -1780,11 +1796,11 @@ namespace TcgEngine.Gameplay
                     player.hp = 0;
                 for (int i = 0; i < iability.discard_cost; i++)
                 {
-                    if (player.cards_hand.Count == 0)
+                    List<Card> eligible = player.GetDiscardCostCards();
+                    if (eligible.Count == 0)
                         break;
-                    int idx = random.Next(0, player.cards_hand.Count);
-                    Card to_discard = player.cards_hand[idx];
-                    player.cards_hand.RemoveAt(idx);
+                    Card to_discard = eligible[random.Next(0, eligible.Count)];
+                    player.cards_hand.Remove(to_discard);
                     player.cards_discard.Add(to_discard);
                 }
                 caster.exhausted = caster.exhausted || iability.exhaust;
@@ -2152,6 +2168,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectCard(Card target)
         {
+            if (TrySelectR4Discard(target)) return;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -2219,6 +2236,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
+            if (TrySelectR4Move(target)) return;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -2246,6 +2264,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectChoice(int choice)
         {
+            if (TrySelectR4Order(choice)) return;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -2303,6 +2322,8 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.selector != SelectorType.None)
             {
+                Card r4Caster = game_data.GetCard(game_data.selector_caster_uid);
+                if (r4Caster != null) r4Caster.r4_pending_discard_uid = null;
                 // Return card to hand if this selector came from a card just played from hand.
                 if (IsPendingPlayedCard(game_data.selector_caster_uid))
                     CancelPlayCard();
@@ -2587,7 +2608,9 @@ namespace TcgEngine.Gameplay
         {
             return deckId == Vc5DemoBootstrap.MobileAssaultDeckId
                 || deckId == Vc5DemoBootstrap.RangedPressureDeckId
-                || deckId == Vc5DemoBootstrap.RangedPressureC3DeckId;
+                || deckId == Vc5DemoBootstrap.RangedPressureC3DeckId
+                || deckId == Vc5DemoBootstrap.CommandR4DeckId
+                || deckId == Vc5DemoBootstrap.SteadyAssaultDeckId;
         }
 
 

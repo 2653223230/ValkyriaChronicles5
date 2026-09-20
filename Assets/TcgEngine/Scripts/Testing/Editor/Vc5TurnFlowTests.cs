@@ -75,29 +75,29 @@ public class Vc5TurnFlowTests : Vc5LogicTestBase
 
             Assert.IsNotNull(detailText, "GameUI must expose a separate short instruction line.");
             Assert.AreEqual("放弃行动", buttonText.Invoke(null, new object[] { GamePhase.Main }));
-            Assert.AreEqual("完成弃牌", buttonText.Invoke(null, new object[] { GamePhase.EndDiscard }));
+            Assert.AreEqual("确定弃牌", buttonText.Invoke(null, new object[] { GamePhase.EndDiscard }));
             Assert.AreEqual("我方行动", statusText.Invoke(null, new object[] { GamePhase.Main, true, false }));
             Assert.AreEqual("对手行动", statusText.Invoke(null, new object[] { GamePhase.Main, false, false }));
             Assert.AreEqual("弃牌阶段",
                 statusText.Invoke(null, new object[] { GamePhase.EndDiscard, false, false }));
             Assert.AreEqual("等待对手",
                 statusText.Invoke(null, new object[] { GamePhase.EndDiscard, false, true }));
-            Assert.AreEqual("拖动手牌后松开即可弃置",
+            Assert.AreEqual("点击选取手牌，再次点击取消；选好后确定弃牌",
                 detailText.Invoke(null, new object[] { GamePhase.EndDiscard, false, 3 }));
             Assert.AreEqual("弃牌已完成",
                 detailText.Invoke(null, new object[] { GamePhase.EndDiscard, true, 3 }));
         }
 
         [Test]
-        public void EndDiscard_RequiresDragDistanceAndDoesNotDiscardOnSimpleClick()
+        public void EndDiscard_ClickStagesSelectionButDragDoesNot()
         {
             MethodInfo shouldDiscard = typeof(HandCard).GetMethod(
-                "ShouldDiscardOnRelease", BindingFlags.Public | BindingFlags.Static);
+                "ShouldToggleDiscardOnRelease", BindingFlags.Public | BindingFlags.Static);
 
             Assert.IsNotNull(shouldDiscard, "HandCard must expose deterministic release behavior for regression tests.");
-            Assert.IsFalse((bool)shouldDiscard.Invoke(null,
-                new object[] { GamePhase.EndDiscard, false, new Vector2(100f, 100f), new Vector2(100f, 100f) }));
             Assert.IsTrue((bool)shouldDiscard.Invoke(null,
+                new object[] { GamePhase.EndDiscard, false, new Vector2(100f, 100f), new Vector2(100f, 100f) }));
+            Assert.IsFalse((bool)shouldDiscard.Invoke(null,
                 new object[] { GamePhase.EndDiscard, false, new Vector2(100f, 100f), new Vector2(125f, 100f) }));
             Assert.IsFalse((bool)shouldDiscard.Invoke(null,
                 new object[] { GamePhase.Main, false, new Vector2(100f, 100f), new Vector2(125f, 100f) }));

@@ -52,6 +52,7 @@ namespace TcgEngine.UI
             pname.text = "";
             hp_txt.text = "";
             hp_max_txt.text = "";
+            ConfigureVc5ResourceLayout();
 
             for (int i = 0; i < secrets.Length; i++)
                 secrets[i].gameObject.SetActive(false);
@@ -72,8 +73,8 @@ namespace TcgEngine.UI
                 pname.text = player.username;
                 mana_bar.value = player.mana;
                 mana_bar.max_value = player.mana_max;
-                hp_txt.text = player.kill_count.ToString();
-                hp_max_txt.text = "/9";
+                hp_txt.text = "胜利分：" + player.kill_count + "/9  法力值：";
+                PositionManaBarAfterLabel();
 
                 AvatarData adata = AvatarData.Get(player.avatar);
                 if (avatar != null && adata != null && !killed)
@@ -91,6 +92,55 @@ namespace TcgEngine.UI
                 timer = 0f;
                 SlowUpdate();
             }
+        }
+
+        private void ConfigureVc5ResourceLayout()
+        {
+            if (hp_txt == null || hp_max_txt == null)
+                return;
+
+            hp_max_txt.text = "";
+            hp_max_txt.enabled = false;
+
+            RectTransform rect = hp_txt.rectTransform;
+            rect.sizeDelta = new Vector2(360f, 48f);
+            hp_txt.fontSize = 28;
+            hp_txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+            hp_txt.verticalOverflow = VerticalWrapMode.Truncate;
+            rect.pivot = new Vector2(0f, 0.5f);
+            hp_txt.alignment = TextAnchor.MiddleLeft;
+
+            if (is_opponent)
+            {
+                rect.anchorMin = Vector2.one;
+                rect.anchorMax = Vector2.one;
+                rect.anchoredPosition = new Vector2(-660f, -82f);
+            }
+            else
+            {
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.zero;
+                rect.anchoredPosition = new Vector2(145f, 25f);
+
+                RectTransform nameRect = pname != null ? pname.rectTransform : null;
+                if (nameRect != null)
+                    nameRect.anchoredPosition = new Vector2(nameRect.anchoredPosition.x, 82f);
+            }
+        }
+
+        private void PositionManaBarAfterLabel()
+        {
+            RectTransform manaRect = mana_bar != null ? mana_bar.transform as RectTransform : null;
+            if (manaRect == null || hp_txt == null)
+                return;
+
+            RectTransform labelRect = hp_txt.rectTransform;
+            manaRect.anchorMin = labelRect.anchorMin;
+            manaRect.anchorMax = labelRect.anchorMax;
+            manaRect.pivot = new Vector2(0.5f, 0.5f);
+            manaRect.anchoredPosition = new Vector2(
+                labelRect.anchoredPosition.x + hp_txt.preferredWidth + 115f,
+                labelRect.anchoredPosition.y);
         }
 
         void SlowUpdate()

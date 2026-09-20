@@ -23,6 +23,13 @@ namespace TcgEngine.Client
         private List<HandCard> cards = new List<HandCard>();
 
         private bool is_dragging;
+        private readonly HashSet<string> discard_selection = new HashSet<string>();
+        private bool confirming_discard;
+        private int discard_round = -1;
+        private int discard_player = -1;
+        public int DiscardSelectionCount { get { return discard_selection.Count; } }
+        public bool IsConfirmingDiscard { get { return confirming_discard; } }
+        public string DiscardError { get; private set; }
 
         private string last_destroyed;
         private float last_destroyed_timer = 0f;
@@ -43,6 +50,15 @@ namespace TcgEngine.Client
             Game data = GameClient.Get().GetGameData();
             Player player = data.GetPlayer(player_id);
 
+            if (data.phase != GamePhase.EndDiscard || player.end_discard_passed
+                || discard_round != data.turn_count || discard_player != player_id)
+            {
+                ClearDiscardSelection();
+                discard_round = data.turn_count;
+                discard_player = player_id;
+            }
+            discard_selection.RemoveWhere(uid => player.GetHandCard(uid) == null);
+
             last_destroyed_timer += Time.deltaTime;
 
             //Add new cards
@@ -56,7 +72,7 @@ namespace TcgEngine.Client
             for (int i = cards.Count - 1; i >= 0; i--)
             {
                 HandCard card = cards[i];
-                if (card == null || player.GetHandCard(card.GetCard().uid) == null)
+                if (card == null || player.GetHandCard(card.GetCardUID()) == null)
                 {
                     cards.RemoveAt(i);
                     if(card != null)
@@ -83,8 +99,87 @@ namespace TcgEngine.Client
         {
             GameObject card_obj = Instantiate(card_prefab, card_area.transform);
             card_obj.GetComponent<HandCard>().SetCard(card);
-            card_obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
+            if (!Vc5R4Rules.IsTemporary(card))
+                card_obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
             cards.Add(card_obj.GetComponent<HandCard>());
+        }
+
+        public bool IsDiscardSelected(string uid)
+        {
+            return discard_selection.Contains(uid);
+        }
+
+        public void ToggleDiscardSelection(string uid)
+        {
+            if (confirming_discard || string.IsNullOrEmpty(uid)) return;
+            if (!discard_selection.Remove(uid)) discard_selection.Add(uid);
+            DiscardError = null;
+        }
+
+        public void ClearDiscardSelection()
+        {
+            discard_selection.Clear();
+            confirming_discard = false;
+            DiscardError = null;
+        }
+
+        public void ConfirmDiscardSelection()
+        {
+            GameClient client = GameClient.Get();
+            Game data = client.GetGameData();
+            Player player = client.GetPlayer();
+            if (confirming_discard || !client.IsReady() || data.phase != GamePhase.EndDiscard
+                || player == null || player.end_discard_passed || client.IsObserveMode()) return;
+            confirming_discard = true;
+            DiscardError = null;
+            StartCoroutine(SubmitDiscards(new List<string>(discard_selection), data.turn_count, player.player_id));
+        }
+
+        private IEnumerator SubmitDiscards(List<string> uids, int round, int playerId)
+        {
+            // The existing action channel is Reliable, not sequenced. Wait for each
+            // authoritative removal before sending another discard or the final pass.
+            GameClient client = GameClient.Get();
+            foreach (string uid in uids)
+            {
+                if (!CanContinueDiscard(client, round, playerId)) yield break;
+                Card card = client.GetPlayer().GetHandCard(uid);
+                if (card == null) continue;
+                client.DiscardEndPhaseCard(card);
+                float deadline = Time.realtimeSinceStartup + 8f;
+                while (CanContinueDiscard(client, round, playerId)
+                    && client.GetPlayer().GetHandCard(uid) != null)
+                {
+                    if (Time.realtimeSinceStartup > deadline)
+                    {
+                        confirming_discard = false;
+                        DiscardError = "弃牌未确认，请检查连接后重试";
+                        yield break;
+                    }
+                    yield return null;
+                }
+                discard_selection.Remove(uid);
+            }
+            if (!CanContinueDiscard(client, round, playerId)) yield break;
+            client.EndStage();
+            float passDeadline = Time.realtimeSinceStartup + 8f;
+            while (CanContinueDiscard(client, round, playerId) && Time.realtimeSinceStartup < passDeadline)
+                yield return null;
+            if (CanContinueDiscard(client, round, playerId))
+                DiscardError = "完成弃牌未确认，请检查连接后重试";
+            confirming_discard = false;
+        }
+
+        private bool CanContinueDiscard(GameClient client, int round, int playerId)
+        {
+            Game data = client.GetGameData();
+            Player player = client.GetPlayer();
+            bool valid = confirming_discard && client.IsReady() && data != null
+                && data.state != GameState.GameEnded && data.phase == GamePhase.EndDiscard
+                && data.turn_count == round && client.GetPlayerID() == playerId
+                && player != null && !player.end_discard_passed;
+            if (!valid) confirming_discard = false;
+            return valid;
         }
 
         public void DelayRefresh(Card card)

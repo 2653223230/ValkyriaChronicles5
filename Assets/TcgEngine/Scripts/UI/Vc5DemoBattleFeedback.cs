@@ -41,6 +41,7 @@ namespace TcgEngine.UI
         private int previousActionPlayerId = -1;
         private GamePhase lastPhase = GamePhase.None;
         private bool initializedScores;
+        private CanvasGroup presentationGroup;
 
         public static Vc5DemoBattleFeedback Show(Transform parent)
         {
@@ -79,6 +80,11 @@ namespace TcgEngine.UI
 
             RefreshScore(false);
             Game data = client.GetGameData();
+            if (presentationGroup == null) presentationGroup = gameObject.AddComponent<CanvasGroup>();
+            bool selectorOpen = (CardSelector.Get() != null && CardSelector.Get().IsVisible())
+                || (ChoiceSelector.Get() != null && ChoiceSelector.Get().IsVisible());
+            presentationGroup.alpha = selectorOpen ? 0f : 1f;
+            presentationGroup.blocksRaycasts = false;
             if (data != null && data.phase != lastPhase)
             {
                 if (data.phase == GamePhase.Scoring)
@@ -209,6 +215,13 @@ namespace TcgEngine.UI
 
         private void OnAbilityTargetCard(AbilityData ability, Card caster, Card target)
         {
+            if (ability != null && ability.id == Vc5R4Rules.WatchReaction && caster != null && target != null)
+            {
+                AddAction("警戒：【" + CardTitle(caster) + "】射击【" + CardTitle(target) + "】");
+                Highlight(caster, actorHighlight);
+                Highlight(target, targetHighlight);
+                return;
+            }
             if (!IsAiCard(caster) || target == null)
                 return;
             AddAction("目标：【" + CardTitle(target) + "】");

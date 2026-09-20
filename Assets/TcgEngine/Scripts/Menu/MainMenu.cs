@@ -59,6 +59,17 @@ namespace TcgEngine.UI
                 AfterLogin();
             else
                 RefreshLogin();
+
+            if (Vc5DemoMatchSetup.HasPendingFormalR4Match)
+                StartCoroutine(StartPendingFormalR4Match());
+        }
+
+        private IEnumerator StartPendingFormalR4Match()
+        {
+            yield return null;
+            if (!Vc5DemoMatchSetup.TryStartPendingFormalR4Match(this, out string error)
+                && !string.IsNullOrEmpty(error))
+                Debug.LogError("[VC5 Tutorial] 无法开始正式 R4 对局：" + error);
         }
 
         void Update()

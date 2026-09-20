@@ -58,9 +58,9 @@ public class Vc5DemoStartupTests : Vc5LogicTestBase
                 Assert.NotNull(panel);
                 Assert.IsTrue(panel.gameObject.activeSelf);
                 Assert.AreEqual("VC5 Demo AI Battle Panel", panel.gameObject.name);
-                Assert.AreEqual(3, decks.Length);
+                Assert.AreEqual(5, decks.Length);
                 CollectionAssert.AreEquivalent(
-                    new[] { Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.RangedPressureC3DeckId },
+                    new[] { Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.RangedPressureDeckId, Vc5DemoBootstrap.RangedPressureC3DeckId, Vc5DemoBootstrap.CommandR4DeckId, Vc5DemoBootstrap.SteadyAssaultDeckId },
                     decks.Select(deck => deck.id).ToArray());
             }
             finally

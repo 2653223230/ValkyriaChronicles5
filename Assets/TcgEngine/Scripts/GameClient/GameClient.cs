@@ -655,6 +655,9 @@ namespace TcgEngine.Client
             AbilityData ability = AbilityData.Get(msg.ability_id);
             Card caster = game_data.GetCard(msg.caster_uid);
             onAbilityEnd?.Invoke(ability, caster);
+            TcgEngine.UI.Vc5DemoTutorialOverlay.NotifyAbilityResolved(
+                ability != null ? ability.id : string.Empty,
+                caster != null ? caster.card_id : string.Empty);
         }
 
         private void OnSecretTrigger(SerializedData sdata)

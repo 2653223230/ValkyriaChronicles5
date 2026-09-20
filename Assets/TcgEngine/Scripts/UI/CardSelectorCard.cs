@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine;
+using UnityEngine.EventSystems;
 
 namespace TcgEngine.UI
 {
@@ -10,7 +11,7 @@ namespace TcgEngine.UI
     /// One card in the CardSelector
     /// </summary>
 
-    public class CardSelectorCard : MonoBehaviour
+    public class CardSelectorCard : MonoBehaviour, IPointerClickHandler
     {
         public CardUI card_ui;
 
@@ -30,6 +31,14 @@ namespace TcgEngine.UI
         private void Start()
         {
             transform.localScale = target_scale;
+            if (card_ui != null)
+                card_ui.onClick += OnVisibleCardClick;
+        }
+
+        private void OnDestroy()
+        {
+            if (card_ui != null)
+                card_ui.onClick -= OnVisibleCardClick;
         }
 
         private void Update()
@@ -68,6 +77,17 @@ namespace TcgEngine.UI
         public int GetIndex()
         {
             return index;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+                GetComponentInParent<CardSelector>()?.OnClickCard(index);
+        }
+
+        private void OnVisibleCardClick(CardUI clicked)
+        {
+            GetComponentInParent<CardSelector>()?.OnClickCard(index);
         }
 
         public Vector3 GetTargetPos()

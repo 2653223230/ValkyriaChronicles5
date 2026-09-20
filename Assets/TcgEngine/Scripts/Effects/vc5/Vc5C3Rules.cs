@@ -22,21 +22,35 @@ namespace TcgEngine
         public const string Sniper = Prefix + "sniper";
         public const string Guard = Prefix + "fire_guard";
 
-        public static bool IsCard(Card card) { return card != null && card.card_id.StartsWith(Prefix) && card.CardData.type == CardType.Spell; }
-        public static bool IsPreciseMove(Card card) { return card != null && (card.card_id == Prefix + "tactical_move" || card.card_id == Prefix + "forced_march"); }
+        public static string CanonicalId(Card card) { return card.card_id.Replace(Vc5R4Rules.Prefix, Prefix); }
+        public static bool IsRanger(Card card) { return card.card_id == Ranger || card.card_id == Vc5R4Rules.Ranger || card.card_id == Vc5BAI1Rules.Flanker; }
+        public static bool IsSniper(Card card) { return card.card_id == Sniper || card.card_id == Vc5R4Rules.Sniper; }
+        public static bool IsCard(Card card) { return Vc5BAI1Rules.IsCard(card) || card != null && (card.card_id.StartsWith(Prefix) || card.card_id.StartsWith(Vc5R4Rules.Prefix)) && card.CardData.type == CardType.Spell; }
+        public static bool IsPreciseMove(Card card)
+        {
+            if (card == null) return false;
+            if (Vc5BAI1Rules.IsCard(card)) return Vc5BAI1Rules.IsMove(card);
+            string id = CanonicalId(card);
+            return id == Prefix + "tactical_move" || id == Prefix + "forced_march" || id == Prefix + "cover_deploy"
+                || id == Prefix + "watch_deploy" || id == Prefix + "advance_order";
+        }
 
         public static Vc5C3Plan Plan(Game data, Card spell, Card actor, Slot? selected = null)
         {
+            if (Vc5BAI1Rules.IsCard(spell)) return Vc5BAI1Rules.Plan(data, spell, actor, selected);
             var plan = new Vc5C3Plan();
             if (data == null || !IsCard(spell) || actor == null || actor.player_id != spell.player_id
                 || !data.IsOnBoard(actor) || !actor.CardData.IsCharacter()) return plan;
             if (actor.HasStatus(StatusType.SpellImmunity)) { plan.reason = "该棋子无法被法术选中"; return plan; }
             plan.destination = actor.slot;
             plan.range = Vc5DemoGrid.AttackRange(actor);
-            string id = spell.card_id;
+            string id = CanonicalId(spell);
+            if (Vc5R4Rules.IsTemporary(spell) && !Vc5R4Rules.InCommandRange(data, spell, actor))
+            { plan.reason = "请选择来源指挥官射程内的其他友军；指挥官须存活"; return plan; }
             if (IsPreciseMove(spell))
             {
                 int range = Mathf.Max(0, actor.move_Range + (id == Prefix + "forced_march" ? 2 : 0));
+                if (id == Prefix + "cover_deploy" || id == Prefix + "watch_deploy" || id == Prefix + "advance_order") range = 2;
                 var paths = Reachable(data, actor, range);
                 foreach (var pair in paths) if (pair.Value.Count > 1) plan.legalSlots.Add(pair.Key);
                 if (!selected.HasValue) plan.valid = plan.legalSlots.Count > 0;
@@ -47,8 +61,21 @@ namespace TcgEngine
                     plan.path.AddRange(paths[selected.Value]);
                 }
                 plan.reason = plan.valid ? "选择高亮空格" : "没有合法移动路线";
+                if (plan.valid && id == Prefix + "cover_deploy") plan.reason += "；移动后获得 1 护盾，至下回合结束";
+                if (plan.valid && id == Prefix + "watch_deploy")
+                {
+                    Card target = selected.HasValue ? NearestEnemy(data, actor, plan.destination) : null;
+                    if (target != null && actor.CanDoAbilities())
+                    {
+                        plan.targets.Add(target);
+                        plan.reason += "；落地立即警戒射击 1 点，然后解除";
+                    }
+                    else plan.reason += "；警戒 1 次：下一名移动后位于射程内的敌人受 1 点伤害；至回合结束，自身移动/攻击/主动技能解除";
+                }
                 return plan;
             }
+            if (id == Prefix + "cover_order")
+            { plan.valid = true; plan.reason = "获得 2 护盾（可叠加，至下回合结束）"; return plan; }
             if (id == Prefix + "temp_calibration" || id == Prefix + "scope_upgrade")
             {
                 plan.valid = true;
@@ -142,6 +169,13 @@ namespace TcgEngine
             return list;
         }
 
+        public static Card NearestEnemy(Game data, Card actor, Slot from)
+        {
+            var targets = Enemies(data, actor, from, Vc5DemoGrid.AttackRange(actor));
+            SortTargets(targets, from, "nearest");
+            return targets.Count > 0 ? targets[0] : null;
+        }
+
         static void SortTargets(List<Card> cards, Slot from, string order)
         {
             // List.Sort is not stable; retain the authoritative board insertion order for exact ties.
@@ -159,9 +193,10 @@ namespace TcgEngine
         public static void OnMoved(GameLogic logic, Card actor, int distance)
         {
             if (distance <= 0) return;
-            if (actor.card_id == Sniper) SetFlag(actor, StatusType.Vc5C3MovedThisTurn, 1);
+            Vc5BAI1Rules.OnMoved(actor);
+            if (IsSniper(actor)) SetFlag(actor, StatusType.Vc5C3MovedThisTurn, 1);
             if (!actor.CanDoAbilities()) return;
-            if (actor.card_id == Ranger) SetFlag(actor, StatusType.Vc5C3MobileFire, 0);
+            if (IsRanger(actor)) SetFlag(actor, StatusType.Vc5C3MobileFire, 0);
             if (actor.card_id != Guard || actor.HasStatus(StatusType.Vc5C3GuardMoveUsed)) return;
             SetFlag(actor, StatusType.Vc5C3GuardMoveUsed, 1);
             List<Card> targets = Enemies(logic.GameData, actor, actor.slot, Vc5DemoGrid.AttackRange(actor));
@@ -179,8 +214,8 @@ namespace TcgEngine
         {
             if (actor.CanDoAbilities())
             {
-                if (actor.card_id == Ranger && actor.HasStatus(StatusType.Vc5C3MobileFire)) bonus++;
-                if (actor.card_id == Sniper && !actor.HasStatus(StatusType.Vc5C3MovedThisTurn)) bonus++;
+                if (IsRanger(actor) && actor.HasStatus(StatusType.Vc5C3MobileFire)) bonus++;
+                if (IsSniper(actor) && !actor.HasStatus(StatusType.Vc5C3MovedThisTurn)) bonus++;
             }
             return Mathf.Max(0, actor.GetAttack() + bonus);
         }
@@ -190,18 +225,24 @@ namespace TcgEngine
             Vc5C3Plan plan = Plan(logic.GameData, spell, actor, selected);
             if (!plan.valid) return;
             if (plan.path.Count > 1) logic.MoveCard(actor, plan.destination, true, true);
+            if (!logic.GameData.IsOnBoard(actor) || logic.GameData.HasEnded()) return;
+            string id = CanonicalId(spell);
+            if (id == Prefix + "cover_deploy") { Vc5R4Rules.StackShield(actor, 1); return; }
+            if (id == Prefix + "watch_deploy") { Vc5R4Rules.DeployWatch(logic, actor); return; }
+            if (id == Prefix + "cover_order") { Vc5R4Rules.StackShield(actor, 2); return; }
             if (IsPreciseMove(spell)) return;
-            if (spell.card_id == Prefix + "temp_calibration") { SetFlag(actor, StatusType.Vc5C3TemporaryRange, 1); return; }
-            if (spell.card_id == Prefix + "scope_upgrade") { actor.AddStatus(StatusType.Vc5C3PermanentRange, 1, 0); return; }
+            if (id == Prefix + "temp_calibration") { SetFlag(actor, StatusType.Vc5C3TemporaryRange, 1); return; }
+            if (id == Prefix + "scope_upgrade") { actor.AddStatus(StatusType.Vc5C3PermanentRange, 1, 0); return; }
             if (logic.GameData.HasEnded()) return;
-            if (spell.card_id == Prefix + "mobile_shot" && plan.targets.Count > 0 && !logic.GameData.IsOnBoard(plan.targets[0]))
+            if (id == Prefix + "mobile_shot" && plan.targets.Count > 0 && !logic.GameData.IsOnBoard(plan.targets[0]))
             {
                 plan.targets.Clear();
                 var remaining = Enemies(logic.GameData, actor, actor.slot, plan.range);
                 SortTargets(remaining, actor.slot, "nearest");
                 if (remaining.Count > 0) plan.targets.Add(remaining[0]);
             }
-            int damage = CardDamage(actor, spell.card_id == Prefix + "heavy_break" ? 1 : 0);
+            actor.r4_watch = false; // Committed attack, including damage fully absorbed by a shield.
+            int damage = CardDamage(actor, id == Prefix + "heavy_break" ? 1 : 0);
             bool hasMobileFire = actor.CanDoAbilities() && actor.HasStatus(StatusType.Vc5C3MobileFire);
             bool dealtDamage = false;
             foreach (Card target in plan.targets)

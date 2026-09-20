@@ -14,10 +14,13 @@ namespace TcgEngine
             Card attacker = logic.GameData.GetCard(logic.GameData.ability_triggerer);
             if (attacker == null || target == null)
                 return;
+            if (!logic.GameData.IsOnBoard(attacker) || attacker.GetHP() <= 0)
+                return; // A movement reaction can kill the attacker before this chained effect.
 
             if (require_range && !Vc5DemoGrid.InAttackRange(attacker, target))
                 return;
 
+            attacker.r4_watch = false;
             int damage = attacker.GetAttack() + ability.value;
             if (add_support_bonus && HasSupportingShooter(logic.GameData, attacker, target))
                 damage += 1;

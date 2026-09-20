@@ -21,7 +21,7 @@ namespace TcgEngine.Testing.Editor
             Assert.NotNull(deck, "C3 must be registered independently of the original ranged deck.");
             Assert.AreEqual(3, deck.heroes.Length);
             Assert.AreEqual(20, deck.cards.Length);
-            Assert.AreEqual(3, Vc5DemoMatchSetup.GetPlayableDemoDecks().Length);
+            Assert.AreEqual(5, Vc5DemoMatchSetup.GetPlayableDemoDecks().Length);
             Assert.AreNotSame(deck, DeckData.Get(Vc5DemoBootstrap.RangedPressureDeckId));
         }
 

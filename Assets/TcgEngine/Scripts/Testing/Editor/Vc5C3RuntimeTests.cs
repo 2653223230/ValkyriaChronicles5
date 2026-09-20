@@ -126,7 +126,7 @@ namespace TcgEngine.Testing.Editor
             return button;
         }
 
-        static void CaptureCurrentView(string name, int width, int height)
+        internal static void CaptureCurrentView(string name, int width, int height)
         {
             Camera[] cameras = Camera.allCameras.OrderBy(camera => camera.depth).ToArray();
             RenderTexture texture = RenderTexture.GetTemporary(width, height, 24);
@@ -316,10 +316,13 @@ namespace TcgEngine.Testing.Editor
             public void RunFinished(ITestResultAdaptor result) { }
             public void TestFinished(ITestResultAdaptor result)
             {
-                if (result.FullName != "TcgEngine.Testing.Editor.Vc5C3RuntimeTests.MenuStartsC3Match_AndPreviewRendersAtTwoResolutions")
+                bool r4 = result.FullName == "TcgEngine.Testing.Editor.Vc5R4RuntimeTests.Menu_CommanderSelection_AndTemporaryPreview";
+                bool bai1 = result.FullName == "TcgEngine.Testing.Editor.Vc5BAI1RuntimeTests.Menu_IndependentDeckPortraitsAndChargePreview";
+                bool interaction = result.FullName == "TcgEngine.Testing.Editor.Vc5InteractionRuntimeTests.SkillPanel_CommanderClickSelection_AndConfirmedEndDiscard";
+                if (!r4 && !bai1 && !interaction && result.FullName != "TcgEngine.Testing.Editor.Vc5C3RuntimeTests.MenuStartsC3Match_AndPreviewRendersAtTwoResolutions")
                     return;
                 Directory.CreateDirectory("TestResults");
-                File.WriteAllText("TestResults/demo-art-runtime.xml", result.ToXml().OuterXml);
+                File.WriteAllText(interaction ? "TestResults/interaction-runtime.xml" : bai1 ? "TestResults/bai1-runtime.xml" : r4 ? "TestResults/r4-runtime.xml" : "TestResults/demo-art-runtime.xml", result.ToXml().OuterXml);
             }
         }
     }

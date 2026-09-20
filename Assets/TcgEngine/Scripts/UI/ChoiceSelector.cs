@@ -17,6 +17,8 @@ namespace TcgEngine.UI
 
         private Card caster;
         private AbilityData ability;
+        private Text header;
+        private string originalHeader;
 
         private static ChoiceSelector instance;
 
@@ -91,7 +93,13 @@ namespace TcgEngine.UI
         {
             this.caster = caster;
             this.ability = iability;
+            if (header == null)
+                foreach (Text text in GetComponentsInChildren<Text>(true))
+                    if (text.text == "SELECT A CHOICE") { header = text; originalHeader = text.text; break; }
+            if (header != null) header.text = iability.id == Vc5R4Rules.ChooseOrder ? "选择指令 · 临时 · 本回合" : originalHeader;
             Show();
+            if (iability.id == Vc5R4Rules.ChooseOrder)
+                Vc5DemoTutorialOverlay.NotifyCommanderChoiceShown();
         }
 
         public override void Show(bool instant = false)

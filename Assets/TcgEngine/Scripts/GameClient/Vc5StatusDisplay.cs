@@ -1,5 +1,6 @@
 using TcgEngine;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace TcgEngine.Client
 {
@@ -8,6 +9,25 @@ namespace TcgEngine.Client
     /// </summary>
     public static class Vc5StatusDisplay
     {
+        public static string FormatAll(Card card)
+        {
+            if (card == null)
+                return "";
+
+            var parts = new List<string>();
+            if (card.r4_shield > 0)
+                parts.Add("护盾 " + card.r4_shield + "（" + (card.r4_shield_rounds > 1 ? "下" : "本") + "回合末）");
+            if (card.r4_watch)
+                parts.Add("警戒 1（至回合结束；移动、攻击或主动技能解除）");
+            foreach (CardStatus status in card.GetAllStatus())
+            {
+                string text = FormatSingle(status);
+                if (!string.IsNullOrEmpty(text))
+                    parts.Add(text);
+            }
+            return string.Join("，", parts.ToArray());
+        }
+
         public static string FormatSingle(CardStatus astatus)
         {
             if (astatus == null)

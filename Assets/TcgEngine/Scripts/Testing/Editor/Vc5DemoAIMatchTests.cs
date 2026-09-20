@@ -24,12 +24,27 @@ public class Vc5DemoAIMatchTests : Vc5LogicTestBase
         [TestCase(Vc5DemoBootstrap.RangedPressureC3DeckId, Vc5DemoBootstrap.RangedPressureC3DeckId)]
         public void DemoAI_CompletesTenMatchesWithoutGettingStuck(string deck0Id, string deck1Id)
         {
+            RunMatches(deck0Id, deck1Id, MatchesPerCombination);
+        }
+
+        [TestCase(Vc5DemoBootstrap.CommandR4DeckId, Vc5DemoBootstrap.MobileAssaultDeckId)]
+        [TestCase(Vc5DemoBootstrap.MobileAssaultDeckId, Vc5DemoBootstrap.CommandR4DeckId)]
+        [TestCase(Vc5DemoBootstrap.CommandR4DeckId, Vc5DemoBootstrap.CommandR4DeckId)]
+        [TestCase(Vc5DemoBootstrap.CommandR4DeckId, Vc5DemoBootstrap.SteadyAssaultDeckId)]
+        [TestCase(Vc5DemoBootstrap.SteadyAssaultDeckId, Vc5DemoBootstrap.CommandR4DeckId)]
+        public void R4AI_CompletesOneSmokeMatch(string deck0Id, string deck1Id)
+        {
+            RunMatches(deck0Id, deck1Id, 1);
+        }
+
+        private static void RunMatches(string deck0Id, string deck1Id, int matches)
+        {
             int totalTurns = 0;
             int totalCardsPlayed = 0;
             int totalPasses = 0;
             Dictionary<string, int> reasons = new Dictionary<string, int>();
 
-            for (int match = 0; match < MatchesPerCombination; match++)
+            for (int match = 0; match < matches; match++)
             {
                 GameLogic logic = CreateMatch(out Game game, deck0Id, deck1Id, match % 2);
                 int cardsPlayed = 0;
@@ -83,8 +98,8 @@ public class Vc5DemoAIMatchTests : Vc5LogicTestBase
             }
 
             TestContext.WriteLine(
-                $"{deck0Id} vs {deck1Id}: matches={MatchesPerCombination}, "
-                + $"avgTurns={(float)totalTurns / MatchesPerCombination:0.0}, "
+                $"{deck0Id} vs {deck1Id}: matches={matches}, "
+                + $"avgTurns={(float)totalTurns / matches:0.0}, "
                 + $"cardsPlayed={totalCardsPlayed}, passes={totalPasses}, "
                 + $"reasons={FormatReasons(reasons)}");
         }

@@ -36,12 +36,9 @@ namespace TcgEngine.Client
 
         public static void ShowCard(Card card)
         {
-            if (card == null || card.CardData == null)
-                return;
-            EnsureInstance();
-            if (instance == null)
-                return;
-            instance.ShowInternal(card.CardData, card.VariantData, card);
+            // VC5 uses the established left CardPreviewUI as the single detail surface.
+            // Keep this legacy component inert so hand/board callers cannot create a duplicate right panel.
+            Hide();
         }
 
         public static void Hide()

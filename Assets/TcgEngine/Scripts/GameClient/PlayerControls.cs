@@ -71,6 +71,7 @@ namespace TcgEngine.Client
                 {
                     ability_panel.ShowAbilities(card);
                 }
+                Vc5DemoTutorialOverlay.NotifyBoardCardSelected(card.card_id);
             }
         }
 
@@ -130,7 +131,9 @@ namespace TcgEngine.Client
                 {
                     if (ability != null && ability.IsInteractable())
                     {
-                        GameClient.Get().CastAbility(card, ability.GetAbility());
+                        AbilityData selectedAbility = ability.GetAbility();
+                        Vc5DemoTutorialOverlay.NotifyAbilityStarted(selectedAbility.id, card.card_id);
+                        GameClient.Get().CastAbility(card, selectedAbility);
                         action_performed = true;
                     }
                     // else if (tslot is BoardSlotPlayer)

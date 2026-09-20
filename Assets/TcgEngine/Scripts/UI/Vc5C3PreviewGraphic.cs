@@ -15,7 +15,9 @@ namespace TcgEngine.UI
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();
-            if (overlay == null || overlay.Preview == null || overlay.Actor == null) return;
+            if (overlay == null || overlay.Data == null) return;
+            DrawR4Ranges(mesh);
+            if (overlay.Preview == null || overlay.Actor == null) return;
             Vc5C3Plan plan = overlay.Preview.plan;
             Card actor = overlay.Actor;
             foreach (BSlot slot in BSlot.GetAll())
@@ -46,7 +48,7 @@ namespace TcgEngine.UI
             }
             BoardCard actorBoard = BoardCard.Get(actor.uid);
             if (actorBoard != null) Box(mesh, overlay.Project(actorBoard.transform.position), plan.valid ? Cyan : Color.gray, !plan.valid);
-            if (plan.valid && overlay.Spell.card_id == Vc5C3Rules.Prefix + "heavy_break")
+            if (plan.valid && Vc5C3Rules.CanonicalId(overlay.Spell) == Vc5C3Rules.Prefix + "heavy_break")
                 foreach (Player player in overlay.Data.players)
                     if (player.player_id != actor.player_id)
                         foreach (Card enemy in player.cards_board)
@@ -61,7 +63,7 @@ namespace TcgEngine.UI
                 if (target == null) continue;
                 Vector2 point = overlay.Project(target.transform.position);
                 Box(mesh, point, Red, false);
-                if (overlay.Spell.card_id == Vc5C3Rules.Prefix + "weakpoint_snipe")
+                if (Vc5C3Rules.CanonicalId(overlay.Spell) == Vc5C3Rules.Prefix + "weakpoint_snipe")
                 {
                     Line(mesh, point + Vector2.left * 16f, point + Vector2.right * 16f, 2f, Red);
                     Line(mesh, point + Vector2.down * 16f, point + Vector2.up * 16f, 2f, Red);
@@ -76,6 +78,33 @@ namespace TcgEngine.UI
                 Vector2 normal = new Vector2(-direction.y, direction.x);
                 Triangle(mesh, to, to - direction * 13f + normal * 6f, to - direction * 13f - normal * 6f, Gold);
             }
+        }
+
+        void DrawR4Ranges(VertexHelper mesh)
+        {
+            Card source = Vc5R4Rules.IsTemporary(overlay.Spell) ? Vc5R4Rules.CommanderFor(overlay.Data, overlay.Spell) : null;
+            foreach (Player player in overlay.Data.players)
+                foreach (Card card in player.cards_board)
+                {
+                    if (!card.r4_watch && card != source) continue;
+                    Color color = card == source ? new Color(0.35f, 0.65f, 1f, 0.7f) : new Color(1f, 0.65f, 0.1f, 0.5f);
+                    foreach (BSlot slot in BSlot.GetAll())
+                    {
+                        if (!(slot is BoardSlot hex) || Vc5DemoGrid.HexDistance(card.slot, slot.GetSlot()) > Vc5DemoGrid.AttackRange(card)) continue;
+                        for (int i = 0; i < 6; i++)
+                        {
+                            float a = i * Mathf.PI / 3f, b = (i + 1) * Mathf.PI / 3f;
+                            Vector2 start = overlay.Project(hex.transform.TransformPoint(new Vector3(Mathf.Cos(a) * hex.radius * 0.9f, Mathf.Sin(a) * hex.radius * 0.9f, 0f)));
+                            Vector2 end = overlay.Project(hex.transform.TransformPoint(new Vector3(Mathf.Cos(b) * hex.radius * 0.9f, Mathf.Sin(b) * hex.radius * 0.9f, 0f)));
+                            Line(mesh, start, end, 2f, color);
+                        }
+                    }
+                    Box(mesh, overlay.Point(card.slot), color, false);
+                    if (card == source)
+                        foreach (Card ally in player.cards_board)
+                            if (Vc5C3Rules.Plan(overlay.Data, overlay.Spell, ally).valid)
+                                Box(mesh, overlay.Point(ally.slot), Cyan, false);
+                }
         }
 
         static void Box(VertexHelper mesh, Vector2 point, Color color, bool filled)

@@ -24,6 +24,8 @@ namespace TcgEngine
                 RegisterMobileAssault();
                 RegisterRangedPressure();
                 RegisterRangedPressureC3();
+                RegisterCommandR4();
+                RegisterSteadyAssault();
                 registered = true;
             }
         }

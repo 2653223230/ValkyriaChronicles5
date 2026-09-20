@@ -167,6 +167,19 @@ namespace TcgEngine.UI
 
             Game gdata = GameClient.Get().GetGameData();
             Player player = GetPlayer();
+            // VC5 heroes already live on the board; the legacy hero-power portrait is redundant.
+            bool vc5 = player != null && !string.IsNullOrEmpty(player.deck)
+                && (player.deck.StartsWith("deck_vc5_") || Game.IsVc5TestDeck(player.deck));
+            if (vc5)
+            {
+                if (power_area != null)
+                    power_area.SetActive(false);
+                if (power_button != null)
+                    power_button.interactable = false;
+                focus = false;
+                heroPreviewHoverDepth = 0;
+                return;
+            }
             Card hero = player.hero;
             if (hero == null)
                 return;

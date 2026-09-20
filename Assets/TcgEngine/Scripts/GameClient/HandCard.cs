@@ -43,6 +43,7 @@ namespace TcgEngine.Client
         private bool focus = false;
         private bool drag = false;
         private bool selected = false;
+        private bool discard_press = false;
 
         private static List<HandCard> card_list = new List<HandCard>();
 
@@ -69,6 +70,7 @@ namespace TcgEngine.Client
 
         void Update()
         {
+            if (destroyed) return;
             if (!GameClient.Get().IsReady())
                 return;
 
@@ -82,6 +84,9 @@ namespace TcgEngine.Client
             {
                 target_position = deck_position + Vector2.up * 40f;
             }
+
+            bool discardSelected = HandCardArea.Get().IsDiscardSelected(card_uid);
+            if (discardSelected) target_position = deck_position + Vector2.up * 75f;
 
             if (IsDrag())
             {
@@ -105,7 +110,7 @@ namespace TcgEngine.Client
             card_transform.localScale = Vector3.Lerp(card_transform.localScale, target_size, 5f * Time.deltaTime);
 
             card_ui.SetCard(card);
-            card_glow.enabled = IsFocus() || IsDrag();
+            card_glow.enabled = IsFocus() || IsDrag() || discardSelected;
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
 
             //Unselect
@@ -128,6 +133,19 @@ namespace TcgEngine.Client
         {
             this.card_uid = card.uid;
             card_ui.SetCard(card);
+            if (Vc5R4Rules.IsTemporary(card))
+            {
+                Card commander = GameClient.Get().GetGameData().GetCard(card.r4_commander_uid);
+                BoardCard source = commander != null ? BoardCard.Get(commander.uid) : null;
+                if (source != null)
+                {
+                    Vector3 screen = Camera.main.WorldToScreenPoint(source.transform.position);
+                    Canvas canvas = GetComponentInParent<Canvas>();
+                    Camera camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(hand_transform, screen, camera, out Vector2 point);
+                    card_transform.anchoredPosition = point;
+                }
+            }
         }
 
         public void Kill()
@@ -135,8 +153,25 @@ namespace TcgEngine.Client
             if (!destroyed)
             {
                 destroyed = true;
-                Destroy(gameObject);
+                if (Vc5R4Rules.IsTemporary(GetCard())) StartCoroutine(DissolveTemporary());
+                else Destroy(gameObject);
             }
+        }
+
+        IEnumerator DissolveTemporary()
+        {
+            drag = false; focus = false; selected = false;
+            CanvasGroup group = GetComponent<CanvasGroup>();
+            if (group == null) group = gameObject.AddComponent<CanvasGroup>();
+            group.blocksRaycasts = false;
+            Vector3 scale = transform.localScale;
+            for (float t = 0; t < 0.18f; t += Time.unscaledDeltaTime)
+            {
+                group.alpha = 1f - t / 0.18f;
+                transform.localScale = scale * (1f + t * 0.5f);
+                yield return null;
+            }
+            Destroy(gameObject);
         }
 
         public bool IsFocus()
@@ -193,6 +228,16 @@ namespace TcgEngine.Client
             if (GameUI.IsOverUILayer("UI"))
                 return;
 
+            Game data = GameClient.Get().GetGameData();
+            if (data.phase == GamePhase.EndDiscard)
+            {
+                Player player = GameClient.Get().GetPlayer();
+                discard_press = player != null && !player.end_discard_passed
+                    && !GameClient.Get().IsObserveMode() && !HandCardArea.Get().IsConfirmingDiscard;
+                drag_start_screen_pos = Input.mousePosition;
+                return;
+            }
+
             Card tutorialCard = GetCard();
             if (!Vc5DemoTutorialOverlay.CanBeginTutorialCardDrag(
                 tutorialCard != null ? tutorialCard.card_id : string.Empty))
@@ -211,22 +256,26 @@ namespace TcgEngine.Client
 
         public void OnMouseUpCard()
         {
-            Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
-            Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
             Game gdata = GameClient.Get().GetGameData();
             Player player = gdata?.GetPlayer(GameClient.Get().GetPlayerID());
             Card card = GetCard();
 
-            if (drag && gdata != null && player != null && card != null
-                && ShouldDiscardOnRelease(gdata.phase, player.end_discard_passed,
-                    drag_start_screen_pos, Input.mousePosition))
+            if (discard_press || gdata.phase == GamePhase.EndDiscard)
             {
-                GameClient.Get().DiscardEndPhaseCard(card);
-                HandCardArea.Get().DelayRefresh(card);
-                Destroy(gameObject);
+                if (discard_press && player != null && card != null
+                    && ShouldToggleDiscardOnRelease(gdata.phase, player.end_discard_passed,
+                        drag_start_screen_pos, Input.mousePosition))
+                {
+                    HandCardArea.Get().ToggleDiscardSelection(card.uid);
+                    CardPreviewUI.SelectEndDiscardCard(card);
+                }
+                discard_press = false;
                 drag = false;
                 return;
             }
+
+            Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
+            Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
 
             bool confirmC3 = Vc5C3Rules.IsCard(card)
                 && Vector2.Distance(drag_start_screen_pos, Input.mousePosition) >= Vc5DiscardDragThreshold;
@@ -297,12 +346,12 @@ namespace TcgEngine.Client
             }
         }
 
-        public static bool ShouldDiscardOnRelease(GamePhase phase, bool endDiscardPassed,
+        public static bool ShouldToggleDiscardOnRelease(GamePhase phase, bool endDiscardPassed,
             Vector2 dragStartScreenPos, Vector2 releaseScreenPos)
         {
             return phase == GamePhase.EndDiscard
                 && !endDiscardPassed
-                && Vector2.Distance(dragStartScreenPos, releaseScreenPos) >= Vc5DiscardDragThreshold;
+                && Vector2.Distance(dragStartScreenPos, releaseScreenPos) < Vc5DiscardDragThreshold;
         }
 
         public void PlayCard(Slot slot)

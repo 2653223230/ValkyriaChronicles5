@@ -1,6 +1,6 @@
 # VC5 AI 行动逻辑
 
-更新时间：2026-09-02
+更新时间：2026-09-16
 
 版本快照：`demo_v2_20260830` 继续使用本文所述 `AIType.Vc5Demo`、C3 规划器与行动表现。版本封存只审计文档，没有调整 AI 评分、选择链或联网消息。
 
@@ -18,13 +18,13 @@
 | 枚举值 | `20` |
 | 默认配置 | `Assets/TcgEngine/Resources/GameplayData.asset` 中 `ai_type: 20` |
 | AI 卡组来源 | `GameplayData.ai_decks` |
-| 已注册 AI 卡组 | `deck_vc5_demo_mobile_assault`、`deck_vc5_demo_ranged_pressure`、`deck_vc5_demo_ranged_pressure_c3` |
+| 已注册 AI 卡组 | `deck_vc5_demo_mobile_assault`、`deck_vc5_demo_ranged_pressure`、`deck_vc5_demo_ranged_pressure_c3`、`deck_vc5_demo_command_r4`、`deck_vc5_demo_steady_assault` |
 
 `Vc5DemoBootstrap.Register()` 会在运行时兜底：
 
 - 将 `GameplayData.ai_type` 设置为 `AIType.Vc5Demo`。
-- 将 B/C/C3 三套 demo 卡组加入 `free_decks`。
-- 将 B/C/C3 三套 demo 卡组加入 `ai_decks`。
+- 将 B/C/C3/R4/B-AI1 五套 Demo 卡组加入 `free_decks`。
+- 将 B/C/C3/R4/B-AI1 五套 Demo 卡组加入 `ai_decks`。
 - 对 `DeckData.deck_list`、`free_decks`、`ai_decks` 做同 ID 去重，避免 Unity 热重载后重复出现。
 
 ## 代码入口
@@ -213,6 +213,10 @@ AI 会遍历当前手牌，给每张能打出的牌评分，选择分数最高�
 
 ## 当前不会做的事
 
+2026-09-16 B-AI1 已实现独立评分（`Vc5BAI1Planner.cs`）：前锋偏占点、突击手偏接敌、步枪手偏射界与相邻友军配合；枚举合法落点/目标，用克隆局面执行真实效果以检查警戒死亡及护盾收益。快速移动后，只检查自己剩余费用是否能接一张合法伤害牌，不做深度搜索；防护优先有可见射程威胁且护盾数值实际增加的单位。当前不会专门为了延长相同护盾期限而出牌。原 B/C/C3/R4 评分不整体重调，不读取对手隐藏手牌；仍不是最优组合规划或人类体验验收。
+
+本轮门禁 211/211，新增 R4 对 B-AI1、B-AI1 对 R4 各一局冒烟正常结束；最后原地点击入口修复后 B-AI1 定向 8/8。此处自动对局不构成胜率或“陪玩但不碾压”的证据。
+
 当前版本为了稳定和可读性，暂不做以下行为：
 
 - 不做深度搜索或复杂预测。
@@ -263,3 +267,17 @@ AI 会遍历当前手牌，给每张能打出的牌评分，选择分数最高�
   - `Planner_ChoosesPlayableBasicAttackWhenItCanHit`
   - `GameplayData_DefaultsToVc5DemoAIAndDemoAIDecks`
   - `Planner_CompletesBasicAttackSelectionChain`
+
+## 2026-09-15 R4 AI 兼容实施约定
+
+独立新卡组使用现有 Demo planner；新增技能选择/取消、弃牌选择、指令选择及出牌遵守真实合法性。筹划只选非临时手牌，指令出牌验证来源存活、射程、费用及执行者。警戒在权威移动结算中处理，死亡者不继续攻击；本轮不扩展避开警戒的策略评分（取消初始实施约定中该优化），仍按得分区选择落点。无合法路线可跳过或取消，不能重复空放。目标为合法完成对局，非强度优化。
+
+当前选择策略：先使用可出的卡，再尝试主动技能；筹划选择较高费用的手牌转换，射手能开火且有法力时倾向开火令，无法开火时推进、无剩余法力时掩护。只是最小兼容策略，不代表合理弃牌或最优 Combo。2026-09-15 门禁 202/202，包含原 B/C/C3 共 90 局，以及 R4 对 B、B 对 R4、R4 镜像各一局。仅证明这些自动对局完成，不证明平衡或强度合适。
+
+### 2026-09-16 警戒规则修正接续
+
+警戒不再在拥有者再次获得行动权时清除，改为至完整回合结束或自身移动/攻击/成功主动技能；校准、改装、护盾保留。部署落地已在射程内则立即固定 1 点并消耗。B-AI1 仍调用同一克隆结算来评估移动危险与死亡中止，未新增策略难度或重调平衡。此次 B-AI1 定向测试包含于 41/41 回归，不把规则通过视为 AI 强度验收。
+
+### 2026-09-17 警戒移动终点语义
+
+权威移动结算统一按“敌方棋子完成实际移动后，最终位置是否处于警戒射程内”判断，不再要求移动前位于射程外。因此 B-AI1 支援步枪手由 AI 卡牌移动、即使从射程内移动到另一射程内格，也会触发一次警戒。AI planner 未增加规避警戒或故意骗取警戒的评分；定向自动验证只证明规则结算一致，不代表 AI 陪玩强度与观感通过。

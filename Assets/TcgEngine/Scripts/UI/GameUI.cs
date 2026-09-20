@@ -32,6 +32,7 @@ namespace TcgEngine.UI
         private float end_turn_timer = 0f;
         private int prev_time_val = 0;
         private Text end_turn_button_text;
+        private Text discard_hint;
 
         private static GameUI instance;
 
@@ -86,7 +87,9 @@ namespace TcgEngine.UI
             }
 
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
-            end_turn_button.interactable = canEndPhase && end_turn_timer > 1f;
+            HandCardArea hand = HandCardArea.Get();
+            end_turn_button.interactable = canEndPhase && end_turn_timer > 1f
+                && !(endDiscardPhase && hand != null && hand.IsConfirmingDiscard);
             if (end_turn_button_text == null && end_turn_button != null)
                 end_turn_button_text = end_turn_button.GetComponentInChildren<Text>(true);
             if (end_turn_button_text != null)
@@ -102,13 +105,18 @@ namespace TcgEngine.UI
                 turn_timer.enabled = true;
                 turn_timer.text = GetVc5TurnDetailText(
                     data.phase, localPlayer != null && localPlayer.end_discard_passed, data.turn_count);
+                if (endDiscardPhase && hand != null && localPlayer != null && !localPlayer.end_discard_passed)
+                    turn_timer.text = hand.IsConfirmingDiscard ? "确认中" : "已选 " + hand.DiscardSelectionCount + " 张";
             }
+            RefreshDiscardHint(endDiscardPhase && localPlayer != null && !localPlayer.end_discard_passed, hand);
 
             //Show selector panels
             foreach (SelectorPanel panel in SelectorPanel.GetAll())
             {
                 bool should_show = panel.ShouldShow();
-                if (should_show != panel.IsVisible() && selector_timer > 1f)
+                bool r4Selection = data.selector_ability_id == Vc5R4Rules.PrepareSkill
+                    || data.selector_ability_id == Vc5R4Rules.ChooseOrder || data.selector_ability_id == Vc5R4Rules.MoveSkill;
+                if (should_show != panel.IsVisible() && (r4Selection || selector_timer > 1f))
                 {
                     selector_timer = 0f;
                     panel.SetVisible(should_show);
@@ -158,7 +166,10 @@ namespace TcgEngine.UI
 
         public void OnClickNextStage()
         {
-            GameClient.Get().EndStage();
+            if (GameClient.Get().GetGameData().phase == GamePhase.EndDiscard)
+                HandCardArea.Get().ConfirmDiscardSelection();
+            else
+                GameClient.Get().EndStage();
             end_turn_timer = 0f; //立即禁用按钮（不要等待刷新）
         }
         public void OnClickNextTurn()
@@ -166,9 +177,43 @@ namespace TcgEngine.UI
             OnClickNextStage();
         }
 
+        private void RefreshDiscardHint(bool show, HandCardArea hand)
+        {
+            if (show && discard_hint == null)
+            {
+                GameObject panel = new GameObject("DiscardHelp", typeof(RectTransform), typeof(Image));
+                panel.transform.SetParent(game_canvas.transform, false);
+                panel.layer = game_canvas.gameObject.layer;
+                RectTransform rect = panel.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+                rect.anchoredPosition = new Vector2(0f, 355f);
+                rect.sizeDelta = new Vector2(740f, 48f);
+                Image background = panel.GetComponent<Image>();
+                background.color = new Color(0.035f, 0.09f, 0.11f, 0.95f);
+                background.raycastTarget = false;
+                GameObject label = new GameObject("Text", typeof(RectTransform), typeof(Text));
+                label.transform.SetParent(panel.transform, false);
+                label.layer = panel.layer;
+                discard_hint = label.GetComponent<Text>();
+                discard_hint.font = turn_timer.font;
+                discard_hint.fontSize = 21;
+                discard_hint.alignment = TextAnchor.MiddleCenter;
+                discard_hint.color = Color.white;
+                discard_hint.raycastTarget = false;
+                discard_hint.rectTransform.anchorMin = Vector2.zero;
+                discard_hint.rectTransform.anchorMax = Vector2.one;
+                discard_hint.rectTransform.offsetMin = new Vector2(12f, 0f);
+                discard_hint.rectTransform.offsetMax = new Vector2(-12f, 0f);
+            }
+            if (discard_hint == null) return;
+            discard_hint.transform.parent.gameObject.SetActive(show);
+            if (show) discard_hint.text = hand != null && hand.DiscardError != null ? hand.DiscardError
+                : "点击手牌选取 · 再点取消 · 选好后点击右侧「确定弃牌」（可不选）";
+        }
+
         public static string GetVc5EndButtonText(GamePhase phase)
         {
-            return phase == GamePhase.EndDiscard ? "完成弃牌" : "放弃行动";
+            return phase == GamePhase.EndDiscard ? "确定弃牌" : "放弃行动";
         }
 
         public static string GetVc5TurnStatusText(GamePhase phase, bool yourTurn, bool localEndDiscardPassed)
@@ -185,7 +230,7 @@ namespace TcgEngine.UI
         public static string GetVc5TurnDetailText(GamePhase phase, bool localEndDiscardPassed, int turnCount)
         {
             if (phase == GamePhase.EndDiscard)
-                return localEndDiscardPassed ? "弃牌已完成" : "拖动手牌后松开即可弃置";
+                return localEndDiscardPassed ? "弃牌已完成" : "点击选取手牌，再次点击取消；选好后确定弃牌";
             return "第 " + turnCount.ToString() + " 回合";
         }
 

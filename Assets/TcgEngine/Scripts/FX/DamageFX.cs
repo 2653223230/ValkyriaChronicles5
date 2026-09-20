@@ -13,15 +13,23 @@ namespace TcgEngine.FX
     public class DamageFX : MonoBehaviour
     {
         public Text text_value;
+        private Animator animator;
+        private bool completionReported;
 
         void Start()
         {
-
+            animator = GetComponent<Animator>();
         }
 
         void Update()
         {
-
+            if (completionReported || animator == null || animator.IsInTransition(0))
+                return;
+            AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+            if (state.normalizedTime < 1f)
+                return;
+            completionReported = true;
+            Vc5DemoTutorialOverlay.NotifyDamagePresentationComplete();
         }
 
         public void SetValue(int value)

@@ -93,6 +93,12 @@ namespace TcgEngine.AI
             if (card == null)
                 return Slot.None;
 
+            if (Vc5BAI1Rules.IsCard(card))
+            {
+                var choice = Vc5BAI1Planner.Best(data, card);
+                return choice.actor != null ? choice.actor.slot : Slot.None;
+            }
+
             if (Vc5C3Rules.IsCard(card))
             {
                 Card best = null;
@@ -116,6 +122,7 @@ namespace TcgEngine.AI
 
         private static int ScorePlayableCard(Game data, Player player, Card card)
         {
+            if (Vc5BAI1Rules.IsCard(card)) return Vc5BAI1Planner.Best(data, card).score;
             if (Vc5C3Rules.IsCard(card))
             {
                 Card actor = data.GetSlotCard(ChoosePlaySlotForCard(data, player, card));
@@ -158,12 +165,13 @@ namespace TcgEngine.AI
             if (plan.targets.Count > 0)
             {
                 int damage = Vc5C3Rules.CardDamage(actor, spell.card_id.EndsWith("heavy_break") ? 1 : 0);
-                if (plan.path.Count > 1 && actor.card_id == Vc5C3Rules.Ranger && !actor.HasStatus(StatusType.Vc5C3MobileFire)) damage++;
-                if (plan.path.Count > 1 && actor.card_id == Vc5C3Rules.Sniper && !actor.HasStatus(StatusType.Vc5C3MovedThisTurn)) damage--;
+                if (spell.card_id == Vc5R4Rules.Orders[1]) damage = Mathf.Max(1, actor.GetAttack() - 1) + Vc5C3Rules.CardDamage(actor, 0) - actor.GetAttack();
+                if (plan.path.Count > 1 && Vc5C3Rules.IsRanger(actor) && !actor.HasStatus(StatusType.Vc5C3MobileFire)) damage++;
+                if (plan.path.Count > 1 && Vc5C3Rules.IsSniper(actor) && !actor.HasStatus(StatusType.Vc5C3MovedThisTurn)) damage--;
                 int score = 650;
                 foreach (Card target in plan.targets)
                 {
-                    int dealt = Mathf.Max(0, damage - target.GetStatusValue(StatusType.Armor));
+                    int dealt = Mathf.Max(0, damage - target.GetStatusValue(StatusType.Armor) - target.r4_shield);
                     score += Mathf.Min(dealt, target.GetHP()) * 35 + (dealt >= target.GetHP() ? 350 : 0);
                 }
                 return score;
@@ -180,7 +188,8 @@ namespace TcgEngine.AI
             {
                 foreach (AbilityData ability in card.GetAbilities())
                 {
-                    if (ability.trigger == AbilityTrigger.Activate && data.CanCastAbility(card, ability) && ability.HasValidSelectTarget(data, card))
+                    if (ability.trigger == AbilityTrigger.Activate && data.CanCastAbility(card, ability)
+                        && (ability.target == AbilityTarget.CardSelector ? ability.HasValidCardTarget(data, card) : ability.HasValidSelectTarget(data, card)))
                     {
                         AIAction action = CreateAction(GameAction.CastAbility, card);
                         action.ability_id = ability.id;
@@ -198,6 +207,19 @@ namespace TcgEngine.AI
             Player player = data.GetPlayer(playerId);
             if (caster == null || ability == null || player == null)
                 return CreateAction(GameAction.CancelSelect, caster);
+
+            if (Vc5BAI1Rules.IsCard(caster) && data.selector == SelectorType.SelectTarget)
+            {
+                Card actor = Vc5BAI1Rules.Actor(data);
+                bool selectEnemy = ability.id.EndsWith("_target");
+                Slot? landing = selectEnemy && Vc5BAI1Rules.IsCharge(caster) ? (Slot?)caster.bai1_destination : null;
+                var choice = Vc5BAI1Planner.Best(data, caster, actor, landing, true);
+                if (choice.actor == null) return CreateAction(GameAction.CancelSelect, caster);
+                AIAction selected = CreateAction(selectEnemy ? GameAction.SelectCard : GameAction.SelectSlot, caster);
+                if (selectEnemy) selected.target_uid = choice.target.uid;
+                else selected.slot = choice.destination;
+                return selected;
+            }
 
             if (data.selector == SelectorType.SelectTarget)
             {
@@ -222,7 +244,34 @@ namespace TcgEngine.AI
             {
                 AIAction action = CreateAction(GameAction.SelectChoice, caster);
                 action.value = 0;
+                if (ability.id == Vc5R4Rules.ChooseOrder)
+                {
+                    action.value = 2;
+                    if (player.mana > 0)
+                    {
+                        action.value = 0;
+                        foreach (Card ally in player.cards_board)
+                            if (ally != caster && Vc5DemoGrid.HexDistance(caster.slot, ally.slot) <= Vc5DemoGrid.AttackRange(caster))
+                                foreach (Player enemyPlayer in data.players)
+                                    if (enemyPlayer.player_id != playerId)
+                                        foreach (Card enemy in enemyPlayer.cards_board)
+                                            if (Vc5DemoGrid.HexDistance(ally.slot, enemy.slot) <= Vc5DemoGrid.AttackRange(ally)) action.value = 1;
+                    }
+                }
                 return action;
+            }
+
+            if (data.selector == SelectorType.SelectorCard)
+            {
+                Card chosen = null;
+                foreach (Card candidate in ability.GetCardTargets(data, caster))
+                    if (chosen == null || candidate.GetMana() > chosen.GetMana()) chosen = candidate;
+                if (chosen != null)
+                {
+                    AIAction action = CreateAction(GameAction.SelectCard, caster);
+                    action.target_uid = chosen.uid;
+                    return action;
+                }
             }
 
             if (data.selector == SelectorType.SelectorCost)

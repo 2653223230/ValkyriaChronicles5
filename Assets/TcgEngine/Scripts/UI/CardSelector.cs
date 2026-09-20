@@ -30,7 +30,9 @@ namespace TcgEngine.UI
 
         private Vector2 mouse_start;
         private int mouse_start_index;
-        private int selection_index = 0;
+        private int selection_index = -1;
+        public int SelectionIndex { get { return selection_index; } }
+        public bool IsCommanderDiscard { get { return iability != null && iability.id == Vc5R4Rules.PrepareSkill; } }
         private bool drag = false;
         private bool force_show = false;
         private float mouse_scroll = 0f;
@@ -54,14 +56,14 @@ namespace TcgEngine.UI
             //Drag cards
             Vector2 mouse_pos = GetMouseRectPosition();
             Vector2 move = mouse_pos - mouse_start;
-            if (drag && move.magnitude > 0.1f)
+            if (!IsCommanderDiscard && drag && move.magnitude > 0.1f)
             {
                 selection_index = mouse_start_index - Mathf.RoundToInt(move.x / card_spacing);
                 selection_index = Mathf.Clamp(selection_index, 0, selector_list.Count - 1);
             }
 
             //Mouse scroll
-            mouse_scroll += -Input.mouseScrollDelta.y;
+            if (!IsCommanderDiscard) mouse_scroll += -Input.mouseScrollDelta.y;
             if (mouse_scroll > 0.5f)
             {
                 OnClickNext();
@@ -78,7 +80,8 @@ namespace TcgEngine.UI
             {
                 bool is_selected = card.GetIndex() == selection_index;
                 Vector3 pos = GetCardPosition(card);
-                Vector3 scale = is_selected ? Vector3.one : Vector3.one / 2f;
+                Vector3 scale = IsCommanderDiscard ? Vector3.one * 0.65f
+                    : (is_selected ? Vector3.one : Vector3.one / 2f);
                 card.SetTargetPos(pos);
                 card.SetTargetScale(scale);
             }
@@ -88,6 +91,7 @@ namespace TcgEngine.UI
                 Hide();
 
             Game game = GameClient.Get().GetGameData();
+            select_button.interactable = !IsCommanderDiscard || selection_index >= 0;
             if (game != null && iability != null && game.selector == SelectorType.None)
                 Hide(); //Ability was selected already, close panel
         }
@@ -100,10 +104,18 @@ namespace TcgEngine.UI
             drag = false;
             mouse_scroll = 0f;
 
-            select_button_text.text = (iability != null) ? "Select" : "OK";
+            select_button_text.text = IsCommanderDiscard ? "确定弃牌" : (iability != null ? "Select" : "OK");
             select_button.gameObject.SetActive(iability != null);
+            select_button.interactable = !IsCommanderDiscard || selection_index >= 0;
 
             int index = 0;
+            foreach (Button button in GetComponentsInChildren<Button>(true))
+                for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+                {
+                    string method = button.onClick.GetPersistentMethodName(i);
+                    if (method == nameof(OnClickNext) || method == nameof(OnClickPrev))
+                        button.gameObject.SetActive(!IsCommanderDiscard);
+                }
             foreach (Card card in card_list)
             {
                 CardData icard = CardData.Get(card.card_id);
@@ -117,7 +129,7 @@ namespace TcgEngine.UI
                     selector_card.SetIndex(index);
 
                     Vector3 pos = GetCardPosition(selector_card);
-                    Vector3 scale = (index == selection_index ? 1 : 0.5f) * Vector3.one;
+                    Vector3 scale = (IsCommanderDiscard ? 0.65f : (index == selection_index ? 1 : 0.5f)) * Vector3.one;
                     selector_card.SetTargetPos(pos);
                     selector_card.SetTargetScale(scale);
                     rect.anchoredPosition = pos;
@@ -135,9 +147,9 @@ namespace TcgEngine.UI
             this.card_list = iability.GetCardTargets(data, caster);
             this.iability = iability;
             force_show = false;
-            title.text = iability.title;
-            subtitle.text = iability.desc;
-            selection_index = 0;
+            title.text = IsCommanderDiscard ? "战术筹划 · 选择弃牌" : iability.title;
+            subtitle.text = IsCommanderDiscard ? "点击选牌，再点取消；选好指令后才弃牌。" : iability.desc;
+            selection_index = IsCommanderDiscard ? -1 : 0;
             timer = 0f;
             Show();
         }
@@ -185,6 +197,7 @@ namespace TcgEngine.UI
 
         public void OnClickMouseDown()
         {
+            if (IsCommanderDiscard) return;
             mouse_start = GetMouseRectPosition();
             mouse_start_index = selection_index;
             drag = true;
@@ -203,18 +216,26 @@ namespace TcgEngine.UI
 
         public void OnClickNext()
         {
+            if (IsCommanderDiscard) return;
             selection_index += 1;
             selection_index = Mathf.Clamp(selection_index, 0, selector_list.Count - 1);
         }
 
         public void OnClickPrev()
         {
+            if (IsCommanderDiscard) return;
             selection_index -= 1;
             selection_index = Mathf.Clamp(selection_index, 0, selector_list.Count - 1);
         }
 
         private Vector2 GetCardPosition(CardSelectorCard card)
         {
+            if (IsCommanderDiscard)
+            {
+                float spacing = Mathf.Min(175f, 850f / Mathf.Max(1, card_list.Count - 1));
+                return new Vector2((card.GetIndex() - (card_list.Count - 1) * 0.5f) * spacing,
+                    card.GetIndex() == selection_index ? 60f : 0f);
+            }
             int index_offset = card.GetIndex() - selection_index;
             Vector2 pos = new Vector2(index_offset * card_spacing, (index_offset != 0) ? 50f : 0f);
             float center_offset = (index_offset != 0) ? (Mathf.Sign(index_offset) * 140f) : 0;
@@ -227,6 +248,13 @@ namespace TcgEngine.UI
             Vector2 localpoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(content, Input.mousePosition, GetComponentInParent<Canvas>().worldCamera, out localpoint);
             return localpoint;
+        }
+
+        public void OnClickCard(int index)
+        {
+            if (!IsCommanderDiscard) return;
+            selection_index = selection_index == index ? -1 : index;
+            if (select_button != null) select_button.interactable = selection_index >= 0;
         }
 
         public bool IsAbility()
@@ -244,6 +272,7 @@ namespace TcgEngine.UI
         {
             base.Hide(instant);
             force_show = false;
+            selection_index = -1;
         }
         
         public override bool ShouldShow()

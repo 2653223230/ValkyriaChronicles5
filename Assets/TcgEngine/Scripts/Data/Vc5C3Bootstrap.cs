@@ -36,9 +36,9 @@ namespace TcgEngine
                 }));
         }
 
-        private static CardData BuildC3Card(string suffix, string title, int cost, bool fast, string text, bool move = false)
+        private static CardData BuildC3Card(string suffix, string title, int cost, bool fast, string text, bool move = false, string prefix = Vc5C3Rules.Prefix)
         {
-            string id = Vc5C3Rules.Prefix + suffix;
+            string id = prefix + suffix;
             AbilityData play = BaseAbility(id + "_play", title, AbilityTrigger.OnPlay, AbilityTarget.PlayTarget);
             play.conditions_target = new ConditionData[] { ScriptableObject.CreateInstance<ConditionVc5C3Actor>() };
             if (move)
