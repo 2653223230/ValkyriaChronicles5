@@ -58,6 +58,47 @@ namespace TcgEngine.Testing.Editor
             Assert.AreSame(board, oldSniper.art_board);
         }
 
+        [TestCase(Vc5R4Rules.Commander, "commander", 181f)]
+        [TestCase(Vc5BAI1Rules.Frontliner, "frontliner", 192f)]
+        [TestCase(Vc5R4Rules.Sniper, "sniper", 192f)]
+        [TestCase(Vc5R4Rules.Ranger, "ranger", 192f)]
+        [TestCase(Vc5BAI1Rules.Flanker, "flanker", 192f)]
+        [TestCase(Vc5BAI1Rules.Rifleman, "rifleman", 192f)]
+        public void RegisteredBoardStandee_UsesIndependentResource_AndPreservesFullArt(string id, string standeeName, float pixelsPerUnit)
+        {
+            CardData card = CardData.Get(id);
+            Assert.NotNull(card, id + " missing card");
+            Sprite originalFullArt = card.art_full;
+            Assert.NotNull(originalFullArt, id + " missing full art");
+            Assert.IsTrue(Vc5DemoBootstrap.HasBoardStandee(id));
+
+            Sprite standee = Resources.Load<Sprite>("VC5/BoardStandees/" + standeeName);
+            Assert.NotNull(standee, "Missing build-included standee " + standeeName);
+            Assert.AreNotSame(originalFullArt, standee, "Board art must be an independent sprite");
+            Assert.AreNotSame(originalFullArt.texture, standee.texture, "Board art must use an independent texture");
+            Assert.AreSame(originalFullArt, card.art_full, "Full card illustration changed");
+            Assert.AreSame(standee, card.art_board, "Board art is not mapped to the standee");
+            Assert.That(standee.bounds.size.y, Is.EqualTo(8f).Within(0.03f));
+
+            var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(standee));
+            Assert.AreEqual(TextureImporterType.Sprite, importer.textureType);
+            Assert.AreEqual(SpriteImportMode.Single, importer.spriteImportMode);
+            var importerSettings = new TextureImporterSettings();
+            importer.ReadTextureSettings(importerSettings);
+            Assert.AreEqual(new Vector2(0.5f, 0.5f), importer.spritePivot);
+            Assert.AreEqual(SpriteMeshType.FullRect, importerSettings.spriteMeshType);
+            Assert.IsFalse(importer.isReadable);
+            Assert.IsFalse(importer.mipmapEnabled);
+            Assert.AreEqual(FilterMode.Bilinear, importer.filterMode);
+            Assert.AreEqual(TextureWrapMode.Clamp, importer.wrapMode);
+            Assert.AreEqual(1024, importer.maxTextureSize);
+            Assert.AreEqual(pixelsPerUnit, importer.spritePixelsPerUnit);
+
+            Vc5DemoBootstrap.Register();
+            Assert.AreSame(originalFullArt, card.art_full, "Reregistration changed full card art");
+            Assert.AreSame(standee, card.art_board, "Reregistration changed standee mapping");
+        }
+
         [TestCase("Assets/TcgEngine/Prefabs/Gameplay/HandCard.prefab")]
         [TestCase("Assets/TcgEngine/Prefabs/UI/CardUI.prefab")]
         public void CardArt_DoesNotOverlapDescription_AndRestoresLegacyLayout(string prefabPath)

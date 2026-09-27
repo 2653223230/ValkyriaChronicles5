@@ -1,8 +1,8 @@
 # VC5 Demo v3 发布计划与进度
 
 创建日期：2026-09-03
-最近更新：2026-09-20
-当前状态：`demo_v3_20260920 源码已封存；Windows x64 与 Android APK 发布包已生成，外部设备验收待完成`
+最近更新：2026-09-27
+当前状态：`v3 已封存；v3.1 美术优化源码准备封存，Android 构建被 Unity 许可证阻断，未生成新包`
 开发基线：分支 `main`，Git Tag `demo_v2_20260830`，封存提交 `5fc2895e6699fa248fbfc90de041778f088ee6cc`
 
 ## 文档用途
@@ -751,3 +751,39 @@ v3 发布候选版本至少应满足：
 - Android 首次干净构建在 Burst 阶段失败，根因是批处理环境未传递已安装 NDK 的 `ANDROID_NDK_ROOT`，不是项目编译错误。显式传入 Unity 自带 SDK/NDK/OpenJDK 后，同一干净构建成功。版本化 APK `Builds/Direct/Android/VC5_Demo_v3_20260920_Android.apk` 为 `83,597,024` 字节，SHA-256 `69F4817C37B6C4EF9138DCB32E87BD88D7490AD70A80CCCE516188E174902A87`。
 - APK manifest 回读：应用名 `ValkyriaChronicles5`、versionName `3.0.0`、versionCode `3`、minSdk 24、targetSdk 33、横屏配置沿用构建入口，六档 mipmap 图标存在。当前 Mono 后端的 APK 实际 native ABI 为 `armeabi-v7a`；虽然项目目标架构配置含 ARM64，本包没有打入 `arm64-v8a`，不能称为 Google Play 64 位包。
 - 本轮没有重新运行玩法测试。Windows 外部电脑完整操作、Android 真机安装/旋转/触控/系统遮挡、完整对局、正式签名以及双机 P2P 均未验证，不能以构建成功替代。
+
+### 2026-09-26 战术沙盘与轻量动态背景（已接入，待真人/设备验收）
+
+策划已明确回复“确认，请实现”。按帧 `258:145` 接入 Demo 专用背景、沙盘与轻量动态；先记录模式隔离、真实格子锚点和适量验证安排，再修改代码。`Vc5BattlefieldView` 仅用于 Solo R4 对 B-AI1：实际 35 格沙盘、七个金色得分格、指挥桌全屏背景、轻微往返/浮尘/暖光/得分呼吸；未新增 Live2D 或其他包依赖。已修正 MaterialPropertyBlock 初始化异常和 URP 中央清屏兼容问题，原主相机视口/投影与碰撞不动。
+
+聚焦 EditMode 作业 `dffcddb628b449f9a0e5b64d5bcdb90d` 为 8/8 Passed；中间初始化超时作业未记通过。通过 Menu Demo 入口进入真实正式对局，复查常态、棋子选中、侧翼机动合法目标及两个动态时刻；实际图 `Assets/Screenshots/battlefield-v1-verified-{normal,selected,motion-b,legal-targets}-20260926.png`，低清 `Docs/ArtReviews/2026-09-26/background-review/unity-verified-*.jpg`。完整实现、采样数值与验收边界见审核文档及 `unity-verification.json`。真人连续观感/拖动/得分格交互、Android 性能/设备、发布包、完整对局与 P2P 未验证；未运行全量或已知空引用夹具。未改规则、AI 决策、P2P、原 C3；PlayMode 已停止、Error Pause 已恢复，未提交/推送或重打包，原 v3 封存包未变。
+
+审核阶段历史：策划同意采用分层背景＋轻量动画，不接入完整 Live2D。本地 Figma 当前页 `131:2` 新增帧 `258:145`：基于六名立牌实际正式对局截图，展示指挥桌背景、实体沙盘边框、装饰纹理与金色得分区轮廓，并记录拟定动态参数。完整可编辑图层与 `1440×880` 低清审核图位于 `Docs/ArtReviews/2026-09-26/background-review/`；方案、节点及成本边界见 `Docs/Plans/2026-09-26-战术沙盘与轻量动态背景审核.md`。当时这是 Figma 静态合成/关键帧，尚未批准或接入 Unity；现已批准实现，实际结果以上方回填为准。
+
+### 2026-09-26 轻量美术升级首轮（已接入，待真人/设备验收）
+
+策划批准采用日式二次元 2D 角色立牌方向，首轮展示战场指挥官 R4 与 B-AI1 重装前锋。内置 imagegen 已生成两张透明角色审核图；本地 Figma 文件「VC5 Demo 玩家引导 UI」当前页 `131:2` 新增审核帧 `249:2`，展示基于 2026-09-20 实际游戏截图的棋盘合成、放大角色及常态/选中/护甲/命中静态样例。原教学审核稿保留。设计、节点、资源与验证边界记录在 `Docs/Plans/2026-09-26-2D角色立牌与战斗表现审核稿.md`，图片保存在 `Docs/ArtReviews/2026-09-26/`。
+
+状态为美术/Figma 审核待确认，尚未接入 Unity；动画时序与运行时画面仍未验证。本轮未运行玩法或设备测试，未修改代码、规则、AI 或 P2P，未提交/推送，也未改变已封存 v3 发布包。
+
+2026-09-26 策划确认首轮审核稿，开始 Unity 接入指挥官与重装前锋的独立棋盘立牌、薄底座/阴影、选中环、紧凑数值和护甲反馈，以及轻量待机/移动/命中动画。范围与验收先记入上述设计稿；实施完成与实际场景证据待回填。其他棋子和通用 UI 美术扩展仍待后续制作。
+
+实施回填：新增独立 `BoardStandees/commander.png`、`frontliner.png`，仅替换两名角色棋盘图，原卡面与详情插画保持不变。客户端 `Vc5BoardStandeeView` 接入薄底座/阴影、阵营边缘、选中环、攻击/生命条与盾/甲徽标，轻量待机/移动起伏、落地、攻击后坐和命中火花；不增加结算等待，不改规则、AI、P2P 或原 C3 教学。两项资源聚焦测试先因 Tight 网格失败，修正 FullRect 后 `2/2 Passed`（作业 `22cc8ee9b5de450389610b4f0dbd93cb`），未运行全量测试或扩展运行时夹具。
+
+### 2026-09-26 六名立牌与贴身状态 V2（已接入，待真人/设备验收）
+
+策划已回复“可以，请实现”。本轮开始按 V2 帧 `252:50` 接入四名新角色，统一六名棋子的蓝攻/红命独立徽标与贴身护盾/护甲图标。范围与适量验收见 V2 审核文档；实现及真实场景证据待回填，不改规则、AI、P2P 或原 C3。
+
+策划要求继续补齐其余四名棋子、取消“1/6”式数值条，并把护甲等状态图标贴在人物身上；已批准先出审核稿。内置 imagegen 生成阵地狙击手 R4、游骑射手 R4、机动突击手、支援步枪手四张透明立牌，保存于 `Docs/ArtReviews/2026-09-26/*-standee-review-v2.png`，保留原卡图身份/配色与 V1 比例。本地 Figma 当前页 `131:2` 新增 V2 帧 `252:50`，保留 V1；在真实 V1 正式对局截图上合成六名立牌，用原有蓝攻/红命独立徽标，金色盾/银灰甲图标及数字贴近人物腰腿。可编辑布局层 `255:60` 共 72 层（含根层），实际棋盘尺寸与放大样例同时展示。
+
+审核阶段只生成美术资源、Figma 图层与文档；四张图片为 `1024×1536`，造型缩略图不是 Unity 验收证据。策划随后已批准实现：四张图现已接入独立棋盘资源，六名棋子统一蓝攻/红命独立徽标，贴身金盾/银灰甲支持并排显示；卡面原图与规则、AI、P2P、原 C3 不变。六个资源映射用例 `6/6 Passed`（作业 `d6772147cf3b483288b96bc935e8e1c8`），未运行全量或扩展运行时夹具。最终真实场景图为 `Assets/Screenshots/standee-v2-final-six-20260926.png`、`standee-v2-final-body-buffs-20260926.png`，低清复查图为 `Docs/ArtReviews/2026-09-26/unity-v2-final-preview.jpg`、`unity-v2-final-buffs-preview.jpg`。双状态图为客户端显示夹具，不代表规则结算通过；真人详情点击、连续战斗手感、正常获得状态、设备及发布包仍待验收。PlayMode 已停止，Error Pause 已恢复；本轮未提交/推送或重打包。完整实施与证据边界见 `Docs/Plans/2026-09-26-六名立牌与贴身状态V2审核.md`。
+
+#### V1 历史验证补充（其余四名尚未实现是当时状态，现已由 V2 补齐）
+
+实际 R4 对 B-AI1 正式场景截图为 `Assets/Screenshots/standee-selected-runtime-20260926.png`、`standee-detail-runtime-20260926.png`（`1469×670`），已检查两名立牌、数值、选中与原卡牌详情/技能入口。盾和受击截图 `standee-shield-runtime-fixture-20260926.png`、`standee-hit-runtime-fixture-20260926.png` 来自临时客户端状态/事件夹具，仅证明真实渲染反馈，不是完整对局或规则结算验证。测试遗留静态卡组通过脚本域重载清除；旧 slime 数据日志仍存在，未作为本轮修复内容。编辑器临时关闭的 Error Pause 已恢复，PlayMode 已停止。真人连续移动/战斗手感、Android 真机、发布包与性能仍待验收；其余四名棋子与通用 UI 扩展尚未实现。本轮未提交/推送或重新构建，原 v3 封存包未变。完整记录见上述设计稿。
+
+### 2026-09-26 Menu 新卡组加载缓存修复（已验证入口，待真人复测）
+
+策划报告从 Menu 启动遇到数据校验报错，并明确史莱姆老卡组暂不考虑，只保障近期 Demo 卡组。已实查关闭 Domain/Scene Reload 后静态缓存不完整：Resources 存在 Trait，而当前列表缺失；Error Pause 开启使启动暂停。现新增 `DataLoader` 的 SubsystemRegistration 核心缓存重置，由原加载顺序重新建表；不修改规则、不屏蔽校验，不改 Error Pause，场景切换不重置数据。
+
+单项缓存污染回归先失败后 1/1 Passed（最终作业 `8576097f5a604dafae58d4efb11c1be1`），检查 C3/R4/B-AI1 的数据依赖。首个未导入完成的 0 tests 作业不记通过。实际 Menu 启动、真实 Demo 入口进入 R4/B-AI1 Game（Ready、6 棋子）、停止后再次 Menu 启动均 error 0、未暂停；Error Pause 保持开启，最后已停止 PlayMode。实际截图 `Assets/Screenshots/startup-cache-r4-ai1-20260926.png`，低清 `Docs/ArtReviews/2026-09-26/startup-cache-r4-ai1-preview.jpg`。详细证据见启动流程文档。真人正常打牌、史莱姆老卡组玩法、全量套件/已知空引用夹具、设备、P2P、发布包未验证；未修改规则/AI/UI/网络，未提交/推送或重打包。

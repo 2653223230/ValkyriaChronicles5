@@ -1,6 +1,6 @@
 # VC5 Demo 启动与 AI 对战流程
 
-更新时间：2026-09-16
+更新时间：2026-09-26
 
 版本快照：`demo_v2_20260830` Windows 构建已从 `Menu.unity` 进入本页所述 VC5 Demo 对战入口并用于玩家试玩；Android v2 未发布。
 
@@ -468,3 +468,15 @@ Menu 的 Demo 选项新增独立 R4（`deck_vc5_demo_command_r4`），原 C3 和
 - Windows 分发 ZIP：`Builds/Direct/VC5_Demo_v3_20260920_Windows_x64.zip`；Android 分发 APK：`Builds/Direct/Android/VC5_Demo_v3_20260920_Android.apk`。应用/EXE 名为 `ValkyriaChronicles5`，两个平台统一使用 `Assets/TcgEngine/Images/VC5/AppIcon.png`。
 - 本机 Windows Player 仅完成 12 秒不崩溃冒烟；Android 仅完成 APK manifest/ABI 回读。Menu 实际点击、完整 R4 对 B-AI1 对局、外部 Windows、Android 真机触控和 P2P 仍需人工验收。
 - Android APK 版本为 `3.0.0` / versionCode `3`，实际 ABI 为 `armeabi-v7a`。当前直装试玩包不包含 `arm64-v8a`，如需上架 Google Play 或覆盖 64 位专用设备，应另启 IL2CPP/ARM64 构建与设备门禁。
+
+## 2026-09-26 Menu 启动缓存修复（已验证入口，待真人复测）
+
+策划要求仅确保近期 Demo 卡组可用，史莱姆老卡组暂不作为验收范围。当前编辑器关闭 Domain Reload / Scene Reload，测试和上轮 PlayMode 的静态卡牌、技能、牌组及基础属性缓存可残留；`Load()` 仅在列表为空时读 Resources，导致资源存在但缓存缺项，并触发数据校验与 Error Pause。
+
+实现：`DataLoader.ResetRuntimeRegistries` 在每次运行启动的 SubsystemRegistration 阶段清空卡牌/技能/牌组及其 Team、Rarity、Trait、Status 依赖缓存，并复用已有的运行时注册标记重置；随后仍由原 DataLoader 顺序从资源加载并注册。Menu→Game 切场景不执行该启动重置，保留正在使用的数据。不改变 Error Pause，不删除校验、不筛掉新卡组错误、不修改卡组规则。
+
+聚焦回归 `Vc5StartupCacheTests.RunStartup_ReplacesPartialCacheBeforeBuildingDemoDecks`：模拟部分 Trait 缓存，检查重新加载资源依赖及 C3、R4、B-AI1 的三名英雄、手牌和技能链引用。RED 作业 `bcb4d0a8f1ce468eb0f45dc862429848` 失败（缺少启动重置）；GREEN 作业 `8576097f5a604dafae58d4efb11c1be1` 为 1/1 Passed，0 失败，0.8214519 秒。首个作业 `80020851b89340a083318b33512ed5d6` 未发现新导入用例、0 tests，不记通过。
+
+实际自动操控：保持项目关闭 Domain/Scene Reload 的设置及 Error Pause 开启，清除上一轮 Console 后从 Menu Play；Menu 无暂停、error 0，R4/B-AI1 已加载。通过真实 Demo 启动入口进入 Game，Ready=true、6 名棋子、玩家牌组 `deck_vc5_demo_command_r4` / AI `deck_vc5_demo_steady_assault`，error 0。截图 `Assets/Screenshots/startup-cache-r4-ai1-20260926.png` 为教学起始页，低清复查 `Docs/ArtReviews/2026-09-26/startup-cache-r4-ai1-preview.jpg`。停止后再从 Menu Play，仍无暂停且 error 0；最后停止 PlayMode，Error Pause 未关闭。
+
+仅证明新卡组数据与入口恢复，不是完整卡牌结算/真人鼠标试玩。史莱姆老卡组玩法、全量套件、已知空引用的扩展运行时夹具、设备/P2P/发布包均未测。未修改规则、AI、网络或 UI，未提交/推送/重打包。请策划从 Menu 的 Demo 窗口再启动 R4 对 B-AI1 并正常打牌复测。

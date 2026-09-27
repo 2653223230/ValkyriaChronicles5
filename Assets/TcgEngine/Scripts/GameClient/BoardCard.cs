@@ -276,6 +276,9 @@ namespace TcgEngine.Client
                 armor_icon.enabled = false;
                 status_alpha_target = 0f;
             }
+
+            if (Vc5DemoBootstrap.HasBoardStandee(card.card_id))
+                gameObject.AddComponent<Vc5BoardStandeeView>().Initialize(this);
         }
 
         public void SetOrder(int order)

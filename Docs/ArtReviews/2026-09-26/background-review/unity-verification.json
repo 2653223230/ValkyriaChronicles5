@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-26",
+  "testJob": "dffcddb628b449f9a0e5b64d5bcdb90d",
+  "suite": "TcgEngine.Testing.Editor.Vc5BattlefieldArtTests",
+  "summary": {"total":8,"passed":8,"failed":0,"skipped":0,"durationSeconds":0.1345414},
+  "mode": "Solo R4 vs B-AI1 formal match via Menu Demo entry",
+  "captureResolution": [1456,657],
+  "slots":35,
+  "scoringRims":7,
+  "newVisualColliders":0,
+  "mainCameraRect":[0.1,0,0.8,1],
+  "mainCameraCullingMask":-1,
+  "dynamicSamples":[
+    {"time":86.89215,"backgroundX":-0.0310860369,"lightAlpha":0.0366904847,"dustVertex0":[-5.88,2.12,0]},
+    {"time":112.440331,"backgroundX":-0.0414961651,"lightAlpha":0.0200384539,"dustVertex0":[-5.88,-1.66,0]}
+  ],
+  "abilitySelection":{"selector":"SelectTarget","highlightedLegalSlots":4,"scoringTargetsTested":false},
+  "manualPlaytest": "pending",
+  "devicesAndPackages": "not run",
+  "fullSuiteAndP2P": "not run",
+  "editorRestored":{"playing":false,"errorPause":true},
+  "commitPushBuild": "not performed"
+}

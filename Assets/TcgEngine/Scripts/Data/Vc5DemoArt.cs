@@ -4,6 +4,22 @@ namespace TcgEngine
 {
     public static partial class Vc5DemoBootstrap
     {
+        public static bool HasBoardStandee(string id)
+        {
+            return GetBoardStandeeName(id) != null;
+        }
+
+        private static string GetBoardStandeeName(string id)
+        {
+            if (id == Vc5R4Rules.Commander) return "commander";
+            if (id == Vc5BAI1Rules.Frontliner) return "frontliner";
+            if (id == Vc5R4Rules.Sniper) return "sniper";
+            if (id == Vc5R4Rules.Ranger) return "ranger";
+            if (id == Vc5BAI1Rules.Flanker) return "flanker";
+            if (id == Vc5BAI1Rules.Rifleman) return "rifleman";
+            return null;
+        }
+
         public static bool HasDemoArt(string id)
         {
             if (id == Vc5BAI1Rules.Frontliner || id == Vc5BAI1Rules.Flanker || id == Vc5BAI1Rules.Rifleman) return true;
@@ -53,7 +69,12 @@ namespace TcgEngine
             Sprite art = Resources.Load<Sprite>("VC5/DemoArt/" + artId);
             card.art_full = art;
             if (card.IsCharacter())
-                card.art_board = art;
+            {
+                string standeeId = GetBoardStandeeName(card.id);
+                card.art_board = standeeId != null
+                    ? Resources.Load<Sprite>("VC5/BoardStandees/" + standeeId)
+                    : art;
+            }
         }
     }
 }

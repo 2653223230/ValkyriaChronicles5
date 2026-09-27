@@ -24,6 +24,9 @@ namespace TcgEngine.Client
         public float height = 0.01f; // 柱体高度
 
         private bool is_scoring_zone = false;
+        private bool battlefield_art = false;
+
+        public void UseBattlefieldArt() { battlefield_art = true; }
 
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
 
@@ -74,7 +77,7 @@ namespace TcgEngine.Client
             //Find target opacity value查找目标不透明度值
             target_alpha = 0f;
 
-            if (is_scoring_zone)
+            if (is_scoring_zone && !battlefield_art)
             {
                 target_alpha = 0.78f;
                 color_r = 255f;

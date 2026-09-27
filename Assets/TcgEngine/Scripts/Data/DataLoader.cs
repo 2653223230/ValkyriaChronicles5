@@ -22,6 +22,24 @@ namespace TcgEngine
 
         private static DataLoader instance;
 
+        // Runs once per player startup, including Editor Play with Domain Reload disabled.
+        // Scene changes keep the newly built registries and their live object references.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeRegistries()
+        {
+            instance = null;
+            CardData.card_list.Clear();
+            CardData.card_dict.Clear();
+            AbilityData.ability_list.Clear();
+            AbilityData.ability_dict.Clear();
+            DeckData.deck_list.Clear();
+            TeamData.team_list.Clear();
+            RarityData.rarity_list.Clear();
+            TraitData.trait_list.Clear();
+            StatusData.status_list.Clear();
+            Vc5SlimeBootstrap.ResetForDataReload();
+        }
+
         void Awake()
         {
             instance = this;

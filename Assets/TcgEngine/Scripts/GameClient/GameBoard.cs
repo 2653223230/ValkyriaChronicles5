@@ -32,7 +32,8 @@ namespace TcgEngine.Client
 
         private void Start()
         {
-            
+            if (Vc5BattlefieldView.AppliesToCurrentMatch())
+                gameObject.AddComponent<Vc5BattlefieldView>();
         }
 
         void Update()

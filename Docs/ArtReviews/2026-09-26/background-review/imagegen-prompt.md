@@ -1,0 +1,7 @@
+# 指挥桌背景生成记录
+
+使用内置 imagegen，单张全新背景，不是游戏截图编辑；生成后复制到本项目审核目录，尚未作为 Unity 资源导入。
+
+## 最终提示词
+
+Use case: stylized-concept. Asset type: 16:9 landscape background illustration for a Japanese anime 2D tactical card game Unity desktop and Android. Create a polished anime military command-room tabletop backdrop, no characters. Camera straight down / near top-down so the usable tabletop reads as a flat game surface, NOT a perspective room floor. A large quiet dark blue-grey matte strategy desk covers the entire central 65 percent, subtle cool desaturated texture and soft light; enough negative space to place a vertical hex board in the middle and card UI around it. Only outer left/right edges contain softly painted military-map papers, brass rulers, a few mechanical brackets, subdued electrical control panels and warm small lamps, giving stylized retro military anime flavor. Dark teal/navy with muted warm brass accents, painterly cel-style environmental art matched to anime standees, tasteful clean desktop-game presentation, no photorealistic clutter. Center must remain dark neutral and low contrast. No hex grid, no game board, no playing cards, no UI, no text, no logos, no numbers, no character figures, no watermark. Side decoration small and restrained. Lighting soft amber from edges plus restrained cyan indirect light. This is BACKGROUND ART ONLY, board and all actual UI will be native independent overlay layers.
