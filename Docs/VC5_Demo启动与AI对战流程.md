@@ -1,8 +1,10 @@
 # VC5 Demo 启动与 AI 对战流程
 
-更新时间：2026-09-26
+更新时间：2026-09-27
 
 版本快照：`demo_v2_20260830` Windows 构建已从 `Menu.unity` 进入本页所述 VC5 Demo 对战入口并用于玩家试玩；Android v2 未发布。
+
+2026-09-27 发布续接：v3.1 美术优化（`3.1.0` / Android versionCode `4`）已构建 Windows x64 ZIP `Builds/Direct/VC5_Demo_v3.1_美术优化_20260927_Windows_x64.zip` 与 Android APK `Builds/Direct/Android/VC5_Demo_v3.1_美术优化_20260927_Android.apk`。仍以 Menu → VC5 Demo 对战窗口 → Game 进入，应用名/图标不变；构建成功及包信息检查不代表独立包试玩或平板验收。Android 沿用 ARMv7，需设备支持 32 位 ARM 应用。源码 Tag `demo_v3_1_art_20260927`，构建记录 Tag `demo_v3_1_art_20260927_build1`；详情见发布记录，push 待明确远端确认。
 
 本文档记录当前已经实现的「打开游戏后选择卡组并直接单人 VS AI」流程。后续如果需要调整 Demo 入口、默认卡组、AI 卡组选取或测试方式，可以直接修改本文档，再让 Codex 按文档同步实现。
 
