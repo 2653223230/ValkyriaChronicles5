@@ -1,6 +1,6 @@
 # VC5 Demo v3.1 美术优化 Windows / Android 测试版
 
-状态：源码已在本地封存；Windows / Android 均已构建成功并完成包信息检查，待真人/设备验收。Push 仍待明确远端确认。
+状态：源码与两个 v3.1 Tag 已推送至 origin；Windows / Android 均已构建成功并完成包信息检查，待真人/设备验收。
 
 ## 版本与范围
 
@@ -24,14 +24,15 @@
 
 ### 续接构建安排
 
-策划已启动 Unity/MCP。当前编辑器通过 MCP 确认 Windows64 与 Android target 均支持，版本 `3.1.0` / versionCode `4`；直接在当前编辑器异步构建，前次批处理许可证问题不再阻断本轮构建。不关闭用户编辑器，不增加测试套件。Windows 新目录 `Builds/Direct/Windows/VC5_Demo_v3.1_20260927/ValkyriaChronicles5.exe`，分发 ZIP 如上；APK 使用上述版本化路径。前次失败记录保留，当前成功构建日志 `Builds/Direct/VC5-v3.1-20260927-editor-build.log`。Push 仍需用户明确确认已被审核拒绝的具体远端。
+策划已启动 Unity/MCP。当前编辑器通过 MCP 确认 Windows64 与 Android target 均支持，版本 `3.1.0` / versionCode `4`；直接在当前编辑器异步构建，前次批处理许可证问题不再阻断本轮构建。不关闭用户编辑器，不增加测试套件。Windows 新目录 `Builds/Direct/Windows/VC5_Demo_v3.1_20260927/ValkyriaChronicles5.exe`，分发 ZIP 如上；APK 使用上述版本化路径。前次失败记录保留，当前成功构建日志 `Builds/Direct/VC5-v3.1-20260927-editor-build.log`。随后策划明确确认远端，推送结果见下。
 
 ## 本地提交与推送实际状态
 
 - 源码提交：`e3576305ce62178b78f88cc076e6fdbe917e0025`；提交信息 `release: 封存 v3.1 美术优化源码（Android待构建）`，80 个相关文件。
 - 本地 annotated Tag：`demo_v3_1_art_20260927`，指向上述源码提交；Tag 注释明确 Android APK 等待许可证激活。未移动 v3/v2 旧 Tag。
 - 2026-09-27 请求 push `main` 与该 Tag 时被安全审核拒绝，原因是完整代码/资源 payload 的外部目的地尚未获得审核所需的明确确认。命令未执行，不能称为已 push。
-- 待用户明确批准推送到 `https://github.com/2653223230/ValkyriaChronicles5` 后，才可再执行 push；不换传输方式绕过拒绝。APK 不会上传 Git。
+- 2026-09-27 用户明确确认后，`git push --atomic origin main demo_v3_1_art_20260927 demo_v3_1_art_20260927_build1` 退出码 0：远端 main 从 `9f86db2` 更新至 `8b602bc58fd8e4f7196b6c43d8f7248959160895`，两个 Tag 均新建成功。目的地 `https://github.com/2653223230/ValkyriaChronicles5`；APK/ZIP 不上传 Git。
+- 构建记录提交：`8b602bc58fd8e4f7196b6c43d8f7248959160895`，信息 `release: 记录 v3.1 美术优化 Windows 与 Android 成功构建`。随后以 `docs: 同步 v3.1 推送完成记录` 提交并推送本条状态回填，不移动封存 Tag。
 - 本条状态回填形成后续文档提交，未改变源码或包内容。源码定位以源码提交/Tag 为准；构建产物以版本化路径和 SHA-256 为准。
 
 ## 历史构建失败与验证边界

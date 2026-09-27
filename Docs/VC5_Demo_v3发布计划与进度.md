@@ -2,7 +2,7 @@
 
 创建日期：2026-09-03
 最近更新：2026-09-27
-当前状态：`v3 已封存；v3.1 美术优化 Windows / Android 均已构建，待真人/设备验收；源码与记录本地封存，push 待远端确认`
+当前状态：`v3 已封存；v3.1 美术优化 Windows / Android 均已构建，待真人/设备验收；源码、构建记录与两个 v3.1 Tag 已 push`
 开发基线：分支 `main`，Git Tag `demo_v2_20260830`，封存提交 `5fc2895e6699fa248fbfc90de041778f088ee6cc`
 
 ## 文档用途
@@ -787,8 +787,8 @@ v3 发布候选版本至少应满足：
 策划报告从 Menu 启动遇到数据校验报错，并明确史莱姆老卡组暂不考虑，只保障近期 Demo 卡组。已实查关闭 Domain/Scene Reload 后静态缓存不完整：Resources 存在 Trait，而当前列表缺失；Error Pause 开启使启动暂停。现新增 `DataLoader` 的 SubsystemRegistration 核心缓存重置，由原加载顺序重新建表；不修改规则、不屏蔽校验，不改 Error Pause，场景切换不重置数据。
 
 单项缓存污染回归先失败后 1/1 Passed（最终作业 `8576097f5a604dafae58d4efb11c1be1`），检查 C3/R4/B-AI1 的数据依赖。首个未导入完成的 0 tests 作业不记通过。实际 Menu 启动、真实 Demo 入口进入 R4/B-AI1 Game（Ready、6 棋子）、停止后再次 Menu 启动均 error 0、未暂停；Error Pause 保持开启，最后已停止 PlayMode。实际截图 `Assets/Screenshots/startup-cache-r4-ai1-20260926.png`，低清 `Docs/ArtReviews/2026-09-26/startup-cache-r4-ai1-preview.jpg`。详细证据见启动流程文档。真人正常打牌、史莱姆老卡组玩法、全量套件/已知空引用夹具、设备、P2P、发布包未验证；未修改规则/AI/UI/网络，未提交/推送或重打包。
-### 2026-09-27 v3.1 美术优化 Windows / Android 测试版（构建成功，push 待确认）
+### 2026-09-27 v3.1 美术优化 Windows / Android 测试版（构建成功，已 push）
 
 版本名称「v3.1 美术优化」，bundleVersion `3.1.0` / Android versionCode `4`，应用名 `ValkyriaChronicles5` 与原 AppIcon 不变。包含六名立牌、贴身状态、战术沙盘/动态背景及 Menu 缓存修复；策划追加 Windows，同步构建两平台，不改规则/AI/P2P。源码提交 `e3576305ce62178b78f88cc076e6fdbe917e0025`，信息 `release: 封存 v3.1 美术优化源码（Android待构建）`，本地 Tag `demo_v3_1_art_20260927` 保持原指向；构建记录提交信息 `release: 记录 v3.1 美术优化 Windows 与 Android 成功构建`，记录 Tag `demo_v3_1_art_20260927_build1`。
 
-历史批处理构建 target/许可证失败记录保留；用户启动 Unity/MCP 后，两平台均成功：Windows 0 errors / 3 warnings，Android 0 errors / 11 warnings。版本化 Windows ZIP 99,073,959 字节、APK 92,289,394 字节，哈希及路径见 `Docs/Releases/VC5_Demo_v3.1美术优化_20260927_发布记录.md`。已检查 ZIP 条目与 APK manifest/ABI，Android 实际仅 ARMv7（沿用 Mono），64 位专用设备不适用。未追加玩法自动测试、Windows 独立包试玩或 Android 设备测试，均待真人验收。Push 被安全审核要求明确确认外部目的地，命令未执行，等待策划确认 `https://github.com/2653223230/ValkyriaChronicles5`。
+历史批处理构建 target/许可证失败记录保留；用户启动 Unity/MCP 后，两平台均成功：Windows 0 errors / 3 warnings，Android 0 errors / 11 warnings。版本化 Windows ZIP 99,073,959 字节、APK 92,289,394 字节，哈希及路径见 `Docs/Releases/VC5_Demo_v3.1美术优化_20260927_发布记录.md`。已检查 ZIP 条目与 APK manifest/ABI，Android 实际仅 ARMv7（沿用 Mono），64 位专用设备不适用。未追加玩法自动测试、Windows 独立包试玩或 Android 设备测试，均待真人验收。此前 push 审核阻断在策划明确确认目的地后解除；main 至 `8b602bc58fd8e4f7196b6c43d8f7248959160895` 与两个 v3.1 Tag 已成功推送至 `https://github.com/2653223230/ValkyriaChronicles5`，后续状态回填提交信息 `docs: 同步 v3.1 推送完成记录`。
