@@ -2,7 +2,7 @@
 
 创建日期：2026-09-03
 最近更新：2026-09-27
-当前状态：`v3 已封存；v3.1 美术优化源码准备封存，Android 构建被 Unity 许可证阻断，未生成新包`
+当前状态：`v3 已封存；v3.1 美术优化源码已本地提交/Tag，push 待远端确认，Android 构建被 Unity 许可证阻断`
 开发基线：分支 `main`，Git Tag `demo_v2_20260830`，封存提交 `5fc2895e6699fa248fbfc90de041778f088ee6cc`
 
 ## 文档用途
@@ -787,3 +787,8 @@ v3 发布候选版本至少应满足：
 策划报告从 Menu 启动遇到数据校验报错，并明确史莱姆老卡组暂不考虑，只保障近期 Demo 卡组。已实查关闭 Domain/Scene Reload 后静态缓存不完整：Resources 存在 Trait，而当前列表缺失；Error Pause 开启使启动暂停。现新增 `DataLoader` 的 SubsystemRegistration 核心缓存重置，由原加载顺序重新建表；不修改规则、不屏蔽校验，不改 Error Pause，场景切换不重置数据。
 
 单项缓存污染回归先失败后 1/1 Passed（最终作业 `8576097f5a604dafae58d4efb11c1be1`），检查 C3/R4/B-AI1 的数据依赖。首个未导入完成的 0 tests 作业不记通过。实际 Menu 启动、真实 Demo 入口进入 R4/B-AI1 Game（Ready、6 棋子）、停止后再次 Menu 启动均 error 0、未暂停；Error Pause 保持开启，最后已停止 PlayMode。实际截图 `Assets/Screenshots/startup-cache-r4-ai1-20260926.png`，低清 `Docs/ArtReviews/2026-09-26/startup-cache-r4-ai1-preview.jpg`。详细证据见启动流程文档。真人正常打牌、史莱姆老卡组玩法、全量套件/已知空引用夹具、设备、P2P、发布包未验证；未修改规则/AI/UI/网络，未提交/推送或重打包。
+### 2026-09-27 v3.1 美术优化 Android 平板测试版（源码本地封存，包与 push 受阻）
+
+版本名称「v3.1 美术优化」，bundleVersion `3.1.0` / Android versionCode `4`，应用名 `ValkyriaChronicles5` 与原 AppIcon 不变。包含六名立牌、贴身状态、战术沙盘/动态背景及 Menu 缓存修复；不重发 Windows，不改规则/AI/P2P。源码提交 `e3576305ce62178b78f88cc076e6fdbe917e0025`，信息 `release: 封存 v3.1 美术优化源码（Android待构建）`，本地 Tag `demo_v3_1_art_20260927`。
+
+Android 正常权限首次构建报告 target unsupported；显式 Android 目标后明确报 `No ULF license found / No license activation found for this computer`，退出码 1，尚无新版 APK，旧包不能标作新版。只读审查无明确编译阻断；本轮未重跑全量或设备测试。Push 被安全审核要求明确确认外部目的地，命令未执行，等待策划确认 `https://github.com/2653223230/ValkyriaChronicles5`。详见 `Docs/Releases/VC5_Demo_v3.1美术优化_20260927_发布记录.md`；待恢复 Unity 许可证后继续构建、manifest/ABI/哈希检查，再由平板真人验收。
