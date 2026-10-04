@@ -1,0 +1,15 @@
+{
+  "name": "VC5PvE.Tests",
+  "rootNamespace": "VC5PvE.Tests",
+  "references": ["VC5PvE.Rules"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true,
+  "optionalUnityReferences": ["TestAssemblies"]
+}

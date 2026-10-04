@@ -1,0 +1,257 @@
+VC5PvE Windows x64 build
+Result: Succeeded
+Target: StandaloneWindows64
+Output: E:\unity\git_newest\ValkyriaChronicles5\Prototypes\VC5PvE/Builds/Windows/森钟战术.exe
+Size bytes: 96488717
+Duration: 00:00:38.4007496
+Errors: 0
+Warnings: 1
+
+Step: Build player — 00:00:38.4007496
+
+Step: Preprocess Player — 00:00:00.0325550
+
+Step: Back up scenes — 00:00:00.0201457
+
+Step: Prepare For Build — 00:00:00.0067082
+
+Step: ProducePlayerScriptAssemblies — 00:00:02.9846346
+
+Step: Prebuild Cleanup and Recompile — 00:00:02.2792663
+
+Step: Compile scripts — 00:00:00.4117769
+
+Step: Generate and validate platform script types — 00:00:01.2766900
+
+Step: Verify Build setup — 00:00:00.0095032
+
+Step: Prepare assets for target platform — 00:00:00.0650417
+
+Step: Compile Global Game Manager dependencies — 00:00:00.0148220
+
+Step: Building scenes — 00:00:00.5196455
+
+Step: Building scene Assets/VC5PvE/Scenes/Title.unity — 00:00:00.3283032
+
+Step: Building scene 0: Title — 00:00:00.2128117
+
+Step: Load scene (and close previous ones) — 00:00:00.1732307
+
+Step: Compile game scene dependencies — 00:00:00.0272296
+
+Step: Compile game scene — 00:00:00.0118966
+
+Step: Rebuild resources — 00:00:00.0028435
+
+Step: Compile Resources folder dependencies — 00:00:00.0090105
+
+Step: Building scene Assets/VC5PvE/Scenes/ForestRuins.unity — 00:00:00.1912798
+
+Step: Building scene 1: ForestRuins — 00:00:00.1910372
+
+Step: Load scene (and close previous ones) — 00:00:00.1752827
+
+Step: Compile game scene dependencies — 00:00:00.0039191
+
+Step: Compile game scene — 00:00:00.0114176
+
+Step: Build scripts DLLs — 00:00:15.1491885
+
+Step: GetReferencedAssemblies — 00:00:06.0556920
+
+Step: burst — 00:00:03.6360201
+[Warning] Unable to find player assembly: Library/PlayerScriptAssemblies/UnityEngine.TestRunner.dll
+
+Step: Build GlobalGameManagers file — 00:00:00.1492414
+
+Step: Writing asset files — 00:00:05.9463439
+
+Step: Packaging assets - globalgamemanagers.assets — 00:00:03.2089502
+
+Step: Extract assets to write — 00:00:00.0021658
+
+Step: Write file:globalgamemanagers.assets — 00:00:03.2061954
+
+Step: Write object - Sprites-Default (Material) from Resources/unity_builtin_extra — 00:00:00.0026499
+
+Step: Write object - Hidden/Universal Render Pipeline/Sampling (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/Sampling.shader — 00:00:00.0308310
+
+Step: Write object - Hidden/Core/FallbackError (Shader) from Packages/com.unity.render-pipelines.core/Runtime/FallbackShader.shader — 00:00:00.0026395
+
+Step: Write object - Hidden/Universal Render Pipeline/MaterialError (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/MaterialError.shader — 00:00:00.0027244
+
+Step: Write object - Universal Render Pipeline/Unlit (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Unlit.shader — 00:00:00.0211191
+
+Step: Write object - Hidden/kMotion/ObjectMotionVectors (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/ObjectMotionVectors.shader — 00:00:00.0025965
+
+Step: Write object - Hidden/Universal/CoreBlit (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlit.shader — 00:00:02.8106344
+
+Step: Write object - VC5PvE/PixelCharacter (Shader) from Assets/VC5PvE/Shaders/PixelCharacter.shader — 00:00:00.0035415
+
+Step: Write object - Hidden/Universal Render Pipeline/Blit (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/Blit.shader — 00:00:00.0444200
+
+Step: Write object - Hidden/kMotion/CameraMotionVectors (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader — 00:00:00.0029811
+
+Step: Write object - Hidden/Universal Render Pipeline/Debug/DebugReplacement (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader — 00:00:00.0031678
+
+Step: Write object - Hidden/Universal/CoreBlitColorAndDepth (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/CoreBlitColorAndDepth.shader — 00:00:00.1567627
+
+Step: Write object - Hidden/Universal Render Pipeline/CopyDepth (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader — 00:00:00.0860751
+
+Step: Write object - Hidden/Universal Render Pipeline/FallbackError (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader — 00:00:00.0035894
+
+Step: Write object - Hidden/Universal Render Pipeline/StencilDeferred (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/StencilDeferred.shader — 00:00:00.0101406
+
+Step: Finish writing — 00:00:00.0079260
+
+Step: Packaging assets - resources.assets — 00:00:00.2013965
+
+Step: Extract assets to write — 00:00:00.0514781
+
+Step: Load dependencies - [unnamed] (GameObject) from Packages/com.unity.render-pipelines.core/Runtime/Debugging/Prefabs/Resources/DebugUICanvas.prefab — 00:00:00.0440709
+
+Step: Write file:resources.assets — 00:00:00.1494043
+
+Step: Finish writing — 00:00:00.0077553
+
+Step: Packaging assets - sharedassets0.assets = additional assets for scene 0: Assets/VC5PvE/Scenes/Title.unity — 00:00:02.5025630
+
+Step: Extract assets to write — 00:00:00.0275565
+
+Step: Load dependencies - NotoSansCJKsc-Regular (Font) from Assets/Art/External/Fonts/NotoSansCJKsc-Regular.otf — 00:00:00.0098082
+
+Step: Write file:sharedassets0.assets — 00:00:02.4743105
+
+Step: Write object - terrain-atlas (Texture2D) from Assets/Art/Generated/terrain-atlas.png — 00:00:00.0013428
+
+Step: Write object - forest-title (Texture2D) from Assets/Art/Generated/forest-title.png — 00:00:00.0025309
+
+Step: Load object from Assets/Art/Generated/forest-title.png — 00:00:00.0012381
+
+Step: Write object - Skybox/Procedural (Shader) from Resources/unity_builtin_extra — 00:00:00.1213165
+
+Step: Write object - Universal Render Pipeline/Lit (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader — 00:00:02.2960877
+
+Step: Write object - bookFlip1 (AudioClip) from Assets/Audio/KenneyRPGAudio/OGG/bookFlip1.ogg — 00:00:00.0041303
+
+Step: Load object from Assets/Audio/KenneyRPGAudio/OGG/bookFlip1.ogg — 00:00:00.0034633
+
+Step: Write object - NotoSansCJKsc-Regular (Font) from Assets/Art/External/Fonts/NotoSansCJKsc-Regular.otf — 00:00:00.0296144
+
+Step: Write object - forest-title (Sprite) from Assets/Art/Generated/forest-title.png — 00:00:00.0011222
+
+Step: Finish writing — 00:00:00.0011125
+
+Step: Packaging assets - sharedassets1.assets = additional assets for scene 1: Assets/VC5PvE/Scenes/ForestRuins.unity — 00:00:00.0136913
+
+Step: Extract assets to write — 00:00:00.0035158
+
+Step: Write file:sharedassets1.assets — 00:00:00.0096326
+
+Step: Building Resources/unity_builtin_extra — 00:00:05.8956443
+
+Step: Write file:Library/PlayerDataCache/Win64/Data/Resources/unity_builtin_extra — 00:00:05.8943703
+
+Step: Write object - Legacy Shaders/VertexLit (Shader) from Resources/unity_builtin_extra — 00:00:00.1851297
+
+Step: Write object - Legacy Shaders/Diffuse (Shader) from Resources/unity_builtin_extra — 00:00:00.7686541
+
+Step: Write object - Hidden/Internal-StencilWrite (Shader) from Resources/unity_builtin_extra — 00:00:00.0264054
+
+Step: Write object - Hidden/Internal-DepthNormalsTexture (Shader) from Resources/unity_builtin_extra — 00:00:00.5267416
+
+Step: Write object - Hidden/Internal-PrePassLighting (Shader) from Resources/unity_builtin_extra — 00:00:00.4942299
+
+Step: Write object - Hidden/Internal-ScreenSpaceShadows (Shader) from Resources/unity_builtin_extra — 00:00:00.4757054
+
+Step: Write object - Hidden/Internal-CombineDepthNormals (Shader) from Resources/unity_builtin_extra — 00:00:00.0380458
+
+Step: Write object - Hidden/BlitCopy (Shader) from Resources/unity_builtin_extra — 00:00:00.0030566
+
+Step: Write object - Hidden/BlitCopyDepth (Shader) from Resources/unity_builtin_extra — 00:00:00.0319677
+
+Step: Write object - Hidden/ConvertTexture (Shader) from Resources/unity_builtin_extra — 00:00:00.0396759
+
+Step: Write object - Hidden/Internal-DeferredShading (Shader) from Resources/unity_builtin_extra — 00:00:00.6025249
+
+Step: Write object - Hidden/Internal-DeferredReflections (Shader) from Resources/unity_builtin_extra — 00:00:00.1256963
+
+Step: Write object - Hidden/Internal-MotionVectors (Shader) from Resources/unity_builtin_extra — 00:00:00.1224599
+
+Step: Write object - Hidden/Internal-Flare (Shader) from Resources/unity_builtin_extra — 00:00:00.0348021
+
+Step: Write object - Hidden/Internal-Halo (Shader) from Resources/unity_builtin_extra — 00:00:00.0358818
+
+Step: Write object - Hidden/BlitCopyWithDepth (Shader) from Resources/unity_builtin_extra — 00:00:00.0392151
+
+Step: Write object - Hidden/BlitToDepth (Shader) from Resources/unity_builtin_extra — 00:00:00.0369312
+
+Step: Write object - Hidden/BlitToDepth_MSAA (Shader) from Resources/unity_builtin_extra — 00:00:00.0381276
+
+Step: Write object - Hidden/BlitCopyHDRTonemap (Shader) from Resources/unity_builtin_extra — 00:00:00.0397480
+
+Step: Write object - Hidden/Internal-GUITextureClip (Shader) from Resources/unity_builtin_extra — 00:00:00.0054310
+
+Step: Write object - Hidden/Internal-GUITextureClipText (Shader) from Resources/unity_builtin_extra — 00:00:00.0050273
+
+Step: Write object - Hidden/Internal-GUITexture (Shader) from Resources/unity_builtin_extra — 00:00:00.0050519
+
+Step: Write object - Hidden/Internal-GUITextureBlit (Shader) from Resources/unity_builtin_extra — 00:00:00.0052436
+
+Step: Write object - Hidden/Internal-GUIRoundedRect (Shader) from Resources/unity_builtin_extra — 00:00:00.0054682
+
+Step: Write object - Hidden/Internal-GUIRoundedRectWithColorPerBorder (Shader) from Resources/unity_builtin_extra — 00:00:00.0056572
+
+Step: Write object - Hidden/Internal-UIRDefault (Shader) from Resources/unity_builtin_extra — 00:00:00.2864486
+
+Step: Write object - Hidden/Internal-UIRAtlasBlitCopy (Shader) from Resources/unity_builtin_extra — 00:00:00.0027091
+
+Step: Write object - Hidden/Internal-UIRDefaultWorld (Shader) from Resources/unity_builtin_extra — 00:00:00.2536636
+
+Step: Write object - Sprites/Default (Shader) from Resources/unity_builtin_extra — 00:00:00.0821587
+
+Step: Write object - Sprites/Mask (Shader) from Resources/unity_builtin_extra — 00:00:00.0731151
+
+Step: Write object - UI/Default (Shader) from Resources/unity_builtin_extra — 00:00:00.0725888
+
+Step: Write object - UI/DefaultETC1 (Shader) from Resources/unity_builtin_extra — 00:00:00.0834838
+
+Step: Write object - Hidden/CubeBlur (Shader) from Resources/unity_builtin_extra — 00:00:00.1841017
+
+Step: Write object - Hidden/CubeCopy (Shader) from Resources/unity_builtin_extra — 00:00:00.0441684
+
+Step: Write object - Hidden/CubeBlend (Shader) from Resources/unity_builtin_extra — 00:00:00.0558542
+
+Step: Write object - Hidden/VR/BlitTexArraySlice (Shader) from Resources/unity_builtin_extra — 00:00:00.0262374
+
+Step: Write object - Hidden/Internal-ODSWorldTexture (Shader) from Resources/unity_builtin_extra — 00:00:00.4285127
+
+Step: Write object - Hidden/Internal-CubemapToEquirect (Shader) from Resources/unity_builtin_extra — 00:00:00.0273269
+
+Step: Write object - Hidden/VR/BlitFromTex2DToTexArraySlice (Shader) from Resources/unity_builtin_extra — 00:00:00.0735239
+
+Step: Write object - Hidden/VideoComposite (Shader) from Resources/unity_builtin_extra — 00:00:00.0338993
+
+Step: Write object - Hidden/VideoDecode (Shader) from Resources/unity_builtin_extra — 00:00:00.3484377
+
+Step: Write object - Hidden/Compositing (Shader) from Resources/unity_builtin_extra — 00:00:00.0335559
+
+Step: Write object - Hidden/TextCore/Distance Field SSD (Shader) from Resources/unity_builtin_extra — 00:00:00.0500904
+
+Step: Write object - Hidden/Universal Render Pipeline/FallbackError (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader — 00:00:00.0036824
+
+Step: Write object - Hidden/Core/FallbackError (Shader) from Packages/com.unity.render-pipelines.core/Runtime/FallbackShader.shader — 00:00:00.0029765
+
+Step: Write object - Universal Render Pipeline/Unlit (Shader) from Packages/com.unity.render-pipelines.universal/Shaders/Unlit.shader — 00:00:00.0209270
+
+Step: Write object - VC5PvE/PixelCharacter (Shader) from Assets/VC5PvE/Shaders/PixelCharacter.shader — 00:00:00.0032682
+
+Step: Write data build dirty tracking information — 00:00:00.3132101
+
+Step: Postprocess built player — 00:00:07.0769293
+
+Step: Setup incremental player build — 00:00:00.0416713
+
+Step: Incremental player build — 00:00:01.8212039
+
+Step: Report output files — 00:00:05.1675636

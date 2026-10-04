@@ -1,0 +1,5 @@
+{
+  "name": "VC5PvE.PlayTests",
+  "references": ["VC5PvE.Runtime", "VC5PvE.Rules", "UnityEngine.UI"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

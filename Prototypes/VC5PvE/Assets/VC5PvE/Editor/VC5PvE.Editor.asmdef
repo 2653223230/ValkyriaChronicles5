@@ -1,0 +1,6 @@
+{
+  "name": "VC5PvE.Editor",
+  "references": ["VC5PvE.Runtime", "VC5PvE.Rules", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime", "MCPForUnity.Editor"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

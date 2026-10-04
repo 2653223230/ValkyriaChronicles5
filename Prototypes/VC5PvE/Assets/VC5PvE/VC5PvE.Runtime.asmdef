@@ -1,0 +1,5 @@
+{
+  "name": "VC5PvE.Runtime",
+  "references": ["VC5PvE.Rules", "UnityEngine.UI"],
+  "autoReferenced": true
+}

@@ -1,0 +1,11 @@
+/Library/
+/Temp/
+/Logs/
+/obj/
+/Builds/
+/UserSettings/
+/Downloads/
+/.cache/
+/.work/
+*.csproj
+*.sln
