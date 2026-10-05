@@ -27,6 +27,9 @@ namespace VC5PvE
         private ActionPreviewOverlay overlay;
         private string previewKey;
         private bool cardDragging;
+        private enum CardStage { None, Inspect, Executor, Target, Landing }
+        private CardStage cardStage;
+        private string hoverExecutor, chargeTarget;
         private readonly List<RaycastResult> uiHits=new List<RaycastResult>();
         private ActionKind? mode;
         
@@ -86,7 +89,7 @@ namespace VC5PvE
             var state=Controller.State;
             if(state.Phase!=BattlePhase.Deployment&&state.Phase!=BattlePhase.Player)return;
             bool over=OverUi(Input.mousePosition);
-            if(mode.HasValue&&!cardDragging)
+            if(mode.HasValue&&!cardDragging&&cardStage!=CardStage.Inspect)
             {
                 if(!over)UpdateAimAt(Input.mousePosition);
                 else ClearLivePreview();
@@ -141,6 +144,8 @@ namespace VC5PvE
         {
             if(Controller.IsBusy)return;var unit=Controller.State.FindUnit(id);
             if(unit==null||!unit.IsAlive||unit.Team!=Team.Player)return;
+            if(mode==ActionKind.Card && cardStage==CardStage.Target)
+            { ClickBattle(unit,unit.Position); return; }
             CancelSelection();selected=id;actionMenuRequested=Controller.State.Phase==BattlePhase.Player;Render();
         }
         private void EnsureSelected()
@@ -152,13 +157,20 @@ namespace VC5PvE
         {
             if(Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player)return;
             if(exchanging){Hud.SetHint("请点选要换走的手牌，或按 ESC 取消。");return;}
-            if(!mode.HasValue)
+            if(!mode.HasValue || cardStage==CardStage.Inspect)
             {
+                if(cardStage==CardStage.Inspect)ResetSelectionState(false);
                 actionMenuRequested=unit!=null&&unit.Team==Team.Player&&unit.IsAlive;
                 if(actionMenuRequested)selected=unit.Id;
                 Render();return;
             }
             var point=unit!=null?ProjectCell(unit.Position):cell.HasValue?ProjectCell(cell.Value):Vector2.zero;
+            if(mode==ActionKind.Card && cardStage==CardStage.Target && FindCard().Kind==CardKind.Charge)
+            {
+                if(unit==null || !CardAimResolver.LegalTargets(Controller.State,cardId,selected).Contains(unit.Position))return;
+                chargeTarget=unit.Id;cardStage=CardStage.Landing;ClearLivePreview();ShowTargets();
+                Hud.SetHint("选择高亮落点，预览路径、伤害和击退后点击执行。ESC 取消。");return;
+            }
             PresentPlan(ResolveAim(unit,cell,point));
             CommitPreview();
         }
@@ -167,38 +179,71 @@ namespace VC5PvE
         {
             if(Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player)return;
             if(exchanging){if(Controller.Exchange(id))CancelSelection();return;}
-            ResetSelectionState(true);BeginCardSelection(id);hand.Render(Controller.State,cardId,true);
+            ResetSelectionState(true);BeginCardSelection(id);hand.Render(Controller.State,cardId,true,selected);
         }
         private void BeginCardDrag(string id)
         {
             if(Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player||exchanging)return;
-            ResetSelectionState(false);cardDragging=true;BeginCardSelection(id);
+            ResetSelectionState(false);cardDragging=true;BeginCardSelection(id);cardStage=CardStage.Executor;hand.SetSelection(id);
         }
         private void BeginCardSelection(string id)
         {
             if(!Controller.State.Hand.Exists(c=>c.Id==id))return;
-            EnsureSelected();cardId=id;mode=ActionKind.Card;
-            var actor=CardAimResolver.ResolveActor(Controller.State,id,selected);
-            if(actor!=null)selected=actor.Id;
+            EnsureSelected();cardId=id;mode=ActionKind.Card;cardStage=CardStage.Inspect;
             Hud.HideActions();Hud.Render(Controller.State,Controller.State.FindUnit(selected),Controller.Intent(),false);board.Select(selected);
-            ShowTargets();Hud.ShowCardDetails(Definitions.Card(FindCard().Kind));
-            Hud.SetHint("拖向高亮目标，松手即出牌；点击出牌可点击目标。ESC 取消。执行者："+(actor==null?"未选择":BattleHud.Name(actor.Role)));
+            board.ClearHighlights();board.ShowExecutors(CardAimResolver.LegalExecutors(Controller.State,id));
+            Hud.ShowCardDetails(Definitions.Card(FindCard().Kind));
+            Hud.SetHint("拖动卡牌到发光的己方棋子，松手确定执行者，再选择目标。ESC 取消。");
         }
         private Vector2 ProjectCell(GridPos p){return Controller.ViewCamera.WorldToScreenPoint(board.World(p));}
         private ActionPlan ResolveAim(UnitState unit,GridPos? cell,Vector2 pointer)
         {
+            if(mode==ActionKind.Card && cardStage==CardStage.Landing)
+                return ActionPlanner.Plan(Controller.State,new ActionRequest{Kind=ActionKind.Card,CardId=cardId,ActorId=selected,TargetId=chargeTarget,Destination=cell});
             if(mode==ActionKind.Card)return CardAimResolver.Resolve(Controller.State,cardId,selected,unit,cell,pointer,ProjectCell);
             return ActionPlanner.Plan(Controller.State,new ActionRequest{Kind=mode.Value,ActorId=selected,TargetId=unit==null?null:unit.Id,Destination=cell});
         }
         private bool UpdateAimAt(Vector2 screen)
         {
-            if(!mode.HasValue||Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player)return false;
+            if(!mode.HasValue||cardStage==CardStage.Inspect||Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player)return false;
             if(OverUi(screen)){ClearLivePreview();return false;}
             GridPos cell;bool inside=board.ScreenToGrid(screen,out cell);var unit=PickUnit(screen,inside?(GridPos?)cell:null);
             if(!inside&&unit==null){ClearLivePreview();return false;}
             var plan=ResolveAim(unit,inside?(GridPos?)cell:null,screen);PresentPlan(plan);return plan.IsValid;
         }
-        private bool CanDropCardAt(Vector2 screen){return !exchanging&&UpdateAimAt(screen);}
+        private UnitState ExecutorAt(Vector2 screen)
+        {
+            var id=Hud.PartyUnitAtScreen(screen);
+            if(id!=null)return Controller.State.FindUnit(id);
+            if(OverUi(screen))return null;
+            GridPos cell;bool inside=board.ScreenToGrid(screen,out cell);
+            return PickUnit(screen,inside?(GridPos?)cell:null);
+        }
+        private bool CanDropCardAt(Vector2 screen)
+        {
+            if(!cardDragging || exchanging || Controller.IsBusy || Controller.State.Phase!=BattlePhase.Player)return false;
+            var actor=ExecutorAt(screen);
+            if(actor==null || !CardAimResolver.CanExecute(Controller.State,cardId,actor.Id))
+            {
+                if(hoverExecutor!=null){hoverExecutor=null;ClearLivePreview();overlay.Hide();board.ClearHighlights();board.ShowExecutors(CardAimResolver.LegalExecutors(Controller.State,cardId));}
+                return false;
+            }
+            if(hoverExecutor==actor.Id)return true;
+            hoverExecutor=actor.Id;ClearLivePreview();
+            var card=FindCard();var def=Definitions.Card(card.Kind);
+            board.ShowHighlights(CardAimResolver.LegalTargets(Controller.State,cardId,actor.Id));
+            board.ShowExecutors(CardAimResolver.LegalExecutors(Controller.State,cardId));
+            overlay.ShowRange(Controller.State,actor,ActionKind.Card,card.Kind);
+            if(card.Kind==CardKind.Cover)
+                PresentPlan(ActionPlanner.Plan(Controller.State,new ActionRequest{Kind=ActionKind.Card,CardId=cardId,ActorId=actor.Id,TargetId=actor.Id}));
+            else
+            {
+                board.PreviewAp(actor.Id,def.Cost);
+                string next=card.Kind==CardKind.Advance?"移动范围已标出；松手后点击落点":card.Kind==CardKind.Charge?"可突入的敌人已标出；松手后选择敌人和落点":"亮格为合法目标；松手后点击目标";
+                Hud.ShowLivePreview(def.Name+"\n执行者："+BattleHud.Name(actor.Role)+"\n\n"+def.Description+"\n\n"+next+"\n尚未消耗卡牌或行动点",true);
+            }
+            return true;
+        }
         private void CancelCardDrag(string id)
         {
             // Render may disable a selected card after a completed click; only an active drag owns cancellation.
@@ -207,8 +252,16 @@ namespace VC5PvE
         private void DropCard(string id,Vector2 screen)
         {
             if(!cardDragging||cardId!=id||Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player){CancelSelection();return;}
-            bool valid=UpdateAimAt(screen);cardDragging=false;
-            if(valid)CommitPreview();else CancelSelection();
+            bool valid=CanDropCardAt(screen);var actor=valid?ExecutorAt(screen):null;cardDragging=false;
+            if(actor==null){CancelSelection();return;}
+            selected=actor.Id;hoverExecutor=null;
+            if(FindCard().Kind==CardKind.Cover)
+            {
+                PresentPlan(ActionPlanner.Plan(Controller.State,new ActionRequest{Kind=ActionKind.Card,CardId=cardId,ActorId=selected,TargetId=selected}));CommitPreview();return;
+            }
+            cardStage=CardStage.Target;ClearLivePreview();board.ShowExecutors(null);Render();ShowTargets();
+            Hud.ShowCardDetails(Definitions.Card(FindCard().Kind));
+            Hud.SetHint("执行者："+BattleHud.Name(actor.Role)+"。点击高亮"+(FindCard().Kind==CardKind.Advance?"落点": "目标")+"继续；ESC 取消，不消耗卡牌或行动点。");
         }
         private void SelectBasic(ActionKind action)
         {
@@ -247,7 +300,7 @@ namespace VC5PvE
                 }
                 if(actual.DamageSummary!=null)text.AppendLine("实际扣血 "+actual.DamageSummary.HpLost+" · 护盾吸收 "+actual.DamageSummary.ShieldAbsorbed+"\n守护减伤 "+actual.DamageSummary.GuardReduction);
                 if(mode==ActionKind.Card&&FindCard().Kind==CardKind.Cover)text.AppendLine("护盾取较大值，至下次己方回合开始");
-                text.AppendLine(cardDragging?"\n松开立即执行 · ESC 取消":"\n点击目标立即执行 · ESC 取消");
+                text.AppendLine(cardDragging?"\n松开立即执行 · ESC 取消":cardStage==CardStage.Target&&FindCard()!=null&&FindCard().Kind==CardKind.Charge?"\n示意落点；点击敌人后选择实际落点":"\n点击高亮目标/落点立即执行 · ESC 取消");
             }
             Hud.ShowLivePreview(text.ToString(),actual.IsValid);
         }
@@ -263,7 +316,7 @@ namespace VC5PvE
         {
             if(!mode.HasValue)return;var state=Controller.State;var cells=new List<GridPos>();
             CardKind? kind=null;
-            if(mode==ActionKind.Card){var c=FindCard();if(c==null)return;kind=c.Kind;cells=CardAimResolver.LegalTargets(state,cardId,selected);}
+            if(mode==ActionKind.Card){var c=FindCard();if(c==null)return;kind=c.Kind;cells=cardStage==CardStage.Landing?CardAimResolver.LegalChargeDestinations(state,cardId,selected,chargeTarget):CardAimResolver.LegalTargets(state,cardId,selected);}
             else for(int y=0;y<state.Height;y++)for(int x=0;x<state.Width;x++)
             {var p=new GridPos(x,y);var u=state.UnitAt(p);if(ActionPlanner.Plan(state,new ActionRequest{Kind=mode.Value,ActorId=selected,Destination=p,TargetId=u==null?null:u.Id}).IsValid)cells.Add(p);}
             board.ShowHighlights(cells);overlay.ShowRange(state,state.FindUnit(selected),mode.Value,kind);
@@ -271,8 +324,8 @@ namespace VC5PvE
         private void CancelSelection(){ResetSelectionState(true);}
         private void ResetSelectionState(bool renderHand)
         {
-            cardDragging=false;actionMenuRequested=false;cardId=null;mode=null;exchanging=false;previewKey=null;
-            if(Controller!=null)Controller.CancelPreview();if(Hud!=null){Hud.HideActions();Hud.HidePreview();}if(board!=null)board.ClearHighlights();if(overlay!=null)overlay.Hide();
+            cardDragging=false;cardStage=CardStage.None;hoverExecutor=null;chargeTarget=null;actionMenuRequested=false;cardId=null;mode=null;exchanging=false;previewKey=null;
+            if(Controller!=null)Controller.CancelPreview();if(Hud!=null){Hud.HideActions();Hud.HidePreview();}if(board!=null){board.ClearHighlights();board.ShowExecutors(null);}if(overlay!=null)overlay.Hide();
             if(renderHand&&Controller!=null&&Controller.State!=null)Render();
         }
         private void ShowDeploy(){var cells=new List<GridPos>();for(int y=6;y<8;y++)for(int x=1;x<4;x++)cells.Add(new GridPos(x,y));board.ShowHighlights(cells);}
@@ -282,10 +335,10 @@ namespace VC5PvE
             if(actionMenuRequested&&state.Phase==BattlePhase.Player&&!Controller.IsBusy&&!mode.HasValue)
             {var actor=state.FindUnit(selected);if(actor!=null)Hud.ShowActions(actor,Controller.ViewCamera.WorldToScreenPoint(board.World(actor.Position)+Vector3.up*.8f));}
             else Hud.HideActions();
-            hand.Render(state,cardId,state.Phase==BattlePhase.Player&&!Controller.IsBusy);board.Select(selected);board.ShowIntent(intent);
+            hand.Render(state,cardId,state.Phase==BattlePhase.Player&&!Controller.IsBusy,selected);board.Select(selected);board.ShowIntent(intent);
             if(!mode.HasValue)board.ClearHighlights();
             if(state.Phase==BattlePhase.Deployment){ShowDeploy();Hud.SetHint("部署：点击或拖动三名棋子，确定前排和后排位置。");}
-            else if(state.Phase==BattlePhase.Player&&!mode.HasValue&&!exchanging)Hud.SetHint("点击棋子/头像选择执行者；拖卡到目标，预览后松手出牌。ESC 取消。");
+            else if(state.Phase==BattlePhase.Player&&!mode.HasValue&&!exchanging)Hud.SetHint("点击棋子/头像查看可用牌；拖卡到发光友军，松手后选择目标。ESC 取消。");
             if(!Controller.IsBusy&&(state.Phase==BattlePhase.Victory||state.Phase==BattlePhase.Defeat))ShowResult(state.Phase==BattlePhase.Victory);
         }
         private void OnControllerChanged(){if(Controller.IsBusy||Controller.State.Phase!=BattlePhase.Player)ResetSelectionState(false);Render();}

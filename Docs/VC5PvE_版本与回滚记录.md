@@ -16,3 +16,13 @@
 先保存当前未提交修改。需要试玩旧版时，优先在另一目录检出该标签：`git worktree add ../VC5PvE-before-card-actor pve-20261004-before-card-actor`，再打开其中的 `Prototypes/VC5PvE`。这样保留当前开发目录。
 
 若未来要让开发分支正式撤销此次功能，使用本文件最终列出的功能提交号执行 `git revert <功能提交号>` 并正常推送。不要使用强制推送或 `reset --hard` 覆盖当前修改。Git标签保存的是源码/资源，不包含Library缓存与未打包的发行文件。
+
+### 修改前快照已上传
+- 完整提交：dc9a24385a92cd3b2b07f3ebe98367b8a81adf79。
+- 2026-10-04：用户明确授权上述GitHub目标；分支与标签推送均成功。远端分支 codex/card-actor-interaction-20261004，回滚标签 pve-20261004-before-card-actor。
+- 功能改造提交：待完成验证后填写。
+
+### 2026-10-05 功能版验证完成
+- 版本名：pve-20261005-card-actor-v1；功能提交与远端确认在下一条记录填写。
+- Unity PlayMode 27/27通过，前阶段规则18/18通过；实际图像和执行结果见 Docs/ArtReviews/2026-10-04-ActorInteraction/README.md。
+- 不打包；原修改前标签保留，不覆盖。

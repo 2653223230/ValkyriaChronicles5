@@ -18,7 +18,7 @@ namespace VC5PvE
         private Sprite[] unitSprites;
 
         public void Build(RectTransform parent, Font font, Sprite[] portraits = null) { root=parent;Font=font;unitSprites=portraits; }
-        public void Render(BattleState state, string selectedId, bool enabled)
+        public void Render(BattleState state, string selectedId, bool enabled, string selectedUnitId = null)
         {
             foreach(Transform child in root) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             for(int i=0;i<state.Hand.Count;i++)
@@ -36,6 +36,7 @@ namespace VC5PvE
                 BattleHud.Panel(r,"Card separator",14,81,204,1,new Color(.34f,.49f,.42f,.6f));
                 var copy=BattleHud.Label(r,"Card effect",14,96,204,108,18,BattleHud.Paper,Font);copy.text=definition.Description;copy.lineSpacing=.85f;
                 var drag=r.gameObject.AddComponent<CardDragInput>();drag.CardId=id;drag.Enabled=enabled;drag.SetSelected(selectedId==id);
+                drag.SetUsable(selectedUnitId!=null && CardAimResolver.CanExecute(state,id,selectedUnitId));
                 drag.Dropped=(card,p)=>Dropped?.Invoke(card,p);drag.Hovered=()=>Hovered?.Invoke(definition);
                 drag.DragStarted=card=>DragStarted?.Invoke(card);drag.DragCancelled=card=>DragCancelled?.Invoke(card);drag.CanDrop=p=>CanDrop==null || CanDrop(p);
                 drag.HoverExited=()=>HoverExited?.Invoke();
@@ -43,6 +44,16 @@ namespace VC5PvE
             var cg=root.GetComponent<CanvasGroup>();
             if(cg==null) cg=root.gameObject.AddComponent<CanvasGroup>();
             cg.interactable=enabled;cg.alpha=enabled?1f:.35f;cg.blocksRaycasts=enabled;
+        }
+        public void SetSelection(string cardId)
+        {
+            if(root==null)return;
+            foreach(Transform child in root)
+            {
+                var drag=child.GetComponent<CardDragInput>();
+                // Retired cards await Destroy at end of frame; they must not regain selection.
+                if(drag!=null && child.gameObject.activeInHierarchy)drag.SetSelected(drag.CardId==cardId);
+            }
         }
         public static string Role(UnitRole role)
         { return Definitions.UnitName(role); }

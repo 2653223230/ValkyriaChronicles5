@@ -34,10 +34,11 @@ namespace VC5PvE
         private bool pointerInside;
         private bool dragging;
         private bool selected;
-        private float hoverProgress;
-        private float hoverFrom;
-        private float hoverTarget;
-        private float hoverElapsed;
+        private bool usable;
+        private float emphasisProgress;
+        private float emphasisFrom;
+        private float emphasisTarget;
+        private float emphasisElapsed;
         private Vector2 lastPointerPosition;
         private Camera eventCamera;
         private Image[] borderImages;
@@ -59,37 +60,37 @@ namespace VC5PvE
             {
                 // Other cards retract silently so they cannot replace the dragged card's details.
                 pointerInside = false;
-                SetHoverTarget(0f);
+                UpdateEmphasisTarget();
             }
             else if (!Enabled)
             {
                 pointerInside = false;
-                SetHoverTarget(0f);
+                UpdateEmphasisTarget();
             }
             else if (activeDrag == null && !pointerInside && !dragging && rect != null &&
                 RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, eventCamera))
             {
                 // Pointer-enter events can be consumed while another card is being dragged.
                 pointerInside = true;
-                SetHoverTarget(1f);
+                UpdateEmphasisTarget();
                 Hovered?.Invoke();
             }
             else if (pointerInside && !dragging && !ContainsPointer(Input.mousePosition, ExitPadding))
             {
                 pointerInside = false;
-                SetHoverTarget(0f);
+                UpdateEmphasisTarget();
                 HoverExited?.Invoke();
             }
 
             if (dragging) return;
-            if (Mathf.Approximately(hoverProgress, hoverTarget)) return;
+            if (Mathf.Approximately(emphasisProgress, emphasisTarget)) return;
 
-            hoverElapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(hoverElapsed / HoverDuration);
+            emphasisElapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(emphasisElapsed / HoverDuration);
             float eased = t * t * (3f - 2f * t);
-            hoverProgress = Mathf.Lerp(hoverFrom, hoverTarget, eased);
+            emphasisProgress = Mathf.Lerp(emphasisFrom, emphasisTarget, eased);
             ApplyHoverTransform();
-            if (t >= 1f) hoverProgress = hoverTarget;
+            if (t >= 1f) emphasisProgress = emphasisTarget;
             UpdateBorder();
         }
 
@@ -99,7 +100,7 @@ namespace VC5PvE
             eventCamera = e.enterEventCamera;
             lastPointerPosition = e.position;
             pointerInside = true;
-            SetHoverTarget(1f);
+            UpdateEmphasisTarget();
             UpdateBorder();
             Hovered?.Invoke();
         }
@@ -115,7 +116,7 @@ namespace VC5PvE
             {
                 bool wasInside=pointerInside;
                 pointerInside = false;
-                SetHoverTarget(0f);
+                UpdateEmphasisTarget();
                 UpdateBorder();
                 if(wasInside) HoverExited?.Invoke();
             }
@@ -124,6 +125,14 @@ namespace VC5PvE
         public void SetSelected(bool value)
         {
             selected = value;
+            UpdateEmphasisTarget();
+            UpdateBorder();
+        }
+
+        public void SetUsable(bool value)
+        {
+            usable = value;
+            UpdateEmphasisTarget();
             UpdateBorder();
         }
 
@@ -134,8 +143,8 @@ namespace VC5PvE
             dragging = true;
             activeDrag = this;
             pointerInside = false;
-            hoverProgress = 0f;
-            SetHoverTarget(0f);
+            emphasisProgress = 0f;
+            UpdateEmphasisTarget();
             rect.anchoredPosition = originalPosition;
             rect.localScale = originalScale;
 
@@ -180,7 +189,7 @@ namespace VC5PvE
         {
             if (activeDrag == this) activeDrag = null;
             pointerInside = false;
-            SetHoverTarget(0f);
+            UpdateEmphasisTarget();
             bool cancelCardSelection = dragging || selected;
             if (dragging)
             {
@@ -188,15 +197,18 @@ namespace VC5PvE
             }
             else
             {
-                hoverProgress = 0f;
-                hoverFrom = 0f;
-                hoverTarget = 0f;
+                emphasisProgress = 0f;
+                emphasisFrom = 0f;
+                emphasisTarget = selected ? 1f : usable ? .5f : 0f;
                 ApplyHoverTransform();
                 UpdateBorder();
             }
             if (cancelCardSelection)
             {
                 selected = false;
+                UpdateEmphasisTarget();
+                ApplyHoverTransform();
+                UpdateBorder();
                 DragCancelled?.Invoke(CardId);
             }
         }
@@ -234,29 +246,30 @@ namespace VC5PvE
 
             savedGroupState = false;
             dragging = false;
-            hoverProgress = 0f;
-            hoverFrom = 0f;
-            hoverTarget = 0f;
-            hoverElapsed = 0f;
+            emphasisProgress = 0f;
+            emphasisFrom = 0f;
+            emphasisElapsed = 0f;
+            UpdateEmphasisTarget();
             ApplyHoverTransform();
             UpdateBorder();
         }
 
-        private void SetHoverTarget(float target)
+        private void UpdateEmphasisTarget()
         {
             if (dragging) return;
-            if (Mathf.Approximately(hoverTarget, target)) return;
-            hoverFrom = hoverProgress;
-            hoverTarget = target;
-            hoverElapsed = 0f;
+            float target = selected || pointerInside ? 1f : usable ? .5f : 0f;
+            if (Mathf.Approximately(emphasisTarget, target)) return;
+            emphasisFrom = emphasisProgress;
+            emphasisTarget = target;
+            emphasisElapsed = 0f;
             UpdateBorder();
         }
 
         private void ApplyHoverTransform()
         {
             if (rect == null || dragging) return;
-            rect.anchoredPosition = originalPosition + Vector2.up * (HoverLift * hoverProgress);
-            rect.localScale = originalScale * Mathf.Lerp(1f, HoverScale, hoverProgress);
+            rect.anchoredPosition = originalPosition + Vector2.up * (HoverLift * emphasisProgress);
+            rect.localScale = originalScale * Mathf.Lerp(1f, HoverScale, emphasisProgress);
         }
 
         private bool ContainsPointer(Vector2 screenPosition, float padding)
@@ -290,7 +303,7 @@ namespace VC5PvE
         {
             if (borderImages == null) return;
             Color color = selected ? new Color(1f,.88f,.52f,1f) :
-                hoverProgress > .01f || hoverTarget > 0f ? BattleHud.Gold : BattleHud.Jade;
+                pointerInside ? BattleHud.Gold : usable ? new Color(.28f,.88f,1f,1f) : BattleHud.Jade;
             for (int i = 0; i < borderImages.Length; i++)
                 if (borderImages[i] != null) borderImages[i].color = color;
         }

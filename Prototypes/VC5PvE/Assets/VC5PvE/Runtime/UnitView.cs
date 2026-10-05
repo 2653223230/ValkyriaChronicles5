@@ -21,6 +21,8 @@ namespace VC5PvE
         private UnitState unit;
         private Sprite[] sprites;
         private SpriteRenderer spriteRenderer;
+        private SpriteRenderer executorAuraRenderer;
+        private SpriteRenderer executorOutlineRenderer;
         private Transform billboard;
         private Transform indicatorRoot;
         private Transform groundShadow;
@@ -43,9 +45,11 @@ namespace VC5PvE
         private float landingTime;
         private bool spriteInMotion;
         private bool selected;
+        private bool executorHighlighted;
         private float selectionPulse;
 
         public string UnitId { get { return unit != null ? unit.Id : null; } }
+        public bool ExecutorHighlighted { get { return executorHighlighted; } }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSharedResources()
@@ -78,6 +82,11 @@ namespace VC5PvE
         public void SetUnit(UnitState state)
         {
             unit = state;
+            if (state == null || !state.IsAlive)
+            {
+                SetExecutorHighlight(false);
+                return;
+            }
             transform.position = board.World(state.Position);
             teamColor = state.Team == Team.Enemy
                 ? new Color(.95f, .33f, .30f)
@@ -91,6 +100,8 @@ namespace VC5PvE
             Sprite sprite = SpriteFor(state.Role);
             if (sprite != null) spriteRenderer.sprite = sprite;
             else spriteRenderer.sprite = PlaceholderSprite(state.Role, teamColor);
+            if (executorAuraRenderer != null) executorAuraRenderer.sprite = spriteRenderer.sprite;
+            if (executorOutlineRenderer != null) executorOutlineRenderer.sprite = spriteRenderer.sprite;
             FitSprite();
             UpdateHeadIndicators();
 
@@ -145,6 +156,13 @@ namespace VC5PvE
         {
             selected = value;
             if (selectionRing != null) selectionRing.enabled = selected;
+        }
+
+        public void SetExecutorHighlight(bool value)
+        {
+            executorHighlighted = value;
+            if (executorAuraRenderer != null) executorAuraRenderer.enabled = value;
+            if (executorOutlineRenderer != null) executorOutlineRenderer.enabled = value;
         }
 
         public bool ContainsScreenPoint(Vector2 screen)
@@ -292,8 +310,22 @@ namespace VC5PvE
                     ? Color.Lerp(spriteTint, statusColor, Mathf.Clamp01(flash * .42f))
                     : spriteTint;
             }
+            UpdateExecutorHighlight();
             UpdateStatusRings();
             UpdateApPreview();
+        }
+
+        private void UpdateExecutorHighlight()
+        {
+            if (!executorHighlighted || executorAuraRenderer == null || executorOutlineRenderer == null) return;
+            float pulse = .5f + .5f * Mathf.Sin(selectionPulse * 1.15f);
+            executorAuraRenderer.transform.localScale = Vector3.one * (1.105f + pulse * .012f);
+            executorOutlineRenderer.transform.localScale = Vector3.one * (1.065f + pulse * .012f);
+
+            Color gold = new Color(1f, .67f, .19f, .25f + pulse * .17f);
+            Color cyan = new Color(.24f, .96f, 1f, .76f + pulse * .2f);
+            executorAuraRenderer.color = gold;
+            executorOutlineRenderer.color = cyan;
         }
 
         private void CreateVisuals()
@@ -340,6 +372,10 @@ namespace VC5PvE
             spriteRenderer.sortingOrder = 10;
             spriteRenderer.sprite = PlaceholderSprite(UnitRole.Warrior, new Color(.3f, .8f, .7f));
 
+            executorAuraRenderer = CreateExecutorLayer("Executor gold halo", -2, 1.105f, -.012f, new Color(1f, .67f, .19f, .25f));
+            executorOutlineRenderer = CreateExecutorLayer("Executor cyan outline", -1, 1.045f, -.006f, new Color(.24f, .96f, 1f, .76f));
+            SetExecutorHighlight(executorHighlighted);
+
             var indicators = new GameObject("World status indicators");
             indicatorRoot = indicators.transform;
             indicatorRoot.SetParent(transform, false);
@@ -373,6 +409,24 @@ namespace VC5PvE
             statusRingOuter = CreateBillboardRing("Status pulse outer", .36f, .022f);
             statusRing.enabled = false;
             statusRingOuter.enabled = false;
+        }
+
+        private SpriteRenderer CreateExecutorLayer(string label, int sortingOffset, float scale, float depth, Color color)
+        {
+            var layerObject = new GameObject(label);
+            Transform layer = layerObject.transform;
+            layer.SetParent(spriteRenderer.transform, false);
+            layer.localScale = Vector3.one * scale;
+            layer.localPosition = Vector3.forward * depth;
+            var renderer = layerObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = spriteRenderer.sprite;
+            renderer.sharedMaterial = GetMaterial(spriteRenderer.sharedMaterial.shader, "executor-silhouette");
+            if(renderer.sharedMaterial.HasProperty("_Silhouette"))renderer.sharedMaterial.SetFloat("_Silhouette",1f);
+            renderer.sortingLayerID = spriteRenderer.sortingLayerID;
+            renderer.sortingOrder = spriteRenderer.sortingOrder + sortingOffset;
+            renderer.color = color;
+            renderer.enabled = false;
+            return renderer;
         }
 
         private GameObject MakeDiamondPart(Transform parent, string label, Vector3 scale, float depth, Color color, bool emissive = false)

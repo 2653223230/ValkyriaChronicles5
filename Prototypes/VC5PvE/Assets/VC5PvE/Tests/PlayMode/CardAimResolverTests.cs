@@ -7,14 +7,30 @@ namespace VC5PvE.Tests
     public class CardAimResolverTests
     {
         [Test]
-        public void CoverUsesHoveredFriendlyAsExecutor()
+        public void CoverKeepsSelectedExecutorWhenHoveringAnotherFriendly()
         {
             var state = PlayerBattle(CardKind.Cover);
             var hovered = state.FindUnit("warrior");
 
-            var actor = CardAimResolver.ResolveActor(state, CardId(state, CardKind.Cover), "support", hovered);
+            var plan = CardAimResolver.Resolve(state, CardId(state, CardKind.Cover), "support",
+                hovered, hovered.Position, Vector2.zero, null);
 
-            Assert.AreSame(hovered, actor);
+            Assert.IsTrue(plan.IsValid, plan.Reason);
+            Assert.AreEqual("support", plan.Request.ActorId);
+        }
+
+        [Test]
+        public void ResolveDoesNotAutomaticallySwitchToRequiredRole()
+        {
+            var state = PlayerBattle(CardKind.SparkMark);
+            var enemy = state.FindUnit("guard-a");
+            enemy.Position = new GridPos(4, 4);
+
+            var plan = CardAimResolver.Resolve(state, CardId(state, CardKind.SparkMark), "support",
+                enemy, enemy.Position, Vector2.zero, null);
+
+            Assert.IsFalse(plan.IsValid);
+            Assert.AreEqual("support", plan.Request.ActorId);
         }
 
         [Test]
@@ -89,6 +105,67 @@ namespace VC5PvE.Tests
             CollectionAssert.AreEqual(new[] { new GridPos(2, 5) }, targets);
             state.FindUnit("warrior").Ap = 1;
             Assert.IsEmpty(CardAimResolver.LegalTargets(state, CardId(state, CardKind.HeavyAttack), "warrior"), "2 AP 的重攻击不可被 1 AP 执行者使用");
+        }
+
+        [Test]
+        public void CanExecuteRequiresAtLeastOneCompleteLegalAction()
+        {
+            var state = PlayerBattle(CardKind.HeavyAttack);
+            var cardId = CardId(state, CardKind.HeavyAttack);
+            state.FindUnit("warrior").Ap = 2;
+            state.FindUnit("guard-a").Position = new GridPos(7, 7);
+            state.FindUnit("guard-b").Position = new GridPos(6, 7);
+
+            Assert.IsFalse(CardAimResolver.CanExecute(state, cardId, "warrior"), "没有合法目标时不可用");
+
+            state.FindUnit("guard-a").Position = new GridPos(2, 5);
+            Assert.IsTrue(CardAimResolver.CanExecute(state, cardId, "warrior"));
+            state.FindUnit("warrior").Ap = 1;
+            Assert.IsFalse(CardAimResolver.CanExecute(state, cardId, "warrior"), "AP不足时不可用");
+        }
+
+        [Test]
+        public void LegalExecutorsOnlyIncludesActorsWithACompleteLegalAction()
+        {
+            var state = PlayerBattle(CardKind.SparkMark);
+            state.FindUnit("mage").Ap = 1;
+            state.FindUnit("guard-a").Position = new GridPos(3, 5);
+            state.FindUnit("guard-b").Position = new GridPos(7, 7);
+
+            List<string> actors = CardAimResolver.LegalExecutors(state, CardId(state, CardKind.SparkMark));
+
+            CollectionAssert.AreEqual(new[] { "mage" }, actors);
+        }
+
+        [Test]
+        public void LegalChargeDestinationsEnumeratesPlannerApprovedAdjacentCellsForFixedActor()
+        {
+            var state = PlayerBattle(CardKind.Charge);
+            state.FindUnit("warrior").Position = new GridPos(2, 5);
+            state.FindUnit("guard-a").Position = new GridPos(4, 4);
+            var cardId = CardId(state, CardKind.Charge);
+
+            List<GridPos> destinations = CardAimResolver.LegalChargeDestinations(state, cardId, "warrior", "guard-a");
+
+            CollectionAssert.Contains(destinations, new GridPos(3, 4));
+            CollectionAssert.DoesNotContain(destinations, state.FindUnit("guard-a").Position);
+            state.FindUnit("warrior").Ap = 1;
+            Assert.IsEmpty(CardAimResolver.LegalChargeDestinations(state, cardId, "warrior", "guard-a"));
+        }
+
+        [Test]
+        public void LegalTargetsForChargeListsEnemiesBeforeLandingSelection()
+        {
+            var state = PlayerBattle(CardKind.Charge);
+            state.FindUnit("warrior").Position = new GridPos(2, 5);
+            state.FindUnit("guard-a").Position = new GridPos(4, 4);
+            state.FindUnit("guard-b").Position = new GridPos(7, 7);
+            state.FindUnit("shooter").Position = new GridPos(7, 6);
+
+            List<GridPos> targets = CardAimResolver.LegalTargets(state, CardId(state, CardKind.Charge), "warrior");
+
+            CollectionAssert.Contains(targets, new GridPos(4, 4), "先选择敌人");
+            CollectionAssert.DoesNotContain(targets, new GridPos(3, 4), "落点要到下一阶段再显示");
         }
 
         private static BattleState PlayerBattle(CardKind kind)

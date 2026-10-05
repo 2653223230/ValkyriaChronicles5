@@ -18,7 +18,7 @@ namespace VC5PvE.Tests
             var s=f.Controller.State;var warrior=s.FindUnit("warrior");warrior.Position=new GridPos(3,4);f.Controller.Board.Refresh(s);
             var card=s.Hand.Find(c=>c.Kind==CardKind.HeavyAttack);var drag=Drag(card.Id);
             var e=new PointerEventData(EventSystem.current){position=drag.transform.position};drag.OnBeginDrag(e);
-            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(s.FindUnit("guard-a").Position)+Vector3.up*1.1f);drag.OnDrag(e);
+            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(warrior.Position)+Vector3.up*1.1f);drag.OnDrag(e);
             UnitView actor=null;foreach(var v in Object.FindObjectsOfType<UnitView>())if(v.UnitId==warrior.Id)actor=v;
             Assert.AreEqual(2,actor.PreviewApCost);Assert.AreEqual(3,warrior.Ap);Assert.AreEqual(6,s.Hand.Count);
             var slots=(Transform[])typeof(UnitView).GetField("apDiamonds",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(actor);
@@ -76,6 +76,80 @@ namespace VC5PvE.Tests
             yield return null;Assert.IsNull(Object.FindObjectOfType<CardTargetingArrow>());Assert.AreEqual(6,s.Hand.Count);
             SceneManager.LoadScene("Title");yield return null;
         }
+        [UnityTest]
+        public IEnumerator HeavyAttackDragAssignsActorBeforeFinalTargetAndDoesNotSpendEarly()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;var f=Flow();f.Hud.Begin.onClick.Invoke();yield return null;
+            var s=f.Controller.State;var warrior=s.FindUnit("warrior");warrior.Position=new GridPos(3,4);f.Controller.Board.Refresh(s);
+            var enemy=s.FindUnit("guard-a");int hp=enemy.Hp;var card=s.Hand.Find(c=>c.Kind==CardKind.HeavyAttack);var d=Drag(card.Id);
+            var e=new PointerEventData(EventSystem.current){position=d.transform.position};d.OnBeginDrag(e);
+            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(warrior.Position)+Vector3.up*1.1f);d.OnDrag(e);d.OnEndDrag(e);
+            Assert.AreEqual(3,warrior.Ap);Assert.AreEqual(6,s.Hand.Count);Assert.AreEqual(hp,enemy.Hp);
+            typeof(PrototypeFlow).GetMethod("ClickBattle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,new object[]{enemy,(GridPos?)enemy.Position});
+            Assert.AreEqual(1,warrior.Ap,"Final target click must spend once after actor drop");Assert.AreEqual(5,s.Hand.Count);
+            Assert.Less(enemy.Hp,hp);yield return new WaitUntil(()=>!f.Controller.IsBusy);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+        [UnityTest]
+        public IEnumerator ClickingCardThenTargetCannotBypassExecutorDrag()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;var f=Flow();f.Hud.Begin.onClick.Invoke();yield return null;
+            var s=f.Controller.State;var w=s.FindUnit("warrior");w.Position=new GridPos(3,4);f.Controller.Board.Refresh(s);
+            var c=s.Hand.Find(x=>x.Kind==CardKind.HeavyAttack);var enemy=s.FindUnit("guard-a");
+            typeof(PrototypeFlow).GetMethod("SelectCard",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,new object[]{c.Id});
+            typeof(PrototypeFlow).GetMethod("ClickBattle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,new object[]{enemy,(GridPos?)enemy.Position});
+            Assert.AreEqual(3,w.Ap);Assert.AreEqual(6,s.Hand.Count);Assert.IsFalse(f.Controller.IsBusy);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+        [UnityTest]
+        public IEnumerator ChargeWaitsForEnemyThenExplicitLandingAndAppliesPreviewOnce()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;var f=Flow();f.Hud.Begin.onClick.Invoke();yield return null;
+            var s=f.Controller.State;s.Obstacles.Clear();var w=s.FindUnit("warrior");w.Position=new GridPos(2,5);
+            var enemy=s.FindUnit("guard-a");enemy.Position=new GridPos(4,4);var card=s.Hand[0];card.Kind=CardKind.Charge;
+            f.Controller.Board.Refresh(s);typeof(PrototypeFlow).GetMethod("Render",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,null);yield return null;
+            var d=Drag(card.Id);var e=new PointerEventData(EventSystem.current){position=d.transform.position};d.OnBeginDrag(e);
+            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(w.Position)+Vector3.up*1.1f);d.OnDrag(e);d.OnEndDrag(e);
+            var click=typeof(PrototypeFlow).GetMethod("ClickBattle",BindingFlags.Instance|BindingFlags.NonPublic);
+            click.Invoke(f,new object[]{enemy,(GridPos?)enemy.Position});
+            Assert.AreEqual(3,w.Ap);Assert.AreEqual(6,s.Hand.Count);Assert.AreEqual(6,enemy.Hp);
+            var dest=new GridPos(3,4);var plan=ActionPlanner.Plan(s,new ActionRequest{Kind=ActionKind.Card,CardId=card.Id,ActorId=w.Id,TargetId=enemy.Id,Destination=dest});
+            Assert.IsTrue(plan.IsValid,plan.Reason);var prediction=s.Clone();BattleResolver.Apply(prediction,plan);
+            click.Invoke(f,new object[]{null,(GridPos?)dest});
+            Assert.AreEqual(prediction.FindUnit(w.Id).Ap,w.Ap);Assert.AreEqual(dest,w.Position);
+            Assert.AreEqual(prediction.FindUnit(enemy.Id).Hp,enemy.Hp);Assert.AreEqual(prediction.FindUnit(enemy.Id).Position,enemy.Position);Assert.AreEqual(5,s.Hand.Count);
+            yield return new WaitUntil(()=>!f.Controller.IsBusy);SceneManager.LoadScene("Title");yield return null;
+        }
+        [UnityTest]
+        public IEnumerator DirectEnemyDropIsRejectedAndCancellingAssignedActorPreservesResources()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;var f=Flow();f.Hud.Begin.onClick.Invoke();yield return null;
+            var s=f.Controller.State;var w=s.FindUnit("warrior");w.Position=new GridPos(3,4);f.Controller.Board.Refresh(s);
+            var c=s.Hand.Find(x=>x.Kind==CardKind.HeavyAttack);var enemy=s.FindUnit("guard-a");var d=Drag(c.Id);
+            var e=new PointerEventData(EventSystem.current){position=d.transform.position};d.OnBeginDrag(e);
+            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(enemy.Position)+Vector3.up*1.1f);d.OnDrag(e);d.OnEndDrag(e);
+            Assert.AreEqual(3,w.Ap);Assert.AreEqual(6,s.Hand.Count);yield return null;
+            d=Drag(c.Id);e.position=d.transform.position;d.OnBeginDrag(e);
+            e.position=f.Controller.ViewCamera.WorldToScreenPoint(f.Controller.Board.World(w.Position)+Vector3.up*1.1f);d.OnDrag(e);d.OnEndDrag(e);
+            typeof(PrototypeFlow).GetMethod("CancelSelection",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,null);
+            typeof(PrototypeFlow).GetMethod("ClickBattle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,new object[]{enemy,(GridPos?)enemy.Position});
+            Assert.AreEqual(3,w.Ap);Assert.AreEqual(6,s.Hand.Count);Assert.IsNull(f.Controller.CurrentPreview);
+            foreach(var v in Object.FindObjectsOfType<UnitView>()){Assert.AreEqual(0,v.PreviewApCost);Assert.IsFalse(v.ExecutorHighlighted);}
+            SceneManager.LoadScene("Title");yield return null;
+        }
+        [UnityTest]
+        public IEnumerator RebuiltHandDoesNotLetRetiredCardCancelNewDragNextFrame()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;var f=Flow();f.Hud.Begin.onClick.Invoke();yield return null;
+            var s=f.Controller.State;var c=s.Hand.Find(x=>x.Kind==CardKind.Advance);
+            f.Hud.SelectUnit("mage");var d=Drag(c.Id);
+            var e=new PointerEventData(EventSystem.current){position=d.transform.position};d.OnBeginDrag(e);
+            yield return null;
+            Assert.AreEqual(c.Id,typeof(PrototypeFlow).GetField("cardId",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(f));
+            Assert.IsTrue((bool)typeof(PrototypeFlow).GetField("cardDragging",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(f));
+            typeof(PrototypeFlow).GetMethod("CancelSelection",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(f,null);
+            SceneManager.LoadScene("Title");yield return null;
+        }
         [Test]
         public void EveryCardPreviewMatchesAppliedCloneAndDoesNotMutateRealState()
         {
@@ -89,7 +163,8 @@ namespace VC5PvE.Tests
                 var c=s.Hand[0];c.Kind=kind;var hovered=kind==CardKind.Cover||kind==CardKind.Inspire?warrior:enemy;
                 GridPos cell=kind==CardKind.Advance?new GridPos(2,3):hovered.Position;
                 if(kind==CardKind.HeavyAttack)warrior.Position=new GridPos(3,4);
-                var p=CardAimResolver.Resolve(s,c.Id,warrior.Id,hovered,cell,Vector2.zero,null);
+                var actorId=(kind==CardKind.SparkMark||kind==CardKind.StarBurst)?mage.Id:kind==CardKind.Inspire?support.Id:warrior.Id;
+                var p=CardAimResolver.Resolve(s,c.Id,actorId,hovered,cell,Vector2.zero,null);
                 Assert.IsTrue(p.IsValid,kind+": "+p.Reason);int ap=warrior.Ap,rev=s.Revision,hp=enemy.Hp;
                 var prediction=s.Clone();var result=BattleResolver.Apply(prediction,p);Assert.IsTrue(result.Success);
                 Assert.AreEqual(ap,warrior.Ap);Assert.AreEqual(hp,enemy.Hp);Assert.AreEqual(rev,s.Revision);Assert.AreEqual(6,s.Hand.Count);

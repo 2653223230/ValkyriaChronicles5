@@ -59,6 +59,7 @@ namespace VC5PvE
         {
             if (state == null) return;
             currentState = state;
+            ShowExecutors(null);
             if (boardRoot == null) Initialize(state, viewCamera);
 
             var alive = new HashSet<string>();
@@ -189,6 +190,18 @@ namespace VC5PvE
             }
         }
 
+        public void ShowExecutors(IEnumerable<string> ids)
+        {
+            var executorIds = new HashSet<string>();
+            if (ids != null)
+                foreach (string id in ids)
+                    if (!string.IsNullOrEmpty(id)) executorIds.Add(id);
+
+            foreach (var pair in unitViews)
+                if (pair.Value != null)
+                    pair.Value.SetExecutorHighlight(executorIds.Contains(pair.Key));
+        }
+
         private void AddDoubleRingHighlight(GridPos pos, string label, Color innerColor)
         {
             var center = World(pos) + Vector3.up * .075f;
@@ -277,6 +290,8 @@ namespace VC5PvE
         {
             foreach (GameObject obj in highlightObjects) if (obj != null) Destroy(obj);
             highlightObjects.Clear();
+            foreach (var pair in unitViews)
+                if (pair.Value != null) pair.Value.SetExecutorHighlight(false);
         }
 
         public IEnumerator Animate(ActionPlan plan, ActionResult result)

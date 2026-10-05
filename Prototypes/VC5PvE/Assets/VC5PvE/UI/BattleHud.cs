@@ -19,7 +19,8 @@ namespace VC5PvE
         public RectTransform HandRoot, PreviewRoot, DeploymentRoot;
         public RectTransform ActionMenu;
         public PartyPanelView PartyPanel { get; private set; }
-        private Text actionTitle;
+        private Text actionTitle, remainingApLabel, exhaustedApLabel;
+        private readonly List<GameObject> remainingApDiamonds = new List<GameObject>();
         public Action<ActionKind> SelectAction;
         public Action EndTurn, ExchangeMode, ConfirmAction, CancelAction, BeginBattle;
         private Text previewText;
@@ -42,11 +43,19 @@ namespace VC5PvE
             End = ButtonAt(root,"结束回合",38,902,288,70,font,()=>EndTurn?.Invoke(),true);
             Exchange = ButtonAt(root,"换牌 1 次",38,992,288,54,font,()=>ExchangeMode?.Invoke(),false);
             ActionMenu=Panel(root,"Piece action menu",600,300,360,310,new Color(.035f,.10f,.13f,.98f),Gold);
-            actionTitle=Label(ActionMenu,"行动棋子",18,10,326,60,21,Gold,font);
+            actionTitle=Label(ActionMenu,"行动棋子",18,10,326,28,21,Gold,font);
+            remainingApLabel=Label(ActionMenu,"Remaining AP label",18,38,96,32,18,Gold,font);
+            remainingApLabel.text="剩余AP：";
+            actionTitle.verticalOverflow=VerticalWrapMode.Overflow;remainingApLabel.verticalOverflow=VerticalWrapMode.Overflow;
+            remainingApLabel.alignment=TextAnchor.MiddleLeft;
+            exhaustedApLabel=Label(ActionMenu,"AP exhausted",122,38,200,32,16,new Color(.50f,.62f,.61f),font);
+            exhaustedApLabel.verticalOverflow=VerticalWrapMode.Overflow;exhaustedApLabel.alignment=TextAnchor.MiddleLeft;
             Move=ButtonAt(ActionMenu,"移动",14,76,332,64,font,()=>SelectAction?.Invoke(ActionKind.Move));
             Attack=ButtonAt(ActionMenu,"普通攻击",14,150,332,64,font,()=>SelectAction?.Invoke(ActionKind.Attack));
             Heal=ButtonAt(ActionMenu,"急救",14,224,332,64,font,()=>SelectAction?.Invoke(ActionKind.Heal));
-            foreach(var button in new[]{Move,Attack,Heal}) button.GetComponentInChildren<Text>().fontSize=20;
+            AddActionCostDiamond(Move,"移动");
+            AddActionCostDiamond(Attack,"普通攻击");
+            AddActionCostDiamond(Heal,"急救");
             ActionMenu.gameObject.SetActive(false);
             PreviewRoot = Panel(root,"Target preview",1498,170,394,630,new Color(.025f,.085f,.10f,1f),Gold);
             previewText = Label(PreviewRoot,"预览详情",24,25,344,430,23,Paper,font);
@@ -94,6 +103,7 @@ namespace VC5PvE
 
         public Action<string> SelectUnit;
         public void ConfigureParty(Sprite[] sprites) { if(PartyPanel!=null) PartyPanel.Configure(sprites); }
+        public string PartyUnitAtScreen(Vector2 screenPosition) { return PartyPanel==null?null:PartyPanel.UnitAtScreen(screenPosition); }
 
         public void ShowPreview(string text, bool valid)
         {
@@ -127,10 +137,12 @@ namespace VC5PvE
             ((RectTransform)ActionMenu.Find("Left border")).sizeDelta=new Vector2(2,ActionMenu.sizeDelta.y);
             ((RectTransform)ActionMenu.Find("Right border")).sizeDelta=new Vector2(2,ActionMenu.sizeDelta.y);
             Heal.gameObject.SetActive(support);
-            actionTitle.text=Name(unit.Role)+"  ·  "+Coord(unit.Position)+"\n剩余 "+unit.Ap+" / "+unit.MaxAp+" AP";
-            Move.GetComponentInChildren<Text>().text="移动  ·  1 AP\n最多 "+unit.MoveSteps+" 格"+(unit.Ap<1?"  / AP不足":"");
-            Attack.GetComponentInChildren<Text>().text="普通攻击  ·  1 AP\n"+unit.Attack+"伤害 / 射程"+unit.AttackRange+(unit.AttackUsed?" / 已用":unit.Ap<1?" / AP不足":"");
-            Heal.GetComponentInChildren<Text>().text="急救  ·  1 AP\n治疗2 / 距离2"+(unit.HealUsed?" / 已用":unit.Ap<1?" / AP不足":"");
+            actionTitle.text=Name(unit.Role)+"  ·  "+Coord(unit.Position);
+            exhaustedApLabel.text=unit.Ap<=0?"行动耗尽":"";
+            SetRemainingApDiamonds(unit.Ap);
+            Move.GetComponentInChildren<Text>().text=ActionLabel("移动","最多 "+unit.MoveSteps+" 格");
+            Attack.GetComponentInChildren<Text>().text=ActionLabel("普通攻击",unit.Attack+"伤害 / 射程"+unit.AttackRange+(unit.AttackUsed?" / 已用":""));
+            Heal.GetComponentInChildren<Text>().text=ActionLabel("急救","治疗2 / 距离2"+(unit.HealUsed?" / 已用":""));
             Move.interactable=unit.Ap>=1;
             Attack.interactable=unit.Ap>=1 && !unit.AttackUsed;
             Heal.interactable=unit.Ap>=1 && support && !unit.HealUsed;
@@ -149,19 +161,50 @@ namespace VC5PvE
         public void ShowCardDetails(CardDefinition card)
         {
             if(PreviewRoot.gameObject.activeSelf) return;
-            Right.text=card.Name+"   "+card.Cost+" AP\n"+card.UserLabel+"\n\n"+card.Description+"\n\n"+CardTargetHint(card.Kind)+"\n中立牌由当前选中棋子使用。";
+            Right.text=card.Name+"\n"+card.UserLabel+"\n\n"+card.Description+"\n\n"+CardTargetHint(card.Kind);
         }
         private static string CardTargetHint(CardKind kind)
         {
             switch(kind)
             {
-                case CardKind.Advance:return "拖向空格，松手即出牌。";
-                case CardKind.HeavyAttack: case CardKind.SparkMark: case CardKind.StarBurst:return "拖向合法敌人，松手即出牌。";
-                case CardKind.Cover:return "拖向友军，松手即出牌；目标友军执行掩护。";
-                case CardKind.Charge:return "拖向敌人，依据方向预览落点，松手即出牌。";
-                case CardKind.Inspire:return "拖向其他友军，松手即出牌。";
-                default:return "拖向目标，松手即出牌。";
+                case CardKind.Advance:return "拖动卡牌至合法执行者，再选择合法移动格子。";
+                case CardKind.HeavyAttack: case CardKind.SparkMark: case CardKind.StarBurst:return "拖动卡牌至合法执行者，再选择合法敌人。";
+                case CardKind.Cover:return "拖动卡牌至合法执行者，掩护由该棋子立即结算。";
+                case CardKind.Charge:return "拖动卡牌至合法执行者，再选择敌人并确认突入落点。";
+                case CardKind.Inspire:return "拖动卡牌至合法执行者，再选择其他己方棋子。";
+                default:return "拖动卡牌至合法执行者，再选择合法目标。";
             }
+        }
+        private static string ActionLabel(string name,string details)
+        { return name+"  ·\n"+details; }
+        private void AddActionCostDiamond(Button button,string actionName)
+        {
+            var label=button.GetComponentInChildren<Text>();
+            label.fontSize=20;
+            label.text=ActionLabel(actionName,"");
+            float firstLineWidth=actionName.Length*20f+38f;
+            float centerX=8f+(316f+firstLineWidth)*.5f+11f;
+            BlueDiamond((RectTransform)button.transform,"Action AP diamond",centerX,18f,16f);
+        }
+        private void SetRemainingApDiamonds(int amount)
+        {
+            while(remainingApDiamonds.Count<amount)
+            {
+                int index=remainingApDiamonds.Count;
+                var diamond=BlueDiamond(ActionMenu,"Remaining AP diamond "+(index+1),124f+index*24f,54f,17f);
+                remainingApDiamonds.Add(diamond.gameObject);
+            }
+            for(int i=0;i<remainingApDiamonds.Count;i++)remainingApDiamonds[i].SetActive(i<amount);
+        }
+        private static RectTransform BlueDiamond(RectTransform parent,string name,float centerX,float centerY,float size)
+        {
+            var frame=Panel(parent,name,centerX-size*.5f,centerY-size*.5f,size,size,new Color(.027f,.216f,.329f));
+            frame.pivot=new Vector2(.5f,.5f);frame.anchoredPosition=new Vector2(centerX,-centerY);frame.localRotation=Quaternion.Euler(0,0,45);
+            frame.GetComponent<Image>().raycastTarget=false;
+            float inset=size*.19f;
+            var core=Panel(frame,"Blue core",inset,inset,size-2*inset,size-2*inset,new Color(.208f,.812f,1f));
+            core.GetComponent<Image>().raycastTarget=false;
+            return frame;
         }
         public static string Coord(GridPos p) { return ((char)('A'+p.X)).ToString()+(p.Y+1); }
         public static string Name(UnitRole r)

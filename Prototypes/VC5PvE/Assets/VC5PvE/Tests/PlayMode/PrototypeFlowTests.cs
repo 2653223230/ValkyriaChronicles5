@@ -5,6 +5,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Reflection;
+using UnityEngine.EventSystems;
 
 namespace VC5PvE.Tests
 {
@@ -65,7 +66,11 @@ namespace VC5PvE.Tests
             flow.Hud.Cancel.onClick.Invoke();
             Assert.AreEqual(2, mage.Ap); Assert.AreEqual(6, controller.State.Hand.Count);
             var advance = controller.State.Hand.Find(c=>c.Kind==CardKind.Advance);
-            flow.Hud.SelectUnit(mage.Id);hand.Selected(advance.Id);
+            flow.Hud.SelectUnit(mage.Id);
+            CardDragInput input=null;foreach(var d in Object.FindObjectsOfType<CardDragInput>())if(d.CardId==advance.Id)input=d;
+            var pointer=new PointerEventData(EventSystem.current){position=input.transform.position};input.OnBeginDrag(pointer);
+            pointer.position=controller.ViewCamera.WorldToScreenPoint(controller.Board.World(mage.Position)+Vector3.up*1.1f);
+            input.OnDrag(pointer);input.OnEndDrag(pointer);
             WorldClick(flow, null, new GridPos(3,5));
             yield return new WaitUntil(()=>!controller.IsBusy);
             Assert.AreEqual(new GridPos(3,5), mage.Position);
@@ -121,7 +126,13 @@ namespace VC5PvE.Tests
             var warrior=flow.Controller.State.FindUnit("warrior");
             WorldClick(flow,warrior,warrior.Position);
             Assert.IsTrue(flow.Hud.Move.gameObject.activeInHierarchy);
-            StringAssert.Contains("1 AP",flow.Hud.Move.GetComponentInChildren<Text>().text);
+            StringAssert.DoesNotContain("1 AP",flow.Hud.Move.GetComponentInChildren<Text>().text);
+            Canvas.ForceUpdateCanvases();
+            var remaining=flow.Hud.ActionMenu.Find("Remaining AP label").GetComponent<Text>();
+            StringAssert.Contains("剩余AP：",remaining.text);
+            Assert.Greater(remaining.cachedTextGenerator.vertexCount,4,"AP label must actually render with the Chinese font");
+            int apIcons=0;foreach(Transform child in flow.Hud.ActionMenu)if(child.name.StartsWith("Remaining AP diamond")&&child.gameObject.activeSelf)apIcons++;
+            Assert.AreEqual(warrior.Ap,apIcons);
             Assert.IsFalse(flow.Hud.Heal.gameObject.activeInHierarchy);
             WorldClick(flow,null,new GridPos(0,7));
             Assert.IsFalse(flow.Hud.Move.gameObject.activeInHierarchy);

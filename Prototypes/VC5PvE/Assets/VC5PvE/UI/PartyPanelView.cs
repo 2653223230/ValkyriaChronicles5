@@ -54,6 +54,15 @@ namespace VC5PvE
             foreach(var t in panel.GetComponentsInChildren<Text>())t.verticalOverflow=VerticalWrapMode.Overflow;
         }
         public void Configure(Sprite[] value){sprites=value;}
+        public string UnitAtScreen(Vector2 screenPosition)
+        {
+            var canvas=GetComponentInParent<Canvas>();
+            Camera camera=canvas!=null && canvas.renderMode!=RenderMode.ScreenSpaceOverlay?canvas.worldCamera:null;
+            foreach(var row in rows)
+                if(!string.IsNullOrEmpty(row.id) && row.button!=null && row.button.interactable && row.root.gameObject.activeInHierarchy &&
+                    RectTransformUtility.RectangleContainsScreenPoint(row.root,screenPosition,camera))return row.id;
+            return null;
+        }
         public void Render(BattleState state,UnitState selected,bool busy)
         {
             int i=0;foreach(var u in state.Units)
