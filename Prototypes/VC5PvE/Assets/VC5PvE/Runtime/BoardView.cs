@@ -24,6 +24,8 @@ namespace VC5PvE
 
         private readonly Dictionary<string, UnitView> unitViews = new Dictionary<string, UnitView>();
         private readonly List<GameObject> highlightObjects = new List<GameObject>();
+        private readonly List<GameObject> bossTelegraphObjects = new List<GameObject>();
+        private readonly List<Material> generatedSceneMaterials = new List<Material>();
         private readonly List<GameObject> intentObjects = new List<GameObject>();
         private readonly List<LineRenderer> intentLines = new List<LineRenderer>();
         private readonly List<Transform> driftingMotes = new List<Transform>();
@@ -78,6 +80,7 @@ namespace VC5PvE
                 }
                 view.SetUnit(unit);
             }
+            RefreshBossTelegraph(state.BossTelegraph, state.Width, state.Height);
 
             var removed = new List<string>();
             foreach (var pair in unitViews)
@@ -177,6 +180,52 @@ namespace VC5PvE
                 }
                 else AddHighlight(target.Value, new Color(1f, 0.70f, 0.20f, 0.62f), 0.04f);
             }
+        }
+
+        private void RefreshBossTelegraph(GridPos? center, int width, int height)
+        {
+            ClearBossTelegraph();
+            if (!center.HasValue) return;
+            GridPos origin = center.Value;
+            for (int y = origin.Y - 1; y <= origin.Y + 1; y++)
+            for (int x = origin.X - 1; x <= origin.X + 1; x++)
+            {
+                if (x < 0 || y < 0 || x >= width || y >= height) continue;
+                AddTelegraphSquare(new GridPos(x, y), true, new Color(1f, .72f, .22f, .96f), .060f, .145f);
+                AddTelegraphSquare(new GridPos(x, y), false, new Color(.94f, .16f, .12f, .98f), .034f, .151f);
+            }
+        }
+
+        private void AddTelegraphSquare(GridPos pos, bool outer, Color color, float lineWidth, float height)
+        {
+            var marker = new GameObject(outer ? "Boss telegraph gold border" : "Boss telegraph danger border", typeof(LineRenderer));
+            marker.transform.SetParent(boardRoot, false);
+            marker.transform.position = World(pos) + Vector3.up * height;
+            var line = marker.GetComponent<LineRenderer>();
+            line.useWorldSpace = false;
+            line.loop = true;
+            line.positionCount = 4;
+            line.startWidth = line.endWidth = lineWidth;
+            line.numCapVertices = 2;
+            line.sharedMaterial = highlightMaterial;
+            line.startColor = line.endColor = color;
+            var block = new MaterialPropertyBlock();
+            block.SetColor("_BaseColor", color);
+            block.SetColor("_Color", color);
+            line.SetPropertyBlock(block);
+            float half = outer ? .475f : .425f;
+            line.SetPosition(0, new Vector3(-half, 0f, -half));
+            line.SetPosition(1, new Vector3(half, 0f, -half));
+            line.SetPosition(2, new Vector3(half, 0f, half));
+            line.SetPosition(3, new Vector3(-half, 0f, half));
+            bossTelegraphObjects.Add(marker);
+        }
+
+        private void ClearBossTelegraph()
+        {
+            foreach (GameObject marker in bossTelegraphObjects)
+                if (marker != null) { marker.SetActive(false); Destroy(marker); }
+            bossTelegraphObjects.Clear();
         }
 
         public void ShowActorHighlights(IEnumerable<UnitState> actors)
@@ -288,7 +337,8 @@ namespace VC5PvE
 
         public void ClearHighlights()
         {
-            foreach (GameObject obj in highlightObjects) if (obj != null) Destroy(obj);
+            foreach (GameObject obj in highlightObjects)
+                if (obj != null) { obj.SetActive(false); Destroy(obj); }
             highlightObjects.Clear();
             foreach (var pair in unitViews)
                 if (pair.Value != null) pair.Value.SetExecutorHighlight(false);
@@ -323,11 +373,29 @@ namespace VC5PvE
                         recipient.PlayStatusEffect(SupportEffectColor(plan.Request.CardId));
                 }
 
-                if (result != null && (result.Damage > 0 || result.Healing > 0))
+                if (result != null && plan.Request.Kind != ActionKind.BossAoe && (result.Damage > 0 || result.Healing > 0))
                 {
                     recipient.ShowFloatingText(result.Damage > 0 ? "-" + result.Damage : "+" + result.Healing,
                         result.Damage > 0 ? new Color(1f, 0.48f, 0.36f) : new Color(0.44f, 1f, 0.72f));
                     yield return new WaitForSeconds(0.55f);
+                }
+                if (result != null && plan.Request.Kind != ActionKind.BossAoe && result.DamageSummary != null &&
+                    result.DamageSummary.Killed && recipient.IsFacilityView)
+                    yield return recipient.AnimateDestroyedFacility();
+                if (result != null && plan.Request.Kind == ActionKind.BossAoe && result.AreaDamageSummaries != null)
+                {
+                    foreach (DamageSummary summary in result.AreaDamageSummaries)
+                    {
+                        if (summary == null) continue;
+                        UnitView hit;
+                        if (!unitViews.TryGetValue(summary.TargetId, out hit) || hit == null) continue;
+                        hit.PlayStatusEffect(new Color(1f, .22f, .15f));
+                        string damageText = summary.HpLost > 0 ? "-" + summary.HpLost : "BLOCKED";
+                        if (summary.ShieldAbsorbed > 0) damageText += "  S" + summary.ShieldAbsorbed;
+                        hit.ShowFloatingText(damageText, new Color(1f, .43f, .24f));
+                        if (summary.Killed && hit.IsFacilityView) yield return hit.AnimateDestroyedFacility();
+                        else yield return new WaitForSeconds(.10f);
+                    }
                 }
                 UnitView pushedView;
                 var pushed = currentState.FindUnit(plan.Request.TargetId);
@@ -419,7 +487,7 @@ namespace VC5PvE
             foreach (GridPos obstacle in state.Obstacles)
             {
                 var ruin = new GameObject("Impassable ruin " + obstacle);
-                ruin.transform.SetParent(transform, false);
+                ruin.transform.SetParent(boardRoot, false);
                 ruin.transform.position = World(obstacle);
                 // A full-cell masonry silhouette separates blocking terrain from edge foliage.
                 ObstacleStone(ruin.transform, "Stone foundation", new Vector3(0,.06f,0), new Vector3(.94f,.12f,.94f), stoneMaterial);
@@ -582,7 +650,11 @@ namespace VC5PvE
                     var prop=new GameObject(label+" painted");prop.transform.SetParent(boardRoot,false);prop.transform.position=position;
                     prop.transform.rotation=viewCamera.transform.rotation;
                     var renderer=prop.AddComponent<SpriteRenderer>();renderer.sprite=sprite;
-                    if(sceneryMaterial==null) sceneryMaterial=new Material(Shader.Find("VC5PvE/PixelCharacter"));
+                    if(sceneryMaterial==null)
+                    {
+                        sceneryMaterial=new Material(Shader.Find("VC5PvE/PixelCharacter"));
+                        generatedSceneMaterials.Add(sceneryMaterial);
+                    }
                     renderer.sharedMaterial=sceneryMaterial;
                     float height=slot<2 ? scale*3.1f : slot==3 ? scale*2.5f : scale*3.1f;
                     prop.transform.localScale=Vector3.one*(height/sprite.bounds.size.y);
@@ -610,7 +682,8 @@ namespace VC5PvE
                 var original = renderer.sharedMaterial;
                 Color originalColor = original.HasProperty("_BaseColor") ? original.GetColor("_BaseColor") : original.color;
                 Color palette = label.Contains("stone") || label.StartsWith("Ruin") ? new Color(.78f,.75f,.65f) : new Color(.64f,.78f,.53f);
-                renderer.sharedMaterial = TintMaterial(original, Color.Lerp(originalColor, palette, .72f));
+                Material tinted = TintMaterial(original, Color.Lerp(originalColor, palette, .72f));
+                renderer.sharedMaterial = tinted;
             }
             foreach (Collider collider in item.GetComponentsInChildren<Collider>()) Destroy(collider);
         }
@@ -686,7 +759,11 @@ namespace VC5PvE
             marker.name = "Grid highlight"; marker.transform.SetParent(boardRoot, false);
             marker.transform.position = World(pos) + Vector3.up * height;
             marker.transform.localScale = new Vector3(.87f, .008f, .87f);
-            Material material = new Material(highlightMaterial); SetColor(material, color); marker.GetComponent<Renderer>().sharedMaterial = material;
+            Renderer renderer = marker.GetComponent<Renderer>();
+            renderer.sharedMaterial = highlightMaterial;
+            var properties = new MaterialPropertyBlock();
+            properties.SetColor("_BaseColor", color); properties.SetColor("_Color", color);
+            renderer.SetPropertyBlock(properties);
             Destroy(marker.GetComponent<Collider>()); highlightObjects.Add(marker);
         }
 
@@ -695,7 +772,11 @@ namespace VC5PvE
             GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             marker.name = "Intent target marker"; marker.transform.SetParent(boardRoot, false);
             marker.transform.position = position; marker.transform.localScale = Vector3.one * size;
-            Material material = new Material(highlightMaterial); SetColor(material, color); marker.GetComponent<Renderer>().sharedMaterial = material;
+            Renderer renderer = marker.GetComponent<Renderer>();
+            renderer.sharedMaterial = highlightMaterial;
+            var properties = new MaterialPropertyBlock();
+            properties.SetColor("_BaseColor", color); properties.SetColor("_Color", color);
+            renderer.SetPropertyBlock(properties);
             Destroy(marker.GetComponent<Collider>()); intentObjects.Add(marker);
         }
 
@@ -792,6 +873,7 @@ namespace VC5PvE
             Shader shader = Shader.Find(color.a < .99f ? "Universal Render Pipeline/Unlit" : "Universal Render Pipeline/Lit");
             if (shader == null) shader = Shader.Find("Standard");
             var material = new Material(shader);
+            generatedSceneMaterials.Add(material);
             SetColor(material, color);
             if (color.a < .99f)
             {
@@ -807,6 +889,7 @@ namespace VC5PvE
         private Material TintMaterial(Material source, Color color)
         {
             Material tinted = new Material(source);
+            generatedSceneMaterials.Add(tinted);
             SetColor(tinted, color);
             return tinted;
         }
@@ -827,11 +910,13 @@ namespace VC5PvE
 
         private void ClearGenerated()
         {
-            if (boardRoot != null) Destroy(boardRoot.gameObject);
-            if (unitRoot != null) Destroy(unitRoot.gameObject);
+            ClearBossTelegraph();
+            if (boardRoot != null) { boardRoot.gameObject.SetActive(false); Destroy(boardRoot.gameObject); }
+            if (unitRoot != null) { unitRoot.gameObject.SetActive(false); Destroy(unitRoot.gameObject); }
             boardRoot = unitRoot = null;
             unitViews.Clear(); highlightObjects.Clear(); intentObjects.Clear(); intentLines.Clear();
             driftingMotes.Clear(); moteOrigins.Clear(); motePhases.Clear();
+            DestroyGeneratedSceneMaterials();
         }
 
         private void OnDestroy()
@@ -841,14 +926,18 @@ namespace VC5PvE
 
         private void DestroyMaterials()
         {
-            DestroyMaterial(sceneryMaterial);sceneryMaterial=null;
-            DestroyMaterial(tileMaterialA); DestroyMaterial(tileMaterialB); DestroyMaterial(stoneMaterial);
-            DestroyMaterial(cliffMaterial); DestroyMaterial(highlightMaterial); DestroyMaterial(intentMaterial); DestroyMaterial(fireflyMaterial); DestroyMaterial(shadowMaterial);
+            DestroyGeneratedSceneMaterials();
             if (surfaceTexture != null) Destroy(surfaceTexture);
             if (stoneTexture != null) Destroy(stoneTexture);
-            tileMaterialA = tileMaterialB = stoneMaterial = cliffMaterial = null;
+            sceneryMaterial = tileMaterialA = tileMaterialB = stoneMaterial = cliffMaterial = null;
             highlightMaterial = intentMaterial = fireflyMaterial = shadowMaterial = null;
             surfaceTexture = stoneTexture = null;
+        }
+
+        private void DestroyGeneratedSceneMaterials()
+        {
+            foreach (Material material in generatedSceneMaterials) DestroyMaterial(material);
+            generatedSceneMaterials.Clear();
         }
 
         private static void DestroyMaterial(Material material) { if (material != null) Destroy(material); }

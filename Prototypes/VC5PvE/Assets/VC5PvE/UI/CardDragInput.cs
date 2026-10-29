@@ -19,6 +19,7 @@ namespace VC5PvE
         public Action<string> DragStarted;
         public Action<string> DragCancelled;
         public Func<Vector2,bool> CanDrop;
+        public Func<Vector2?> AimOrigin;
         public Action Hovered;
         public Action HoverExited;
 
@@ -138,7 +139,7 @@ namespace VC5PvE
 
         public void OnBeginDrag(PointerEventData e)
         {
-            if (!Enabled || dragging || rect == null || (activeDrag != null && activeDrag != this)) return;
+            if (!Enabled || !usable || dragging || rect == null || (activeDrag != null && activeDrag != this)) return;
 
             dragging = true;
             activeDrag = this;
@@ -166,7 +167,8 @@ namespace VC5PvE
             if (canvas != null)
             {
                 arrow = canvas.gameObject.AddComponent<CardTargetingArrow>();
-                arrow.Begin(rect.position, e.position, CanDrop != null && CanDrop(e.position));
+                var origin = AimOrigin == null ? (Vector2?)null : AimOrigin();
+                arrow.Begin(origin ?? (Vector2)rect.position, e.position, CanDrop != null && CanDrop(e.position));
             }
         }
 
@@ -174,7 +176,8 @@ namespace VC5PvE
         {
             if (!Enabled || !dragging || rect == null) return;
             lastPointerPosition = e.position;
-            arrow?.UpdatePointer(rect.position, e.position, CanDrop != null && CanDrop(e.position));
+            var origin = AimOrigin == null ? (Vector2?)null : AimOrigin();
+            arrow?.UpdatePointer(origin ?? (Vector2)rect.position, e.position, CanDrop != null && CanDrop(e.position));
         }
 
         public void OnEndDrag(PointerEventData e)

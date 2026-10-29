@@ -29,9 +29,9 @@ namespace VC5PvE
             ranges.Clear();if(actor!=null)
             {
                 int radius=action==ActionKind.Heal?2:actor.AttackRange;
-                if(action==ActionKind.Move||card==CardKind.Advance||card==CardKind.Cover||card==CardKind.Charge)radius=0;
+                if(action==ActionKind.Move||card==CardKind.Advance||card==CardKind.Cover||card==CardKind.Charge||card==CardKind.RecoverTactics)radius=0;
                 if(card==CardKind.SparkMark||card==CardKind.StarBurst)radius=3;
-                if(card==CardKind.Inspire)radius=2;
+                if(card==CardKind.Inspire||card==CardKind.AllyCover)radius=2;
                 for(int y=0;y<state.Height;y++)for(int x=0;x<state.Width;x++)
                 {var p=new GridPos(x,y);if(radius>0&&p.ManhattanDistance(actor.Position)<=radius)Cell(ranges,p,new Color(.98f,.84f,.42f,.42f),.48f,1.5f);}
             }
@@ -44,13 +44,23 @@ namespace VC5PvE
             if(graphic!=null){graphic.Lines.Clear();graphic.Lines.AddRange(ranges);graphic.SetVerticesDirty();}
         }
         public void Hide(){ranges.Clear();ClearResult();}
-        public void Show(BattleState before,ActionPlan plan,BattleState after)
+        public void Show(BattleState before,ActionPlan plan,BattleState after,bool showTargetArrow=true)
         {
             ClearResult();if(plan==null||!plan.IsValid||after==null)return;
             var actor=before.FindUnit(plan.Request.ActorId);if(actor==null)return;
             board.PreviewAp(actor.Id,Mathf.Max(0,actor.Ap-after.FindUnit(actor.Id).Ap));
             var a=board.World(actor.Position)+Vector3.up*.16f;
             foreach(var cell in plan.Path){var b=board.World(cell)+Vector3.up*.16f;Edge(graphic.Lines,a,b,new Color(.35f,1f,.88f),4);a=b;}
+            var target=before.FindUnit(plan.Request.TargetId);
+            if(showTargetArrow&&target!=null&&target.Id!=actor.Id)
+            {
+                var from=Point(a+Vector3.up*.55f);var to=Point(board.World(target.Position)+Vector3.up*.7f);
+                var direction=(to-from).normalized;var side=new Vector2(-direction.y,direction.x);
+                var color=target.Team==actor.Team?new Color(.35f,1f,.88f):new Color(1f,.79f,.35f);
+                graphic.Lines.Add(new PreviewGeometry.Segment{A=from,B=to,Color=color,Width=3});
+                graphic.Lines.Add(new PreviewGeometry.Segment{A=to,B=to-direction*15+side*8,Color=color,Width=3});
+                graphic.Lines.Add(new PreviewGeometry.Segment{A=to,B=to-direction*15-side*8,Color=color,Width=3});
+            }
             if(plan.Path.Count>0)
             {
                 var dest=plan.Path[plan.Path.Count-1];Cell(graphic.Lines,dest,new Color(1f,.85f,.35f),.40f,4);
@@ -64,7 +74,7 @@ namespace VC5PvE
                 if(unit.Hp!=next.Hp)text="HP "+unit.Hp+" → "+Mathf.Max(0,next.Hp)+(next.Hp<=0?"  击败":"");
                 if(unit.Shield!=next.Shield)text+=(text.Length>0?"\n":"")+"护盾 "+unit.Shield+" → "+next.Shield;
                 if(unit.MarkExpiresRound!=next.MarkExpiresRound)text+=(text.Length>0?"\n":"")+(next.MarkExpiresRound>0?"施加印记":"消耗印记");
-                if(unit.InspireExpiresRound!=next.InspireExpiresRound)text+=(text.Length>0?"\n":"")+(next.InspireExpiresRound>0?"鼓舞 +1":"消耗鼓舞");
+                if(unit.InspireExpiresRound!=next.InspireExpiresRound || unit.InspireBonus!=next.InspireBonus)text+=(text.Length>0?"\n":"")+(next.InspireExpiresRound>0?"鼓舞 +"+Mathf.Max(1,next.InspireBonus):"消耗鼓舞");
                 if(text.Length>0)Tag(board.World(unit.Position)+Vector3.up*2.1f,text,next.Hp<unit.Hp?new Color(1f,.63f,.48f):BattleHud.Paper);
                 if(unit.Position!=next.Position&&unit.Id!=actor.Id)
                 {Edge(graphic.Lines,board.World(unit.Position)+Vector3.up*.22f,board.World(next.Position)+Vector3.up*.22f,new Color(1f,.66f,.26f),5);Cell(graphic.Lines,next.Position,new Color(1f,.66f,.26f),.35f,3);Tag(board.World(next.Position)+Vector3.up*.5f,"击退落点",BattleHud.Gold);}

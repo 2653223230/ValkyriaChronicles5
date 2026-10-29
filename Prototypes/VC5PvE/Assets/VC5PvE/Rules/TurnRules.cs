@@ -30,6 +30,11 @@ namespace VC5PvE
                     unit.Ap = unit.MaxAp;
                     unit.AttackUsed = false;
                     unit.HealUsed = false;
+                    unit.CounterReadyUsedThisTurn = false;
+                    unit.FlankingStrikeUsedThisTurn = false;
+                    unit.MarkFlowUsedThisTurn = false;
+                    unit.SupportFlowUsedThisTurn = false;
+                    unit.TacticalRecallUsedThisTurn = false;
                 }
             }
             DeckRules.DrawToLimit(state, 6);
@@ -39,12 +44,17 @@ namespace VC5PvE
 
         public static void EndPlayerTurn(BattleState state)
         {
-            if (state == null || state.Phase != BattlePhase.Player) return;
+            if (state == null || state.Phase != BattlePhase.Player || !string.IsNullOrEmpty(state.PendingRecoveryActorId)) return;
             foreach (var unit in state.Units)
             {
                 if (unit.MarkExpiresRound > 0 && unit.MarkExpiresRound <= state.Round) unit.MarkExpiresRound = 0;
-                if (unit.InspireExpiresRound > 0 && unit.InspireExpiresRound <= state.Round) unit.InspireExpiresRound = 0;
+                if (unit.InspireExpiresRound > 0 && unit.InspireExpiresRound <= state.Round) { unit.InspireExpiresRound = 0; unit.InspireBonus = 1; }
                 if (unit.Team == Team.Enemy) { unit.EnemyMoveUsed = false; unit.EnemyAttackUsed = false; }
+                if (unit.Team == Team.Player)
+                {
+                    unit.CounterReadyPrepared = false;
+                    unit.CounterReadyTriggeredThisEnemyTurn = false;
+                }
             }
             state.GuardReducedTargetsThisEnemyTurn.Clear();
             state.Phase = BattlePhase.Enemy;

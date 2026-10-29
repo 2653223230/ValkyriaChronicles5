@@ -8,6 +8,7 @@ namespace VC5PvE
         {
             var plan = new ActionPlan { Request = request, Revision = state == null ? -1 : state.Revision };
             if (state == null || request == null) return Invalid(plan, "战斗或动作不存在");
+            if (!string.IsNullOrEmpty(state.PendingRecoveryActorId)) return Invalid(plan, "请先完成弃牌回收选择");
             var actor = state.FindUnit(request.ActorId);
             if (actor == null || !actor.IsAlive) return Invalid(plan, "执行者不可用");
             if (state.Phase == BattlePhase.Player && actor.Team != Team.Player) return Invalid(plan, "不是玩家棋子");
@@ -73,10 +74,11 @@ namespace VC5PvE
             if (actor.Team != Team.Player) return Invalid(plan, "敌方不能使用卡牌");
             var index = state.Hand.FindIndex(card => card.Id == request.CardId);
             if (index < 0) return Invalid(plan, "手牌不存在");
-            var kind = state.Hand[index].Kind;
-            var definition = Definitions.Card(kind);
+            var card = state.Hand[index];
+            var kind = card.Kind;
+            var definition = Definitions.Card(card);
             if (definition.AllowedRole.HasValue && definition.AllowedRole.Value != actor.Role) return Invalid(plan, "执行者职业不符");
-            plan.Cost = definition.Cost;
+            plan.Cost = GrowthRules.CardCost(state, actor, card);
             switch (kind)
             {
                 case CardKind.Advance:
@@ -93,14 +95,30 @@ namespace VC5PvE
                     var target = state.FindUnit(request.TargetId);
                     var range = kind == CardKind.HeavyAttack ? actor.AttackRange : 3;
                     if (!CanDamageTarget(state, actor, target, range)) return Invalid(plan, "伤害目标超出射程、被遮挡或不合法");
-                    var damageBase = kind == CardKind.HeavyAttack ? 3 : kind == CardKind.SparkMark ? 1 : 2;
-                    var damageBonus = kind == CardKind.StarBurst && target.MarkExpiresRound > 0 ? 2 : 0;
+                    var damageBase = kind == CardKind.HeavyAttack ? (card.Upgraded ? 4 : 3) : kind == CardKind.SparkMark ? 1 : 2;
+                    var damageBonus = kind == CardKind.StarBurst && target.MarkExpiresRound > 0 ? (card.Upgraded ? 3 : 2) : 0;
+                    if (GrowthRules.IsAttackCard(kind))
+                    {
+                        var flanking = GrowthRules.FlankingBonus(state, actor, target);
+                        damageBonus += flanking;
+                        plan.FlankingBonus = flanking > 0;
+                    }
                     SetDamagePreview(state, actor, target, damageBase, damageBonus, plan);
                     return Valid(plan, definition.Name + " → " + target.Id);
                 }
+                case CardKind.RelayStrike:
+                {
+                    var target = state.FindUnit(request.TargetId);
+                    if (!CanDamageTarget(state, actor, target, actor.AttackRange)) return Invalid(plan, "伤害目标超出射程、被遮挡或不合法");
+                    var markedEnemy = !target.IsFacility && target.MarkExpiresRound > 0;
+                    var flanking = GrowthRules.FlankingBonus(state, actor, target);
+                    SetDamagePreview(state, actor, target, 2, (markedEnemy ? (card.Upgraded ? 2 : 1) : 0) + flanking, plan);
+                    plan.FlankingBonus = flanking > 0;
+                    return Valid(plan, definition.Name + " → " + target.Id);
+                }
                 case CardKind.Cover:
-                    if (actor.Shield >= 2) return Invalid(plan, "已有足量护盾");
-                    return Valid(plan, "自身获得2护盾");
+                    if (actor.Shield >= (card.Upgraded ? 3 : 2)) return Invalid(plan, "已有足量护盾");
+                    return Valid(plan, "自身获得" + (card.Upgraded ? 3 : 2) + "护盾");
                 case CardKind.Charge:
                 {
                     if (actor.Role != UnitRole.Warrior || !request.Destination.HasValue) return Invalid(plan, "突入需要战士和目标格");
@@ -113,7 +131,9 @@ namespace VC5PvE
                     plan.Path.AddRange(path);
                     var movedState = state.Clone();
                     movedState.FindUnit(actor.Id).Position = finalPos;
-                    SetDamagePreview(movedState, movedState.FindUnit(actor.Id), movedState.FindUnit(target.Id), 2, 0, plan);
+                    var flanking = GrowthRules.FlankingBonus(movedState, movedState.FindUnit(actor.Id), movedState.FindUnit(target.Id));
+                    SetDamagePreview(movedState, movedState.FindUnit(actor.Id), movedState.FindUnit(target.Id), card.Upgraded ? 3 : 2, flanking, plan);
+                    plan.FlankingBonus = flanking > 0;
                     return Valid(plan, "突入并攻击 " + target.Id);
                 }
                 case CardKind.Inspire:
@@ -121,8 +141,24 @@ namespace VC5PvE
                     var target = state.FindUnit(request.TargetId);
                     if (target == null || !target.IsAlive || target.Team != actor.Team || target.Id == actor.Id || actor.Position.ManhattanDistance(target.Position) > 2)
                         return Invalid(plan, "鼓舞目标无效");
-                    if (target.InspireExpiresRound >= state.Round + 1) return Invalid(plan, "目标已有鼓舞");
+                    var desiredExpiry = state.Round + 1;
+                    var desiredBonus = card.Upgraded ? 2 : 1;
+                    if (target.InspireExpiresRound >= desiredExpiry && target.InspireBonus >= desiredBonus) return Invalid(plan, "目标已有鼓舞");
                     return Valid(plan, "鼓舞 " + target.Id);
+                }
+                case CardKind.AllyCover:
+                {
+                    var target = state.FindUnit(request.TargetId);
+                    var shield = card.Upgraded ? 3 : 2;
+                    if (target == null || !target.IsAlive || target.Team != actor.Team || target.Id == actor.Id || actor.Position.ManhattanDistance(target.Position) > 2 || target.Shield >= shield)
+                        return Invalid(plan, "协防目标无效或已有足量护盾");
+                    return Valid(plan, "协防 " + target.Id);
+                }
+                case CardKind.RecoverTactics:
+                {
+                    var recover = state.DiscardPile.Find(c => c.Id == request.RecoveryCardId && GrowthRules.IsNeutralAttackCard(c.Kind));
+                    if (recover == null) return Invalid(plan, "请选择弃牌堆中的重攻击或接力打击");
+                    return Valid(plan, "回收 " + recover.Id);
                 }
                 default: return Invalid(plan, "未支持的卡牌");
             }

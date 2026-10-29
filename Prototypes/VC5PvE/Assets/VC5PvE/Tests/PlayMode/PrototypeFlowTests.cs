@@ -60,6 +60,7 @@ namespace VC5PvE.Tests
             var hand = Object.FindObjectOfType<CardHandView>();
             var mage = controller.State.FindUnit("mage");
             var cover = controller.State.Hand.Find(c=>c.Kind==CardKind.Cover);
+            flow.Hud.SelectUnit(mage.Id);
             hand.Selected(cover.Id);
             typeof(PrototypeFlow).GetMethod("PresentPlan",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,new object[]{CardAimResolver.Resolve(controller.State,cover.Id,"mage",mage,mage.Position,Vector2.zero,null)});
             Assert.IsTrue(controller.CurrentPreview.IsValid);
@@ -69,9 +70,8 @@ namespace VC5PvE.Tests
             flow.Hud.SelectUnit(mage.Id);
             CardDragInput input=null;foreach(var d in Object.FindObjectsOfType<CardDragInput>())if(d.CardId==advance.Id)input=d;
             var pointer=new PointerEventData(EventSystem.current){position=input.transform.position};input.OnBeginDrag(pointer);
-            pointer.position=controller.ViewCamera.WorldToScreenPoint(controller.Board.World(mage.Position)+Vector3.up*1.1f);
+            pointer.position=controller.ViewCamera.WorldToScreenPoint(controller.Board.World(new GridPos(3,5)));
             input.OnDrag(pointer);input.OnEndDrag(pointer);
-            WorldClick(flow, null, new GridPos(3,5));
             yield return new WaitUntil(()=>!controller.IsBusy);
             Assert.AreEqual(new GridPos(3,5), mage.Position);
             Assert.AreEqual(1, mage.Ap); Assert.AreEqual(1, mage.Shield);
@@ -145,6 +145,110 @@ namespace VC5PvE.Tests
             flow.Hud.Cancel.onClick.Invoke();
             support.Ap=0;WorldClick(flow,support,support.Position);
             Assert.IsFalse(flow.Hud.Move.interactable);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator SelectingSupportPortraitAsLegalCardTargetCommitsWithoutChangingExecutor()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;
+            var flow=Object.FindObjectOfType<PrototypeFlow>();flow.Hud.Begin.onClick.Invoke();yield return null;
+            var state=flow.Controller.State;var support=state.FindUnit("support");var warrior=state.FindUnit("warrior");
+            var inspire=state.Hand[0];inspire.Kind=CardKind.Inspire;
+            typeof(PrototypeFlow).GetMethod("Render",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,null);
+            flow.Hud.SelectUnit(support.Id);
+            typeof(PrototypeFlow).GetMethod("SelectCard",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,new object[]{inspire.Id});
+            Assert.AreEqual(2,support.Ap);Assert.AreEqual(6,state.Hand.Count,"Selecting a support card only opens target selection");
+            flow.Hud.SelectUnit(warrior.Id);
+            yield return new WaitUntil(()=>!flow.Controller.IsBusy);
+            Assert.AreEqual(support.Id,typeof(PrototypeFlow).GetField("selected",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(flow));
+            Assert.AreEqual(1,support.Ap);Assert.AreEqual(5,state.Hand.Count);
+            Assert.AreEqual(1,warrior.InspireBonus);Assert.Greater(warrior.InspireExpiresRound,0);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator CancellingRecoveryPickerDoesNotSpendCardOrActionPoint()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;
+            var flow=Object.FindObjectOfType<PrototypeFlow>();flow.Hud.Begin.onClick.Invoke();yield return null;
+            var state=flow.Controller.State;var warrior=state.FindUnit("warrior");var recoveryCard=state.Hand[0];
+            recoveryCard.Kind=CardKind.RecoverTactics;
+            state.DiscardPile.Add(new CardInstance{Id="recovery-candidate",Kind=CardKind.HeavyAttack});
+            typeof(PrototypeFlow).GetMethod("Render",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,null);
+            flow.Hud.SelectUnit(warrior.Id);
+            typeof(PrototypeFlow).GetMethod("SelectCard",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,new object[]{recoveryCard.Id});
+            var picker=Object.FindObjectOfType<RecoveryPickerView>();Assert.IsNotNull(picker);Assert.IsTrue(picker.Visible);
+            int ap=warrior.Ap;int handCount=state.Hand.Count;int discardCount=state.DiscardPile.Count;
+            Click("取消回收");
+            Assert.IsFalse(picker.Visible);Assert.AreEqual(ap,warrior.Ap);Assert.AreEqual(handCount,state.Hand.Count);
+            Assert.AreEqual(discardCount,state.DiscardPile.Count);Assert.IsFalse(flow.Controller.IsBusy);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator DraggingAdvanceOntoNonPartyUiDoesNotFallThroughToBoard()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;
+            var flow=Object.FindObjectOfType<PrototypeFlow>();flow.Hud.Begin.onClick.Invoke();yield return null;
+            var state=flow.Controller.State;var warrior=state.FindUnit("warrior");var origin=warrior.Position;
+            flow.Hud.SelectUnit(warrior.Id);
+            var advance=state.Hand.Find(c=>c.Kind==CardKind.Advance);var input=FindDrag(advance.Id);
+            var pointer=new PointerEventData(EventSystem.current){position=input.transform.position};input.OnBeginDrag(pointer);
+            var destination=new GridPos(3,5);
+            Assert.IsTrue(ActionPlanner.Plan(state,new ActionRequest{Kind=ActionKind.Card,ActorId=warrior.Id,CardId=advance.Id,Destination=destination}).IsValid);
+            pointer.position=flow.Controller.ViewCamera.WorldToScreenPoint(flow.Controller.Board.World(destination));
+            Vector2 local;RectTransformUtility.ScreenPointToLocalPointInRectangle(flow.Hud.Root,pointer.position,null,out local);
+            var blocker=BattleHud.Panel(flow.Hud.Root,"Test UI blocking legal destination",local.x-flow.Hud.Root.rect.xMin-50,flow.Hud.Root.rect.yMax-local.y-50,100,100,Color.white);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+            Assert.IsTrue((bool)typeof(PrototypeFlow).GetMethod("OverUi",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,new object[]{pointer.position}),"Fixture UI must be registered by the canvas before testing blocked drops");
+            input.OnDrag(pointer);input.OnEndDrag(pointer);
+            Assert.AreEqual(origin,warrior.Position,"The action-menu UI is not a board destination");
+            Assert.AreEqual(3,warrior.Ap);Assert.AreEqual(6,state.Hand.Count);
+            Assert.AreEqual(Time.frameCount,typeof(PrototypeFlow).GetField("suppressBoardClickFrame",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(flow),"A UI drop must suppress same-frame board click-through");
+            SceneManager.LoadScene("Title");yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator DeadSelectedActorIsClearedWithoutChoosingAnother()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;
+            var flow=Object.FindObjectOfType<PrototypeFlow>();flow.Hud.Begin.onClick.Invoke();yield return null;
+            var state=flow.Controller.State;var warrior=state.FindUnit("warrior");var heavy=state.Hand.Find(c=>c.Kind==CardKind.HeavyAttack);
+            flow.Hud.SelectUnit(warrior.Id);warrior.Hp=0;
+            typeof(PrototypeFlow).GetMethod("SelectCard",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,new object[]{heavy.Id});
+            Assert.IsNull(typeof(PrototypeFlow).GetField("selected",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(flow));
+            Assert.IsNull(typeof(PrototypeFlow).GetField("mode",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(flow));
+            Assert.AreEqual(6,state.Hand.Count);Assert.AreEqual(3,warrior.Ap);
+            Assert.AreEqual(2,state.FindUnit("mage").Ap);Assert.AreEqual(2,state.FindUnit("support").Ap);
+            SceneManager.LoadScene("Title");yield return null;
+        }
+
+        private static CardDragInput FindDrag(string id)
+        {
+            foreach(var input in Object.FindObjectsOfType<CardDragInput>())if(input.CardId==id)return input;
+            Assert.Fail("Missing card drag input: "+id);return null;
+        }
+
+        [UnityTest]
+        public IEnumerator UnavailableCardHintUsesTheClickedCardsId()
+        {
+            SceneManager.LoadScene("ForestRuins");yield return null;
+            var flow=Object.FindObjectOfType<PrototypeFlow>();flow.Hud.Begin.onClick.Invoke();yield return null;
+            var state=flow.Controller.State;var warrior=state.FindUnit("warrior");
+            state.FindUnit("guard-a").Position=new GridPos(7,7);state.FindUnit("guard-b").Position=new GridPos(6,7);
+            flow.Hud.SelectUnit(warrior.Id);
+            typeof(PrototypeFlow).GetMethod("Render",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(flow,null);
+            var spark=state.Hand.Find(c=>c.Kind==CardKind.SparkMark);var heavy=state.Hand.Find(c=>c.Kind==CardKind.HeavyAttack);
+            var sparkReason=CardAimResolver.UnavailableReason(state,spark.Id,warrior.Id);
+            var heavyReason=CardAimResolver.UnavailableReason(state,heavy.Id,warrior.Id);
+            Assert.IsNotEmpty(sparkReason);Assert.IsNotEmpty(heavyReason);Assert.AreNotEqual(sparkReason,heavyReason);
+            FindDrag(spark.Id).GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(sparkReason,flow.Hud.Hint.text);
+            FindDrag(heavy.Id).GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(heavyReason,flow.Hud.Hint.text,"The displayed reason must belong to the clicked card id");
+            Assert.AreEqual(3,warrior.Ap);Assert.AreEqual(6,state.Hand.Count);
             SceneManager.LoadScene("Title");yield return null;
         }
         private static void Click(string name)

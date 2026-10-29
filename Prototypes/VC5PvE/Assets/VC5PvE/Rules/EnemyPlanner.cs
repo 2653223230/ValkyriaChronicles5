@@ -5,7 +5,7 @@ namespace VC5PvE
 {
     public static class EnemyPlanner
     {
-        private static readonly string[] EnemyOrder = { "guard-a", "guard-b", "shooter" };
+        private static readonly string[] EnemyOrder = { "guard-a", "guard-b", "guard-c", "shooter", "boss" };
         private static readonly string[] PlayerOrder = { "warrior", "mage", "support" };
 
         public static EnemyTurnPlan PlanTurn(BattleState state)
@@ -13,13 +13,25 @@ namespace VC5PvE
             var result = new EnemyTurnPlan();
             if (state == null || state.Phase != BattlePhase.Enemy) return result;
             var simulation = state.Clone();
+            RefreshPillarShields(simulation);
             foreach (var enemyId in EnemyOrder)
             {
                 var enemy = simulation.FindUnit(enemyId);
                 if (enemy == null || !enemy.IsAlive || simulation.Phase != BattlePhase.Enemy) continue;
                 if (enemy.Role == UnitRole.Guard) PlanGuard(simulation, enemy, result);
                 else if (enemy.Role == UnitRole.Shooter) PlanShooter(simulation, enemy, result);
+                else if (enemy.Role == UnitRole.Boss)
+                {
+                    if (simulation.Round % 2 == 0 && simulation.BossTelegraph.HasValue)
+                    {
+                        var aoe = new ActionPlan { IsValid = true, Cost = 0, Revision = simulation.Revision, Request = new ActionRequest { Kind = ActionKind.BossAoe, ActorId = enemy.Id }, Summary = "钟鸣震荡" };
+                        AddAndApply(simulation, aoe, result);
+                    }
+                    else PlanShooter(simulation, enemy, result);
+                }
             }
+            var boss = simulation.FindUnit("boss");
+            result.NextBossTelegraph = state.LevelIndex == 3 && boss != null && boss.IsAlive && (state.Round + 1) % 2 == 0 ? ChooseBossTelegraph(simulation, boss) : null;
             return result;
         }
 
@@ -27,6 +39,7 @@ namespace VC5PvE
         {
             var results = new List<ActionResult>();
             if (state == null || state.Phase != BattlePhase.Enemy) return results;
+            RefreshPillarShields(state);
             var plan = PlanTurn(state);
             foreach (var action in plan.Actions)
             {
@@ -35,7 +48,11 @@ namespace VC5PvE
                 results.Add(actual);
                 if (!actual.Success) break;
             }
-            if (state.Phase == BattlePhase.Enemy) TurnRules.BeginPlayerTurn(state);
+            if (state.Phase == BattlePhase.Enemy)
+            {
+                state.BossTelegraph = plan.NextBossTelegraph;
+                TurnRules.BeginPlayerTurn(state);
+            }
             return results;
         }
 
@@ -62,6 +79,38 @@ namespace VC5PvE
             }
             if (target != null && !shooter.EnemyAttackUsed)
                 AddAndApply(state, new ActionRequest { Kind = ActionKind.Attack, ActorId = shooter.Id, TargetId = target.Id }, turn);
+        }
+
+        private static GridPos? ChooseBossTelegraph(BattleState state, UnitState boss)
+        {
+            GridPos? best = null; var bestCount = -1; var bestDistance = int.MaxValue;
+            foreach (var id in PlayerOrder)
+            {
+                var centerUnit = state.FindUnit(id);
+                if (centerUnit == null || !centerUnit.IsAlive) continue;
+                var count = 0;
+                foreach (var playerId in PlayerOrder)
+                {
+                    var player = state.FindUnit(playerId);
+                    if (player != null && player.IsAlive && System.Math.Abs(player.Position.X - centerUnit.Position.X) <= 1 && System.Math.Abs(player.Position.Y - centerUnit.Position.Y) <= 1) count++;
+                }
+                var distance = boss.Position.ManhattanDistance(centerUnit.Position);
+                if (count > bestCount || (count == bestCount && distance < bestDistance))
+                { best = centerUnit.Position; bestCount = count; bestDistance = distance; }
+            }
+            return best;
+        }
+
+        public static void RefreshPillarShields(BattleState state)
+        {
+            if (state == null || state.LevelIndex != 2) return;
+            foreach (var unit in state.Units) if (unit.Team == Team.Enemy && !unit.IsFacility) unit.Shield = 0;
+            foreach (var pillar in state.Units)
+            {
+                if (!pillar.IsAlive || pillar.Role != UnitRole.ShieldPillar || string.IsNullOrEmpty(pillar.BoundUnitId)) continue;
+                var bound = state.FindUnit(pillar.BoundUnitId);
+                if (bound != null && bound.IsAlive) bound.Shield = System.Math.Max(bound.Shield, 1);
+            }
         }
 
         private static UnitState FindAdjacentTarget(BattleState state, UnitState enemy)
@@ -122,6 +171,11 @@ namespace VC5PvE
         private static void AddAndApply(BattleState state, ActionRequest request, EnemyTurnPlan turn)
         {
             var action = ActionPlanner.Plan(state, request);
+            AddAndApply(state, action, turn);
+        }
+
+        private static void AddAndApply(BattleState state, ActionPlan action, EnemyTurnPlan turn)
+        {
             if (!action.IsValid) return;
             var applied = BattleResolver.Apply(state, action);
             if (!applied.Success) return;
@@ -130,6 +184,7 @@ namespace VC5PvE
                 action.DamageSummary = applied.DamageSummary;
                 turn.DamageSummary.Add(applied.DamageSummary);
             }
+            if (applied.AreaDamageSummaries != null) turn.DamageSummary.AddRange(applied.AreaDamageSummaries);
             turn.Actions.Add(action);
         }
     }

@@ -72,7 +72,7 @@ namespace VC5PvE
                 r.root.name="Party row "+u.Id;r.name.text=BattleHud.Name(u.Role);r.name.color=chosen?BattleHud.Gold:BattleHud.Paper;
                 r.backing.color=chosen?new Color(.14f,.26f,.245f):new Color(.082f,.188f,.224f);
                 r.stripe.gameObject.SetActive(chosen);foreach(var b in r.borders)b.color=chosen?BattleHud.Gold:new Color(.255f,.396f,.42f);
-                r.role.text=!alive?"失去战斗能力":u.Shield>0?"护盾 "+u.Shield:u.InspireExpiresRound>0?"鼓舞 · 下次伤害+1":Definitions.PartyDescription(u.Role);
+                r.role.text=!alive?"失去战斗能力":u.Shield>0?"护盾 "+u.Shield:u.InspireExpiresRound>0?"鼓舞 · 下次伤害+"+Mathf.Max(1,u.InspireBonus):Definitions.PartyDescription(u.Role);
                 r.health.text=Mathf.Max(0,u.Hp)+" / "+u.MaxHp;
                 float ratio=u.MaxHp>0?Mathf.Clamp01((float)u.Hp/u.MaxHp):0;r.hp.sizeDelta=new Vector2(159*ratio,12);
                 r.hp.GetComponent<Image>().color=HealthBarColor.Evaluate(ratio);

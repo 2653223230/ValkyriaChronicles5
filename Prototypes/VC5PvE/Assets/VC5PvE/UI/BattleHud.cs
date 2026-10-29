@@ -25,6 +25,11 @@ namespace VC5PvE
         public Action EndTurn, ExchangeMode, ConfirmAction, CancelAction, BeginBattle;
         private Text previewText;
         private bool livePreview;
+        private Text growthInfo;
+        private RectTransform actingUnitRoot;
+        private Image actingUnitPortrait;
+        private Text actingUnitLabel;
+        private Sprite[] partySprites;
 
         public void Build(RectTransform root, Font font)
         {
@@ -35,11 +40,30 @@ namespace VC5PvE
             PartyPanel.Build(root, font);
             Left = Label(root,"队伍",44,178,240,318,20,Paper,font);
             Left.gameObject.SetActive(false);
-            Panel(root,"Intent panel",1590,160,304,610,Ink,Jade);
-            Right = Label(root,"敌方意图",1608,182,270,572,19,Paper,font);
+            var growthPanel=Panel(root,"Active growth",26,650,300,175,Ink,Jade);
+            growthInfo=Label(growthPanel,"Growth details",16,10,268,155,18,Paper,font);
+            var intentPanel=Panel(root,"Intent panel",1590,160,304,610,Ink,Jade);
+            var viewport=Rect(intentPanel,"Intent viewport",18,22,270,550);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            Right = Label(viewport,"敌方意图",0,0,270,550,19,Paper,font);
+            var fit=Right.gameObject.AddComponent<ContentSizeFitter>();fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+            var scroll=viewport.gameObject.AddComponent<ScrollRect>();scroll.viewport=viewport;scroll.content=Right.rectTransform;
+            scroll.horizontal=false;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=26;
+            var scrollHit=viewport.gameObject.AddComponent<Image>();scrollHit.color=Color.clear;
+            Label(intentPanel,"Intent scroll hint",18,577,270,25,14,Jade,font).text="滚轮查看战场详情";
             var hintPanel=Panel(root,"Hint backing",390,104,1140,48,new Color(.035f,.11f,.13f,.82f));
             Hint = Label(hintPanel,"操作提示",14,5,1112,38,21,Paper,font);
             HandRoot = Panel(root,"Hand",380,844,1488,216,new Color(.02f,.06f,.075f,.68f));
+            actingUnitRoot=Panel(root,"Current acting unit",380,732,1100,56,Ink,Gold);
+            var portraitCrop=Rect(actingUnitRoot,"Actor portrait crop",8,4,48,48);
+            portraitCrop.gameObject.AddComponent<RectMask2D>();
+            actingUnitPortrait=Rect(portraitCrop,"Actor portrait",-25,-10,100,150).gameObject.AddComponent<Image>();
+            actingUnitPortrait.preserveAspect=true;
+            actingUnitLabel=Label(actingUnitRoot,"Actor instructions",70,7,1010,42,21,Paper,font);
+            actingUnitLabel.alignment=TextAnchor.MiddleLeft;
+            actingUnitLabel.verticalOverflow=VerticalWrapMode.Overflow;
+            foreach(var graphic in actingUnitRoot.GetComponentsInChildren<Graphic>())graphic.raycastTarget=false;
+            SetActingUnit(null);
             End = ButtonAt(root,"结束回合",38,902,288,70,font,()=>EndTurn?.Invoke(),true);
             Exchange = ButtonAt(root,"换牌 1 次",38,992,288,54,font,()=>ExchangeMode?.Invoke(),false);
             ActionMenu=Panel(root,"Piece action menu",600,300,360,310,new Color(.035f,.10f,.13f,.98f),Gold);
@@ -71,16 +95,33 @@ namespace VC5PvE
         public void Render(BattleState state, UnitState selected, EnemyTurnPlan intent, bool busy)
         {
             bool deploying = state.Phase == BattlePhase.Deployment;
-            bool canAct = state.Phase == BattlePhase.Player && !busy;
+            bool canAct = state.Phase == BattlePhase.Player && !busy && string.IsNullOrEmpty(state.PendingRecoveryActorId);
             DeploymentRoot.gameObject.SetActive(deploying);
             HandRoot.gameObject.SetActive(!deploying);
+            actingUnitRoot.gameObject.SetActive(!deploying);
+            SetActingUnit(selected);
             End.gameObject.SetActive(!deploying);Exchange.gameObject.SetActive(!deploying);
             if(!canAct) HideActions();
-            Header.text = deploying ? "部署阶段   ·   森钟遗迹" : state.Phase == BattlePhase.Enemy ? "敌方回合   ·   敌军行动中   ·   操作已锁定" : "己方回合 " + state.Round + "   ·   目标：全灭敌人";
-            PartyPanel.Render(state, selected, busy);
-            var info=new StringBuilder("首关目标\n击败全部敌方单位\n\n");
+            Header.text = "第 "+state.LevelIndex+" / 3 关 · "+CampaignRules.LevelName(state.LevelIndex)+"     |     "+(deploying ? "部署阶段" : state.Phase == BattlePhase.Enemy ? "敌方回合 · 操作已锁定" : "己方回合 " + state.Round + "   ·   目标：全灭敌军");
+            PartyPanel.Render(state, selected, busy || !string.IsNullOrEmpty(state.PendingRecoveryActorId));
+            var growth=new StringBuilder("本轮天赋\n");
+            if(selected!=null && selected.Talents.Count>0)
+            {
+                foreach(var talent in selected.Talents)growth.AppendLine(CampaignRules.Talent(talent).Name+"\n"+CampaignRules.Talent(talent).Description.Replace("1点AP","<color=#27C9FF>◆</color>"));
+                if(selected.CounterReadyPrepared&&!selected.CounterReadyUsedThisTurn)growth.AppendLine("反攻准备：首张高费攻击减费");
+            }
+            else growth.Append("完成本关后，在营地选择成长。\n\n当前个人行动点独立使用。");
+            growthInfo.text=growth.ToString();growthInfo.resizeTextForBestFit=true;growthInfo.resizeTextMinSize=15;growthInfo.resizeTextMaxSize=18;
+            var info=new StringBuilder("关卡目标 · 击败全部敌军\n");
+            if(state.LevelIndex==2)info.AppendLine("护阵柱每轮给绑定守卫1盾。\n可拆柱，也可直接集火守卫。\n");
+            if(state.LevelIndex==3)
+            {
+                bool anchorAlive=state.Units.Exists(u=>u.IsAlive&&u.Role==UnitRole.ResonanceAnchor);
+                info.AppendLine(!anchorAlive?"双锚已破：首领永久失去减伤。\n":state.BossVulnerableRound==state.Round?"共鸣中断：本轮首领减伤失效。\n":state.BossVulnerableRound==state.Round+1?"下回合：首领减伤失效。\n":"锚存活：首领每次受伤-1。\n破锚可创造下轮进攻窗口。\n");
+            }
             foreach(var u in state.Units)
-                if(u.Team==Team.Enemy && u.IsAlive) { info.AppendLine(Name(u.Role)+"  "+Coord(u.Position)+"   HP "+u.Hp); if(u.MarkExpiresRound>0) info.AppendLine("  印记：至第"+u.MarkExpiresRound+"轮结束"); }
+                if(u.Team==Team.Enemy && u.IsAlive) { info.AppendLine(Name(u.Role)+" "+Coord(u.Position)+"  HP "+u.Hp+(u.Shield>0?" 盾"+u.Shield:"")); if(u.MarkExpiresRound>0) info.AppendLine("  印记：至第"+u.MarkExpiresRound+"轮结束");if(u.Role==UnitRole.ShieldPillar){var bound=state.FindUnit(u.BoundUnitId);if(bound!=null&&bound.IsAlive)info.AppendLine("  保护 "+Coord(bound.Position)+" 守卫");} }
+            if(state.BossTelegraph.HasValue)info.AppendLine("\n震荡预告："+Coord(state.BossTelegraph.Value)+"周围3×3格\n下次敌方回合造成2伤害，可离开。");
             info.AppendLine("\n若现在结束回合：");
             if(intent==null || intent.Actions.Count==0) info.AppendLine("暂无可执行敌方行动");
             else foreach(var p in intent.Actions)
@@ -88,6 +129,7 @@ namespace VC5PvE
                 var u=state.FindUnit(p.Request.ActorId);
                 string n=u==null ? "敌军" : Name(u.Role);
                 if(p.Request.Kind==ActionKind.Move) info.AppendLine(n+" → "+Coord(p.Request.Destination.Value));
+                else if(p.Request.Kind==ActionKind.BossAoe)info.AppendLine("首领 → 预告区域震荡");
                 else if(p.DamageSummary!=null) { var target=state.FindUnit(p.Request.TargetId); info.AppendLine(n+" → "+(target==null ? "目标" : Name(target.Role))+" -"+p.DamageSummary.HpLost+" HP"); }
             }
             info.AppendLine("\n手牌 "+state.Hand.Count+" / 6  ·  牌库 "+state.DrawPile.Count+"\n弃牌 "+state.DiscardPile.Count);
@@ -102,7 +144,17 @@ namespace VC5PvE
         }
 
         public Action<string> SelectUnit;
-        public void ConfigureParty(Sprite[] sprites) { if(PartyPanel!=null) PartyPanel.Configure(sprites); }
+        public void ConfigureParty(Sprite[] sprites) { partySprites=sprites;if(PartyPanel!=null) PartyPanel.Configure(sprites); }
+        public void SetActingUnit(UnitState unit)
+        {
+            if(actingUnitLabel==null)return;
+            bool selected=unit!=null && unit.IsAlive;
+            actingUnitLabel.text=selected ? "当前行动者：<color=#E0C26E>"+Name(unit.Role)+"</color>    选牌 → 点击目标；也可拖牌到目标"
+                : "① 点击棋子或左侧头像选人    ② 选牌    ③ 点击目标出牌";
+            int index=!selected?-1:unit.Role==UnitRole.Warrior?0:unit.Role==UnitRole.Mage?1:unit.Role==UnitRole.Support?2:-1;
+            actingUnitPortrait.sprite=partySprites!=null&&index>=0&&index<partySprites.Length?partySprites[index]:null;
+            actingUnitPortrait.enabled=actingUnitPortrait.sprite!=null;
+        }
         public string PartyUnitAtScreen(Vector2 screenPosition) { return PartyPanel==null?null:PartyPanel.UnitAtScreen(screenPosition); }
 
         public void ShowPreview(string text, bool valid)
@@ -167,12 +219,13 @@ namespace VC5PvE
         {
             switch(kind)
             {
-                case CardKind.Advance:return "拖动卡牌至合法执行者，再选择合法移动格子。";
-                case CardKind.HeavyAttack: case CardKind.SparkMark: case CardKind.StarBurst:return "拖动卡牌至合法执行者，再选择合法敌人。";
-                case CardKind.Cover:return "拖动卡牌至合法执行者，掩护由该棋子立即结算。";
-                case CardKind.Charge:return "拖动卡牌至合法执行者，再选择敌人并确认突入落点。";
-                case CardKind.Inspire:return "拖动卡牌至合法执行者，再选择其他己方棋子。";
-                default:return "拖动卡牌至合法执行者，再选择合法目标。";
+                case CardKind.Advance:return "先选行动棋子，再选牌并点击高亮落点；也可直接拖牌到落点。";
+                case CardKind.HeavyAttack: case CardKind.SparkMark: case CardKind.StarBurst: case CardKind.RelayStrike:return "先选行动棋子，再选牌并点击高亮敌人；也可直接拖牌到敌人。";
+                case CardKind.Cover:return "先选行动棋子，再选牌并点击该棋子自身；也可拖牌到自身。";
+                case CardKind.Charge:return "先选"+Name(UnitRole.Warrior)+"，再选牌：①选择高亮落点 ②点击落点旁的敌人。第二步确认前不移动、不消耗。";
+                case CardKind.Inspire: case CardKind.AllyCover:return "先选行动棋子，再选牌并点击高亮队友；也可直接拖牌到队友。";
+                case CardKind.RecoverTactics:return "先选行动棋子，点击卡牌打开弃牌选择，确认回收一张中立攻击牌。确认前不消耗。";
+                default:return "先选行动棋子，再选牌并点击高亮目标。右键或 Esc 取消，不消耗。";
             }
         }
         private static string ActionLabel(string name,string details)

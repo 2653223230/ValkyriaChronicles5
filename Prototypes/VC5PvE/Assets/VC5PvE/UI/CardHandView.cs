@@ -13,6 +13,8 @@ namespace VC5PvE
         public Func<Vector2,bool> CanDrop;
         public Action<CardDefinition> Hovered;
         public Action HoverExited;
+        public Action<string> AvailabilityHint;
+        public Func<Vector2?> AimOrigin;
         public Font Font;
         private RectTransform root;
         private Sprite[] unitSprites;
@@ -23,22 +25,36 @@ namespace VC5PvE
             foreach(Transform child in root) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             for(int i=0;i<state.Hand.Count;i++)
             {
-                var instance=state.Hand[i]; var definition=Definitions.Card(instance.Kind); string id=instance.Id;
+                var instance=state.Hand[i]; var definition=Definitions.Card(instance); string id=instance.Id;
+                var selectedActor = state.FindUnit(selectedUnitId);
+                var unavailableReason = CardAimResolver.UnavailableReason(state, id, selectedUnitId);
+                var usable = unavailableReason == null;
                 var color=definition.AllowedRole.HasValue ? new Color(.045f,.14f,.17f,.96f):new Color(.04f,.115f,.13f,.96f);
                 var r=BattleHud.Panel(root,definition.Name,i*248,0,232,212,color,selectedId==id?BattleHud.Gold:BattleHud.Jade);
+                var cardGroup=r.gameObject.AddComponent<CanvasGroup>();cardGroup.alpha=usable?1f:.55f;
                 var button=r.gameObject.AddComponent<Button>();button.targetGraphic=r.GetComponent<Image>();button.interactable=enabled;
-                button.onClick.AddListener(()=>Selected?.Invoke(id));
+                button.onClick.AddListener(()=>
+                {
+                    Selected?.Invoke(id);
+                    if(!string.IsNullOrEmpty(unavailableReason))AvailabilityHint?.Invoke(id);
+                });
                 var title=BattleHud.Label(r,"Card name",57,7,definition.AllowedRole.HasValue?122:170,46,25,BattleHud.Gold,Font); title.text=definition.Name;
-                BuildApBadge(r, definition.Cost);
+                BuildApBadge(r, selectedActor == null ? definition.Cost : GrowthRules.CardCost(state, selectedActor, instance));
                 if(definition.AllowedRole.HasValue)BuildUserPortrait(r,definition.AllowedRole.Value);
                 var role=BattleHud.Label(r,"Executor",14,51,205,33,18,BattleHud.Jade,Font);
                 role.text=definition.UserLabel;
                 BattleHud.Panel(r,"Card separator",14,81,204,1,new Color(.34f,.49f,.42f,.6f));
                 var copy=BattleHud.Label(r,"Card effect",14,96,204,108,18,BattleHud.Paper,Font);copy.text=definition.Description;copy.lineSpacing=.85f;
                 var drag=r.gameObject.AddComponent<CardDragInput>();drag.CardId=id;drag.Enabled=enabled;drag.SetSelected(selectedId==id);
-                drag.SetUsable(selectedUnitId!=null && CardAimResolver.CanExecute(state,id,selectedUnitId));
-                drag.Dropped=(card,p)=>Dropped?.Invoke(card,p);drag.Hovered=()=>Hovered?.Invoke(definition);
+                drag.SetUsable(usable);
+                drag.Dropped=(card,p)=>Dropped?.Invoke(card,p);
                 drag.DragStarted=card=>DragStarted?.Invoke(card);drag.DragCancelled=card=>DragCancelled?.Invoke(card);drag.CanDrop=p=>CanDrop==null || CanDrop(p);
+                drag.AimOrigin=AimOrigin;
+                drag.Hovered=()=>
+                {
+                    Hovered?.Invoke(definition);
+                    if(!string.IsNullOrEmpty(unavailableReason))AvailabilityHint?.Invoke(id);
+                };
                 drag.HoverExited=()=>HoverExited?.Invoke();
             }
             var cg=root.GetComponent<CanvasGroup>();

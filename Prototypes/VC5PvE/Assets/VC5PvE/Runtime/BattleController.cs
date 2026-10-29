@@ -16,11 +16,19 @@ namespace VC5PvE
         public event Action<string> Message;
         private int generation;
 
+        public bool HasPendingRecovery { get { return State != null && !string.IsNullOrEmpty(State.PendingRecoveryActorId); } }
+
         public void CreateBattle()
+        { LoadBattle(BattleFactory.Create(BattleSeed, true)); }
+
+        public void CreateBattle(RunState run)
+        { BattleSeed = run.Seed; LoadBattle(CampaignRules.CreateBattle(run)); }
+
+        private void LoadBattle(BattleState state)
         {
             generation++;
             StopAllCoroutines();
-            State = BattleFactory.Create(BattleSeed, true);
+            State = state;
             IsBusy = false;
             CurrentPreview = null;
             if (Board != null) Board.Initialize(State, ViewCamera);
@@ -52,7 +60,7 @@ namespace VC5PvE
 
         public bool Exchange(string cardId)
         {
-            if (IsBusy) return false;
+            if (IsBusy || HasPendingRecovery) return false;
             string reason;
             if (!DeckRules.TryExchange(State, cardId, out reason)) { Tell(reason); return false; }
             CurrentPreview = null;
@@ -84,18 +92,27 @@ namespace VC5PvE
             if (result.Success && Board != null) yield return Board.Animate(plan, result);
             if (session != generation) yield break;
             IsBusy = false;
-            Notify();
             Tell(result.Success ? result.Summary : result.Reason);
-            if (result.Success && State.Phase == BattlePhase.Player && AllPlayerApSpent())
+            Notify();
+            if (result.Success && State.Phase == BattlePhase.Player && !HasPendingRecovery && AllPlayerApSpent())
                 yield return EndTurn();
+        }
+
+        public bool ResolveRecovery(string cardId)
+        {
+            if (IsBusy || !HasPendingRecovery || !GrowthRules.ResolveRecovery(State, cardId)) return false;
+            CurrentPreview = null; Notify();
+            if (State.Phase == BattlePhase.Player && AllPlayerApSpent()) StartCoroutine(EndTurn());
+            return true;
         }
 
         public IEnumerator EndTurn()
         {
-            if (State == null || IsBusy || State.Phase != BattlePhase.Player) yield break;
+            if (State == null || IsBusy || HasPendingRecovery || State.Phase != BattlePhase.Player) yield break;
             int session = generation;
             IsBusy = true; CurrentPreview = null;
             TurnRules.EndPlayerTurn(State);
+            EnemyPlanner.RefreshPillarShields(State);
             var intent = EnemyPlanner.PlanTurn(State);
             Notify();
             yield return new WaitForSeconds(0.35f);
@@ -111,7 +128,11 @@ namespace VC5PvE
                 if (State.Phase == BattlePhase.Victory || State.Phase == BattlePhase.Defeat) break;
             }
             if (session != generation) yield break;
-            if (State.Phase == BattlePhase.Enemy) TurnRules.BeginPlayerTurn(State);
+            if (State.Phase == BattlePhase.Enemy)
+            {
+                State.BossTelegraph = intent.NextBossTelegraph;
+                TurnRules.BeginPlayerTurn(State);
+            }
             IsBusy = false; Notify();
         }
 

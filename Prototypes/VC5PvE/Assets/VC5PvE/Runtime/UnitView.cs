@@ -27,6 +27,7 @@ namespace VC5PvE
         private Transform indicatorRoot;
         private Transform groundShadow;
         private Transform pedestal;
+        private Transform facilityRoot;
         private Transform factionRing;
         private LineRenderer selectionRing;
         private LineRenderer statusRing, statusRingOuter;
@@ -46,10 +47,12 @@ namespace VC5PvE
         private bool spriteInMotion;
         private bool selected;
         private bool executorHighlighted;
+        private bool isFacility;
         private float selectionPulse;
 
         public string UnitId { get { return unit != null ? unit.Id : null; } }
         public bool ExecutorHighlighted { get { return executorHighlighted; } }
+        public bool IsFacilityView { get { return isFacility; } }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSharedResources()
@@ -91,18 +94,26 @@ namespace VC5PvE
             teamColor = state.Team == Team.Enemy
                 ? new Color(.95f, .33f, .30f)
                 : new Color(.30f, .78f, .63f);
+            isFacility = state.IsFacility || state.Role == UnitRole.ShieldPillar || state.Role == UnitRole.ResonanceAnchor;
             spriteTint = state.Role == UnitRole.Guard ? new Color(.80f, .86f, .95f) : Color.white;
+            if (state.Role == UnitRole.Boss) spriteTint = new Color(1f, .70f, .54f);
             spriteRenderer.color = spriteTint;
             if (factionRing != null)
                 SetLineColor(factionRing.GetComponent<LineRenderer>(), state.Team == Team.Enemy
                     ? new Color(.72f, .32f, .24f, .8f)
                     : new Color(.26f, .61f, .57f, .8f));
-            Sprite sprite = SpriteFor(state.Role);
+            Sprite sprite = isFacility ? null : SpriteFor(state.Role);
             if (sprite != null) spriteRenderer.sprite = sprite;
+            else if (isFacility) spriteRenderer.sprite = null;
             else spriteRenderer.sprite = PlaceholderSprite(state.Role, teamColor);
             if (executorAuraRenderer != null) executorAuraRenderer.sprite = spriteRenderer.sprite;
             if (executorOutlineRenderer != null) executorOutlineRenderer.sprite = spriteRenderer.sprite;
             FitSprite();
+            if (isFacility && facilityRoot == null) CreateFacilityVisuals(state.Role);
+            if (facilityRoot != null) facilityRoot.gameObject.SetActive(isFacility);
+            spriteRenderer.enabled = !isFacility;
+            if (executorAuraRenderer != null) executorAuraRenderer.enabled = !isFacility && executorHighlighted;
+            if (executorOutlineRenderer != null) executorOutlineRenderer.enabled = !isFacility && executorHighlighted;
             UpdateHeadIndicators();
 
             float health = state.MaxHp > 0 ? Mathf.Clamp01((float)state.Hp / state.MaxHp) : 0f;
@@ -111,6 +122,7 @@ namespace VC5PvE
             SetIndicatorColor(hpFill.GetComponent<Renderer>(),HealthBarColor.Evaluate(health));
             hpBack.localPosition = new Vector3(0f, .09f, 0f);
             int ap = Mathf.Clamp(state.Ap, 0, apDiamonds.Length);
+            apRoot.gameObject.SetActive(!isFacility);
             apRoot.localPosition = new Vector3(0f, .24f, .015f);
             for (int i = 0; i < apDiamonds.Length; i++)
             {
@@ -122,6 +134,12 @@ namespace VC5PvE
             statusShield.gameObject.SetActive(state.Shield > 0);
             statusMark.gameObject.SetActive(state.MarkExpiresRound > 0);
             statusInspire.gameObject.SetActive(state.InspireExpiresRound > 0);
+            if (isFacility)
+            {
+                statusShield.gameObject.SetActive(state.Shield > 0);
+                statusMark.gameObject.SetActive(false);
+                statusInspire.gameObject.SetActive(false);
+            }
         }
 
         public void SetPreviewApCost(int cost)
@@ -160,15 +178,36 @@ namespace VC5PvE
 
         public void SetExecutorHighlight(bool value)
         {
-            executorHighlighted = value;
-            if (executorAuraRenderer != null) executorAuraRenderer.enabled = value;
-            if (executorOutlineRenderer != null) executorOutlineRenderer.enabled = value;
+            executorHighlighted = value && !isFacility;
+            if (executorAuraRenderer != null) executorAuraRenderer.enabled = executorHighlighted;
+            if (executorOutlineRenderer != null) executorOutlineRenderer.enabled = executorHighlighted;
         }
 
         public bool ContainsScreenPoint(Vector2 screen)
         {
             if (viewCamera == null) viewCamera = Camera.main;
-            if (viewCamera == null || spriteRenderer == null || spriteRenderer.sprite == null) return false;
+            if (viewCamera == null || spriteRenderer == null) return false;
+
+            if (isFacility)
+            {
+                Vector3 center = transform.position;
+                Vector3 half = new Vector3(.48f, 1.5f, .48f);
+                float facilityminX = float.PositiveInfinity, facilityminY = float.PositiveInfinity;
+                float facilitymaxX = float.NegativeInfinity, facilitymaxY = float.NegativeInfinity;
+                for (int x = -1; x <= 1; x += 2)
+                for (int y = 0; y <= 1; y++)
+                for (int z = -1; z <= 1; z += 2)
+                {
+                    Vector3 corner = center + Vector3.Scale(half, new Vector3(x, y, z));
+                    Vector3 projected = viewCamera.WorldToScreenPoint(corner);
+                    if (projected.z <= 0f) return false;
+                    facilityminX = Mathf.Min(facilityminX, projected.x); facilityminY = Mathf.Min(facilityminY, projected.y);
+                    facilitymaxX = Mathf.Max(facilitymaxX, projected.x); facilitymaxY = Mathf.Max(facilitymaxY, projected.y);
+                }
+                return screen.x >= facilityminX && screen.x <= facilitymaxX && screen.y >= facilityminY && screen.y <= facilitymaxY;
+            }
+
+            if (spriteRenderer.sprite == null) return false;
 
             Bounds local = spriteRenderer.sprite.bounds;
             Vector3 min = local.min;
@@ -254,6 +293,23 @@ namespace VC5PvE
         {
             statusColor = color;
             statusTime = .48f;
+        }
+
+        public IEnumerator AnimateDestroyedFacility()
+        {
+            if (!isFacility) yield break;
+            PlayStatusEffect(new Color(1f, .36f, .20f));
+            Vector3 start = facilityRoot.localScale;
+            const float duration = .42f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                facilityRoot.localScale = start * (1f - t * .82f);
+                facilityRoot.localPosition = Vector3.up * (.10f - t * .16f);
+                yield return null;
+            }
         }
 
         public void ShowFloatingText(string text, Color color)
@@ -447,12 +503,14 @@ namespace VC5PvE
 
         private void UpdateHeadIndicators()
         {
-            if (indicatorRoot == null || spriteRenderer == null || spriteRenderer.sprite == null) return;
+            if (indicatorRoot == null || spriteRenderer == null || (!isFacility && spriteRenderer.sprite == null)) return;
             if (viewCamera == null) viewCamera = Camera.main;
             if (viewCamera == null) return;
 
             indicatorRoot.rotation = billboard != null ? billboard.rotation : Quaternion.LookRotation(-viewCamera.transform.forward, viewCamera.transform.up);
-            Vector3 spriteHead = spriteRenderer.transform.TransformPoint(new Vector3(0f, spriteRenderer.sprite.bounds.max.y, 0f));
+            Vector3 spriteHead = isFacility
+                ? transform.position + Vector3.up * (unit.Role == UnitRole.ShieldPillar ? 1.52f : 1.13f)
+                : spriteRenderer.transform.TransformPoint(new Vector3(0f, spriteRenderer.sprite.bounds.max.y, 0f));
             indicatorRoot.position = spriteHead + viewCamera.transform.up * .07f - viewCamera.transform.forward * .04f;
         }
 
@@ -468,7 +526,8 @@ namespace VC5PvE
             Vector2 size = spriteRenderer.sprite.bounds.size;
             if (size.x <= .001f || size.y <= .001f) return Vector3.one;
             float scale = Mathf.Min(CharacterHeight / size.y, CharacterMaxWidth / size.x);
-            return new Vector3(scale, scale, 1f);
+            float roleScale = unit != null && unit.Role == UnitRole.Boss ? 1.24f : 1f;
+            return new Vector3(scale * roleScale, scale * roleScale, 1f);
         }
 
         private IEnumerator AnimateMeleeLunge(Vector2 direction)
@@ -647,8 +706,54 @@ namespace VC5PvE
         private Sprite SpriteFor(UnitRole role)
         {
             if (sprites == null || sprites.Length == 0) return null;
+            if (role == UnitRole.Boss) role = UnitRole.Shooter;
             int index = (int)role;
             return index >= 0 && index < sprites.Length ? sprites[index] : null;
+        }
+
+        private void CreateFacilityVisuals(UnitRole role)
+        {
+            facilityRoot = new GameObject("Facility architecture").transform;
+            facilityRoot.SetParent(transform, false);
+            facilityRoot.localPosition = Vector3.up * .10f;
+            facilityRoot.gameObject.SetActive(false);
+
+            Material stone = SimpleMaterial(new Color(.52f, .55f, .51f), false);
+            Material edge = SimpleMaterial(new Color(.31f, .39f, .39f), false);
+            Material blue = SimpleMaterial(new Color(.20f, .88f, 1f), true);
+            Material violet = SimpleMaterial(new Color(.78f, .34f, 1f), true);
+
+            AddFacilityPart(PrimitiveType.Cube, "Carved plinth", new Vector3(0f, .12f, 0f), new Vector3(.58f, .20f, .58f), stone);
+            AddFacilityPart(PrimitiveType.Cube, "Plinth inlay", new Vector3(0f, .235f, 0f), new Vector3(.47f, .045f, .47f), edge);
+            if (role != UnitRole.ResonanceAnchor)
+            {
+                AddFacilityPart(PrimitiveType.Cylinder, "Shield pillar shaft", new Vector3(0f, .53f, 0f), new Vector3(.29f, .31f, .29f), stone);
+                AddFacilityPart(PrimitiveType.Cube, "Pillar shoulder", new Vector3(0f, .76f, 0f), new Vector3(.52f, .12f, .52f), edge);
+                AddFacilityPart(PrimitiveType.Cube, "Blue ward crystal", new Vector3(0f, 1.00f, 0f), new Vector3(.22f, .43f, .22f), blue, new Vector3(0f, 0f, 45f));
+                AddFacilityPart(PrimitiveType.Cube, "Crystal cap", new Vector3(0f, 1.27f, 0f), new Vector3(.12f, .17f, .12f), blue, new Vector3(0f, 0f, 45f));
+            }
+            else
+            {
+                AddFacilityPart(PrimitiveType.Cylinder, "Anchor ring", new Vector3(0f, .36f, 0f), new Vector3(.38f, .045f, .38f), edge);
+                AddFacilityPart(PrimitiveType.Cube, "Resonance keystone", new Vector3(0f, .73f, 0f), new Vector3(.22f, .42f, .22f), violet, new Vector3(0f, 0f, 45f));
+                AddFacilityPart(PrimitiveType.Cube, "Orbiting shard left", new Vector3(-.29f, .58f, 0f), new Vector3(.12f, .28f, .12f), blue, new Vector3(0f, 0f, 45f));
+                AddFacilityPart(PrimitiveType.Cube, "Orbiting shard right", new Vector3(.29f, .58f, 0f), new Vector3(.12f, .28f, .12f), blue, new Vector3(0f, 0f, 45f));
+            }
+        }
+
+        private void AddFacilityPart(PrimitiveType type, string label, Vector3 position, Vector3 scale, Material material, Vector3? rotation = null)
+        {
+            GameObject part = GameObject.CreatePrimitive(type);
+            part.name = label;
+            part.transform.SetParent(facilityRoot, false);
+            part.transform.localPosition = position;
+            part.transform.localScale = scale;
+            if (rotation.HasValue) part.transform.localRotation = Quaternion.Euler(rotation.Value);
+            Renderer renderer = part.GetComponent<Renderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            Destroy(part.GetComponent<Collider>());
         }
 
         private static Sprite PlaceholderSprite(UnitRole role, Color team)
@@ -667,7 +772,7 @@ namespace VC5PvE
             for (int x = 0; x < w; x++)
             {
                 Color c = clear;
-                bool head = y >= 23 && y <= 28 && x >= 8 && x <= 15;
+                bool head = role != UnitRole.ShieldPillar && role != UnitRole.ResonanceAnchor && (y >= 23 && y <= 28 && x >= 8 && x <= 15);
                 bool body = y >= 9 && y < 23 && x >= 6 && x <= 17;
                 bool legs = y < 10 && x >= 7 && x <= 16;
                 bool trim = body && (y == 10 || y == 21 || x == 6 || x == 17);

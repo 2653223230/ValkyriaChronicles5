@@ -7,7 +7,7 @@ namespace VC5PvE.Tests
     public class CardAimResolverTests
     {
         [Test]
-        public void CoverKeepsSelectedExecutorWhenHoveringAnotherFriendly()
+        public void CoverOnlyTargetsItsSelectedExecutor()
         {
             var state = PlayerBattle(CardKind.Cover);
             var hovered = state.FindUnit("warrior");
@@ -15,8 +15,15 @@ namespace VC5PvE.Tests
             var plan = CardAimResolver.Resolve(state, CardId(state, CardKind.Cover), "support",
                 hovered, hovered.Position, Vector2.zero, null);
 
+            Assert.IsFalse(plan.IsValid);
+            StringAssert.Contains("自身", plan.Reason);
+            Assert.AreEqual("support", plan.Request.ActorId);
+
+            plan = CardAimResolver.Resolve(state, CardId(state, CardKind.Cover), "support",
+                state.FindUnit("support"), state.FindUnit("support").Position, Vector2.zero, null);
             Assert.IsTrue(plan.IsValid, plan.Reason);
             Assert.AreEqual("support", plan.Request.ActorId);
+            Assert.AreEqual("support", plan.Request.TargetId);
         }
 
         [Test]
@@ -154,7 +161,7 @@ namespace VC5PvE.Tests
         }
 
         [Test]
-        public void LegalTargetsForChargeListsEnemiesBeforeLandingSelection()
+        public void ChargeListsLandingCellsBeforeAdjacentEnemyTargets()
         {
             var state = PlayerBattle(CardKind.Charge);
             state.FindUnit("warrior").Position = new GridPos(2, 5);
@@ -162,10 +169,13 @@ namespace VC5PvE.Tests
             state.FindUnit("guard-b").Position = new GridPos(7, 7);
             state.FindUnit("shooter").Position = new GridPos(7, 6);
 
-            List<GridPos> targets = CardAimResolver.LegalTargets(state, CardId(state, CardKind.Charge), "warrior");
-
-            CollectionAssert.Contains(targets, new GridPos(4, 4), "先选择敌人");
-            CollectionAssert.DoesNotContain(targets, new GridPos(3, 4), "落点要到下一阶段再显示");
+            var cardId = CardId(state, CardKind.Charge);
+            List<GridPos> landings = CardAimResolver.LegalChargeLandings(state, cardId, "warrior");
+            CollectionAssert.Contains(landings, new GridPos(3, 4), "先选择合法落点");
+            CollectionAssert.DoesNotContain(landings, new GridPos(4, 4), "敌人位置不是落点");
+            List<GridPos> targets = CardAimResolver.LegalChargeTargets(state, cardId, "warrior", new GridPos(3, 4));
+            CollectionAssert.Contains(targets, new GridPos(4, 4), "落点后再选择相邻敌人");
+            CollectionAssert.DoesNotContain(targets, new GridPos(7, 7));
         }
 
         private static BattleState PlayerBattle(CardKind kind)
