@@ -1,0 +1,20 @@
+{
+  "source_commit": "5e4bd4552dd3e3764f107cd166ed6bc509c7fb96",
+  "android_abis": [
+    "arm64-v8a"
+  ],
+  "artifacts": {
+    "VC5PvE-0.2.0-Windows-x64.zip": {
+      "bytes": 65247792,
+      "sha256": "e76842a8b587a9709838b9a5762b00f29fd78f964f1c50cae9cf887e37cc42ed"
+    },
+    "VC5PvE-0.2.0-Android-arm64.apk": {
+      "bytes": 54910154,
+      "sha256": "d6182e522d2763d3b621cd6409c1aa6aa5f27ada272a61858edb0a7b9caac467"
+    },
+    "THIRD-PARTY-LICENSES.txt": {
+      "bytes": 9546,
+      "sha256": "ccd712c5bc19b1eb69b1c7834ab6aacdd2586e63901a93f3e93541205120017f"
+    }
+  }
+}

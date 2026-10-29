@@ -1,0 +1,2 @@
+Succeeded Android bytes=481733260 errors=0 warnings=1 duration=00:02:28.7469907
+Warning: Unable to find player assembly: Library/PlayerScriptAssemblies/UnityEngine.TestRunner.dll

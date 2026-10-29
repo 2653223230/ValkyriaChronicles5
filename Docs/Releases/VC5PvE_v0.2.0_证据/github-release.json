@@ -1,0 +1,43 @@
+{
+  "id": 427539178,
+  "html_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/tag/pve-v0.2.0-personal-ap-20261029",
+  "tag_name": "pve-v0.2.0-personal-ap-20261029",
+  "target_commitish": "5e4bd4552dd3e3764f107cd166ed6bc509c7fb96",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-10-29T11:49:29Z",
+  "assets": [
+    {
+      "id": 688388050,
+      "name": "SHA256SUMS.txt",
+      "size": 286,
+      "state": "uploaded",
+      "digest": "sha256:12c24d5d187038d26c6ca77f6e8101e6cd7c652ca1a9b329b17e9d6cb8636682",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.2.0-personal-ap-20261029/SHA256SUMS.txt"
+    },
+    {
+      "id": 687631664,
+      "name": "THIRD-PARTY-LICENSES.txt",
+      "size": 9546,
+      "state": "uploaded",
+      "digest": "sha256:ccd712c5bc19b1eb69b1c7834ab6aacdd2586e63901a93f3e93541205120017f",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.2.0-personal-ap-20261029/THIRD-PARTY-LICENSES.txt"
+    },
+    {
+      "id": 688383865,
+      "name": "VC5PvE-0.2.0-Android-arm64.apk",
+      "size": 54910154,
+      "state": "uploaded",
+      "digest": "sha256:d6182e522d2763d3b621cd6409c1aa6aa5f27ada272a61858edb0a7b9caac467",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.2.0-personal-ap-20261029/VC5PvE-0.2.0-Android-arm64.apk"
+    },
+    {
+      "id": 687625708,
+      "name": "VC5PvE-0.2.0-Windows-x64.zip",
+      "size": 65247792,
+      "state": "uploaded",
+      "digest": "sha256:e76842a8b587a9709838b9a5762b00f29fd78f964f1c50cae9cf887e37cc42ed",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.2.0-personal-ap-20261029/VC5PvE-0.2.0-Windows-x64.zip"
+    }
+  ]
+}

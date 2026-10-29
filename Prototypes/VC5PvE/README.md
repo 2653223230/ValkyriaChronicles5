@@ -1,12 +1,12 @@
 # 森钟战术 · 独立 PvE 原型
 
-Unity 2021.3.33f1c1 / URP 12.1.13 / Windows x64。工程位于 `Prototypes/VC5PvE`，拥有独立 Assets、Packages、ProjectSettings 和构建入口。
+Unity 2021.3.33f1c1 / URP 12.1.13 / Windows x64、Android ARM64。工程位于 `Prototypes/VC5PvE`，拥有独立 Assets、Packages、ProjectSettings 和构建入口。
 
 > **2026-10-29 交接入口**：[开发交接与下一版任务](../../Docs/VC5PvE_开发交接与共享AP设计任务_20261028.md)、[新会话提示词](../../Docs/VC5PvE_新会话启动提示词_20261028.md)。当前已实现个人AP、三关成长和“先选人→对目标出牌”；下一版共享AP、“卡牌拖给执行棋子”、通用卡角色差异仅进入设计审核，未实现。下方按日期排列的早期记录保留为历史。
 
 ## 直接试玩
 
-**v0.2.0 个人 AP 三关版正在发布 Windows／Android 试玩包。** 实际提交、下载地址、构建与验证结果以[发布记录](../../Docs/Releases/VC5PvE_v0.2.0_个人AP三关版_20261029_发布记录.md)为准。编辑器试玩：Unity Hub 添加本目录 `Prototypes/VC5PvE`，使用 Unity 2021.3.33f1c1。
+**v0.2.0 个人 AP 三关版已发布 Windows／Android 试玩包。** [下载发行版](https://github.com/2653223230/ValkyriaChronicles5/releases/tag/pve-v0.2.0-personal-ap-20261029)：Windows完整解压后运行exe；Android为7.0以上ARM64、调试签名APK，尚未真机验收。实际提交、校验值与构建过程见[发布记录](../../Docs/Releases/VC5PvE_v0.2.0_个人AP三关版_20261029_发布记录.md)。编辑器试玩：Unity Hub 添加本目录 `Prototypes/VC5PvE`，使用 Unity 2021.3.33f1c1。
 
 - 从开始界面进入：打开 `Assets/VC5PvE/Scenes/Title.unity`，按 Play，再点“开始游戏”。
 - 直接进首关：打开 `Assets/VC5PvE/Scenes/ForestRuins.unity`，按 Play，部署后点“开始战斗”。
