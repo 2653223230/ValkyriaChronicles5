@@ -1,6 +1,6 @@
 # VC5PvE v0.3.0 共享 AP 晴岚 · 双平台发布记录
 
-状态：本地双平台包完成并验包通过，源码已本地提交；远端push与GitHub发布等待用户确认具体仓库／分支。2026-11-17 用户明确要求 Windows／Android 构建发布、提交代码并 push，记录发布过程和提交信息。
+状态：Windows／Android 双平台试玩预发布已公开，源码与构建证据已推送；本记录作为最终补充提交归档。
 
 ## 发布范围与计划（配置前记录）
 
@@ -47,6 +47,24 @@
 - Android：`E:/unity/git_newest/ValkyriaChronicles5/Prototypes/VC5PvE/Builds/Release-0.3.0/VC5PvE-SharedAP-0.3.0-Android-arm64.apk`。
 - 校验文件和许可证：同目录 `SHA256SUMS.txt`、`THIRD-PARTY-LICENSES.txt`。
 
-## 待远端确认
+## 首次自动审批拒绝（历史）
 
 目标是现有origin `https://github.com/2653223230/ValkyriaChronicles5`，分支 `codex/shared-ap-qinglan-20261029`，新预发布tag `pve-v0.3.0-shared-ap-20261117`。push已被自动审批拒绝，未绕过执行。用户确认后，正常push源码和记录提交、创建draft、上传ZIP/APK/校验和/许可证、核验服务端size/digest后公开预发布，并将最终URL／远端SHA补入记录。
+
+## 远端发布授权接续
+
+用户已明确确认：将代码push到现有仓库 `2653223230/ValkyriaChronicles5` 的 `codex/shared-ap-qinglan-20261029` 分支，并在同仓库创建v0.3.0共享AP试玩预发布。开始正常推送 `f6d7a0f` 源码和 `e5feafc` 构建证据两项提交；不强推、不移动旧标签。发布完成状态以下方最终结果为准。
+
+## 确认后远端执行
+
+- 用户明确确认具体仓库和分支后，`git push origin codex/shared-ap-qinglan-20261029` 成功，新建远端分支。当前远端包含源码提交 `f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895` 与构建证据提交 `e5feafc`（`docs: archive shared AP v0.3.0 dual-platform build evidence`）。没有合并main或强推。
+- 创建本次draft/prerelease，Release ID `448323196`；tag名 `pve-v0.3.0-shared-ap-20261117`，target_commitish固定源码提交f6d7a0f。公开前草稿可能显示临时untagged URL，最终发行地址待公开后GET核实。
+
+## 最终公开发布
+
+- 公开时间：2026-11-17 16:17:58（北京时间），UTC 08:17:58。
+- [GitHub发行页与下载](https://github.com/2653223230/ValkyriaChronicles5/releases/tag/pve-v0.3.0-shared-ap-20261117)。API回读 draft=false／prerelease=true，按请求设置make_latest=false。
+- 标签 `pve-v0.3.0-shared-ap-20261117` 固定到源码提交 [f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895](https://github.com/2653223230/ValkyriaChronicles5/commit/f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895)。构建证据补充提交 `e5feafc`，标题 `docs: archive shared AP v0.3.0 dual-platform build evidence`；最终公开状态记录再单独提交，标签不移动。
+- 4个附件：Windows ZIP、Android APK、SHA256SUMS、第三方许可。服务端state=uploaded，逐个size/digest与本地一致。[服务端发布快照](VC5PvE_v0.3.0_证据/github-release.json)。
+- 正常push现有分支，无合并main、无强推；个人AP旧标签和旧Release不变。无关未提交文件保留在工作区。
+- 后续复现：从源码提交检出，Unity用上文版本／环境配置、显式单场景构建，再执行Tools/Release-0.3.0打包和验包脚本。脚本的source-commit.txt必须对应实际构建源码，不能将后续纯文档HEAD冒充包源码。

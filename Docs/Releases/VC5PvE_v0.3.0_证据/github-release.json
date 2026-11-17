@@ -1,0 +1,43 @@
+{
+  "id": 448323196,
+  "html_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/tag/pve-v0.3.0-shared-ap-20261117",
+  "tag_name": "pve-v0.3.0-shared-ap-20261117",
+  "target_commitish": "f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-11-17T08:17:58Z",
+  "assets": [
+    {
+      "id": 758207863,
+      "name": "SHA256SUMS.txt",
+      "size": 301,
+      "state": "uploaded",
+      "digest": "sha256:48eb90daadf552c8d45e83a7b0b3c28601e5e3e3c11b053d1d640482c111c1d7",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.3.0-shared-ap-20261117/SHA256SUMS.txt"
+    },
+    {
+      "id": 758208440,
+      "name": "THIRD-PARTY-LICENSES.txt",
+      "size": 9323,
+      "state": "uploaded",
+      "digest": "sha256:5036755b12b2b56862c72e3128a6babbc686a8d066ed92275c5a7e42d6cf0054",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.3.0-shared-ap-20261117/THIRD-PARTY-LICENSES.txt"
+    },
+    {
+      "id": 758206582,
+      "name": "VC5PvE-SharedAP-0.3.0-Android-arm64.apk",
+      "size": 55164046,
+      "state": "uploaded",
+      "digest": "sha256:68a59c894a8b487382799f5b163ff7f6e37488f91361b2bd600e314c1113def6",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.3.0-shared-ap-20261117/VC5PvE-SharedAP-0.3.0-Android-arm64.apk"
+    },
+    {
+      "id": 758194092,
+      "name": "VC5PvE-SharedAP-0.3.0-Windows-x64.zip",
+      "size": 65228677,
+      "state": "uploaded",
+      "digest": "sha256:52edab9ee4e93273490dabe2f2285dee61b8f176003cdced978c3ffe40f102a0",
+      "browser_download_url": "https://github.com/2653223230/ValkyriaChronicles5/releases/download/pve-v0.3.0-shared-ap-20261117/VC5PvE-SharedAP-0.3.0-Windows-x64.zip"
+    }
+  ]
+}
