@@ -1,0 +1,10 @@
+{
+  "job": "build-328574063d",
+  "result": "succeeded",
+  "duration_seconds": 285.8015362,
+  "errors": 0,
+  "warnings": 6,
+  "actual_apk_bytes": 55164046,
+  "source_commit": "f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895",
+  "device_test": "not performed: no adb devices"
+}

@@ -1,0 +1,24 @@
+{
+  "package": "com.vc5pve.sharedap",
+  "version": "0.3.0",
+  "abis": [
+    "arm64-v8a"
+  ],
+  "scenes": [
+    "level0"
+  ],
+  "artifacts": {
+    "VC5PvE-SharedAP-0.3.0-Windows-x64.zip": {
+      "bytes": 65228677,
+      "sha256": "52edab9ee4e93273490dabe2f2285dee61b8f176003cdced978c3ffe40f102a0"
+    },
+    "VC5PvE-SharedAP-0.3.0-Android-arm64.apk": {
+      "bytes": 55164046,
+      "sha256": "68a59c894a8b487382799f5b163ff7f6e37488f91361b2bd600e314c1113def6"
+    },
+    "THIRD-PARTY-LICENSES.txt": {
+      "bytes": 9323,
+      "sha256": "5036755b12b2b56862c72e3128a6babbc686a8d066ed92275c5a7e42d6cf0054"
+    }
+  }
+}

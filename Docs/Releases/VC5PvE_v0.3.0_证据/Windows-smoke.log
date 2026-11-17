@@ -1,0 +1,20 @@
+Mono path[0] = 'E:/unity/git_newest/ValkyriaChronicles5/Prototypes/VC5PvE/Builds/Release-0.3.0/Windows/VC5PvE-SharedAP_Data/Managed'
+Mono config path = 'E:/unity/git_newest/ValkyriaChronicles5/Prototypes/VC5PvE/Builds/Release-0.3.0/Windows/MonoBleedingEdge/etc'
+AS: AutoStreaming module initializing.
+[Physics::Module] Initialized MultithreadedJobDispatcher with {0} workers.
+Initialize engine version: 2021.3.33f1c1 (682b9db7927c)
+[Subsystems] Discovering subsystems at path E:/unity/git_newest/ValkyriaChronicles5/Prototypes/VC5PvE/Builds/Release-0.3.0/Windows/VC5PvE-SharedAP_Data/UnitySubsystems
+GfxDevice: creating device client; threaded=1; jobified=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 2070 Super (ID=0x1e91)
+    Vendor:   NVIDIA
+    VRAM:     7989 MB
+Begin MonoManager ReloadAssembly
+- Completed reload, in  0.464 seconds
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 1.351700 ms
+Internal: JobTempAlloc has allocations that are more than 4 frames old - this is not allowed and likely a leak
+Internal: deleting an allocation that is older than its permitted lifetime of 4 frames (age = 11)

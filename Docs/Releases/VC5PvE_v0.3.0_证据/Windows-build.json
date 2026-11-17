@@ -1,0 +1,9 @@
+{
+  "job": "build-362dd8c7ea",
+  "result": "succeeded",
+  "duration_seconds": 85.6946162,
+  "errors": 0,
+  "warnings": 5,
+  "scene": "Assets/VC5PvE/SharedAP/Scenes/SharedAP_Qinglan.unity",
+  "source_commit": "f6d7a0fb2bae1dbe7fc9da7b4c3f7de90c7bb895"
+}
