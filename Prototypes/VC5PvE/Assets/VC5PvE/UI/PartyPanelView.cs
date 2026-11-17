@@ -5,11 +5,20 @@ using UnityEngine.UI;
 
 namespace VC5PvE
 {
+    public static class SharedPaper
+    {
+        public static readonly Color Paper=new Color32(251,248,239,255);
+        public static readonly Color Ink=new Color32(24,58,50,255);
+        public static readonly Color Green=new Color32(53,106,84,255);
+        public static readonly Color Gold=new Color32(175,137,62,255);
+        public static readonly Color Edge=new Color32(201,193,170,255);
+    }
     public sealed class PartyPanelView : MonoBehaviour
     {
         public Action<string> SelectUnit;
         private readonly List<Row> rows = new List<Row>();
         private Sprite[] sprites;
+        private bool sharedCompactLayout;
         private sealed class Row
         {
             public RectTransform root, hp; public Image portrait, backing, stripe;
@@ -54,6 +63,48 @@ namespace VC5PvE
             foreach(var t in panel.GetComponentsInChildren<Text>())t.verticalOverflow=VerticalWrapMode.Overflow;
         }
         public void Configure(Sprite[] value){sprites=value;}
+        /// <summary>Opt-in wider rows for the shared AP HUD; the personal AP panel keeps its original layout.</summary>
+        public void ConfigureSharedLayout(float width)
+        {
+            sharedCompactLayout=true;
+            var panel=(RectTransform)transform.Find("Party panel");
+            if(panel!=null){panel.sizeDelta=new Vector2(width,340);panel.GetComponent<Image>().enabled=false;panel.Find("Party title").gameObject.SetActive(false);}
+            for(int i=0;i<rows.Count;i++)
+            {
+                var rowWidth=width-20;
+                var row=rows[i];row.root.anchoredPosition=new Vector2(10,-48-i*92);row.root.sizeDelta=new Vector2(rowWidth,84);
+                var top=row.root.Find("Top border") as RectTransform;
+                var bottom=row.root.Find("Bottom border") as RectTransform;
+                var right=row.root.Find("Right border") as RectTransform;
+                if(top!=null)top.sizeDelta=new Vector2(rowWidth,top.sizeDelta.y);
+                if(bottom!=null){bottom.anchoredPosition=new Vector2(0,-82);bottom.sizeDelta=new Vector2(rowWidth,bottom.sizeDelta.y);}
+                if(right!=null)right.anchoredPosition=new Vector2(rowWidth-2,0);
+                row.stripe.rectTransform.sizeDelta=new Vector2(4,60);
+                if(right!=null)right.sizeDelta=new Vector2(2,84);
+                var left=row.root.Find("Left border") as RectTransform;if(left!=null)left.sizeDelta=new Vector2(2,84);
+                var crop=row.root.Find("Portrait crop") as RectTransform;
+                if(crop!=null){crop.anchoredPosition=new Vector2(8,-12);crop.sizeDelta=new Vector2(54,58);}
+                row.name.rectTransform.anchoredPosition=new Vector2(72,-8);row.name.rectTransform.sizeDelta=new Vector2(width-122,28);
+                row.role.rectTransform.anchoredPosition=new Vector2(72,-34);row.role.rectTransform.sizeDelta=new Vector2(width-122,20);
+                row.health.rectTransform.anchoredPosition=new Vector2(width-92,-8);
+                row.health.rectTransform.sizeDelta=new Vector2(66,16);
+                var track=row.root.Find("HP track") as RectTransform;
+                if(track!=null){track.anchoredPosition=new Vector2(72,-54);track.sizeDelta=new Vector2(width-96,8);}
+                row.hp.anchoredPosition=new Vector2(74,-56);row.hp.sizeDelta=new Vector2(width-100,4);
+                row.exhausted.rectTransform.anchoredPosition=new Vector2(72,-64);row.exhausted.rectTransform.sizeDelta=new Vector2(width-96,18);
+            }
+        }
+        /// <summary>Highlights valid card executors in the shared AP presentation only.</summary>
+        public void SetSharedExecutors(System.Collections.Generic.IEnumerable<string> ids)
+        {
+            var valid=ids==null?new System.Collections.Generic.HashSet<string>():new System.Collections.Generic.HashSet<string>(ids);
+            foreach(var row in rows)
+            {
+                if(string.IsNullOrEmpty(row.id))continue;
+                var color=valid.Contains(row.id)?SharedPaper.Gold:SharedPaper.Edge;
+                foreach(var border in row.borders)if(border!=null)border.color=color;
+            }
+        }
         public string UnitAtScreen(Vector2 screenPosition)
         {
             var canvas=GetComponentInParent<Canvas>();
@@ -83,5 +134,30 @@ namespace VC5PvE
                 r.button.interactable=alive && !busy && (state.Phase==BattlePhase.Player||state.Phase==BattlePhase.Deployment);
             }
         }
-    }
+        public void RenderPresentation(BattleState state,UnitState selected,bool busy,
+            System.Func<string,string> name,System.Func<string,string> weapon,System.Func<string,string> status)
+        {
+            Render(state,selected,busy);int i=0;
+            foreach(var u in state.Units)
+            {
+                if(u.Team!=Team.Player||i>=rows.Count)continue;var row=rows[i++];
+                row.backing.color=SharedPaper.Paper;row.stripe.color=SharedPaper.Gold;
+                row.name.color=SharedPaper.Ink;row.health.color=SharedPaper.Ink;
+                row.role.color=SharedPaper.Green;row.exhausted.color=SharedPaper.Green;
+                row.name.text=name(u.Id);row.role.text=weapon(u.Id);row.role.fontSize=14;
+                row.root.Find("AP label").gameObject.SetActive(false);
+                foreach(var ap in row.ap)ap.SetActive(false);
+                row.exhausted.rectTransform.anchoredPosition=sharedCompactLayout?new Vector2(72,-64):new Vector2(101,-96);
+                row.exhausted.rectTransform.sizeDelta=sharedCompactLayout?new Vector2(row.root.sizeDelta.x-96,18):new Vector2(166,24);
+                row.exhausted.text=u.IsAlive?status(u.Id):"已倒下";
+                row.health.rectTransform.anchoredPosition=sharedCompactLayout?new Vector2(row.root.sizeDelta.x-92,-8):new Vector2(101,-58);
+                row.health.rectTransform.sizeDelta=sharedCompactLayout?new Vector2(66,16):new Vector2(163,18);
+                row.health.text=u.Hp+" / "+u.MaxHp+(u.Shield>0?"   盾 "+u.Shield:"");
+                if(sharedCompactLayout)
+                {
+                    float ratio=u.MaxHp>0?Mathf.Clamp01((float)u.Hp/u.MaxHp):0;
+                    row.hp.sizeDelta=new Vector2((row.root.sizeDelta.x-80)*ratio,4);
+                }
+            }
+        }    }
 }

@@ -48,6 +48,7 @@ namespace VC5PvE
         private bool selected;
         private bool executorHighlighted;
         private bool isFacility;
+        private bool showPersonalAp = true;
         private float selectionPulse;
 
         public string UnitId { get { return unit != null ? unit.Id : null; } }
@@ -82,9 +83,10 @@ namespace VC5PvE
             CreateVisuals();
         }
 
-        public void SetUnit(UnitState state)
+        public void SetUnit(UnitState state, bool showPersonalAp = true)
         {
             unit = state;
+            this.showPersonalAp = showPersonalAp;
             if (state == null || !state.IsAlive)
             {
                 SetExecutorHighlight(false);
@@ -122,7 +124,7 @@ namespace VC5PvE
             SetIndicatorColor(hpFill.GetComponent<Renderer>(),HealthBarColor.Evaluate(health));
             hpBack.localPosition = new Vector3(0f, .09f, 0f);
             int ap = Mathf.Clamp(state.Ap, 0, apDiamonds.Length);
-            apRoot.gameObject.SetActive(!isFacility);
+            apRoot.gameObject.SetActive(!isFacility && showPersonalAp);
             apRoot.localPosition = new Vector3(0f, .24f, .015f);
             for (int i = 0; i < apDiamonds.Length; i++)
             {
@@ -144,7 +146,7 @@ namespace VC5PvE
 
         public void SetPreviewApCost(int cost)
         {
-            int next=unit==null?0:Mathf.Clamp(cost,0,unit.Ap);
+            int next=unit==null||!showPersonalAp?0:Mathf.Clamp(cost,0,unit.Ap);
             if(next!=PreviewApCost)apPreviewStarted=Time.unscaledTime;
             PreviewApCost=next;
             UpdateApPreview();

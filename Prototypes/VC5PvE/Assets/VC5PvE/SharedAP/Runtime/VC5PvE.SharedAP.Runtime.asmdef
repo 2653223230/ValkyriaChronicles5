@@ -1,0 +1,10 @@
+{
+  "name": "VC5PvE.SharedAP.Runtime",
+  "references": [
+    "VC5PvE.SharedAP.Rules",
+    "VC5PvE.Runtime",
+    "UnityEngine.UI",
+    "VC5PvE.Rules"
+  ],
+  "autoReferenced": true
+}

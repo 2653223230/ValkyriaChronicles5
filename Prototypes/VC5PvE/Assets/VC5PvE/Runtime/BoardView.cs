@@ -4,10 +4,11 @@ using UnityEngine;
 
 namespace VC5PvE
 {
-    /// <summary>Owns the visual-only 8x8 forest-ruin board and its piece views.</summary>
+    /// <summary>Owns the visual-only board and its piece views.</summary>
     public sealed class BoardView : MonoBehaviour
     {
         public const int BoardSize = 8;
+        public bool ShowPersonalAp = true;
         public GameObject[] TreePrefabs;
         public GameObject[] RockPrefabs;
         public GameObject[] ShrubPrefabs;
@@ -39,10 +40,15 @@ namespace VC5PvE
         private Texture2D surfaceTexture, stoneTexture;
         private Material sceneryMaterial;
         private BattleState currentState;
+        private int boardWidth = BoardSize;
+        private int boardHeight = BoardSize;
+        private readonly List<GameObject> cellOutlineObjects = new List<GameObject>();
+        private MaterialPropertyBlock sharedPulseBlock;
 
         public void Initialize(BattleState state, Camera camera)
         {
             viewCamera = camera != null ? camera : Camera.main;
+            SetBoardDimensions(state);
             currentState = state;
             ClearGenerated();
             DestroyMaterials();
@@ -60,6 +66,15 @@ namespace VC5PvE
         public void Refresh(BattleState state)
         {
             if (state == null) return;
+            int nextWidth = state.Width > 0 ? state.Width : BoardSize;
+            int nextHeight = state.Height > 0 ? state.Height : BoardSize;
+            if (boardRoot != null &&
+                (nextWidth != boardWidth || nextHeight != boardHeight))
+            {
+                Initialize(state, viewCamera);
+                return;
+            }
+            SetBoardDimensions(state);
             currentState = state;
             ShowExecutors(null);
             if (boardRoot == null) Initialize(state, viewCamera);
@@ -78,7 +93,7 @@ namespace VC5PvE
                     view.Initialize(this, viewCamera, UnitSprites);
                     unitViews[unit.Id] = view;
                 }
-                view.SetUnit(unit);
+                view.SetUnit(unit, ShowPersonalAp);
             }
             RefreshBossTelegraph(state.BossTelegraph, state.Width, state.Height);
 
@@ -96,18 +111,46 @@ namespace VC5PvE
 
         public void PreviewAp(string actorId, int cost)
         {
+            if (!ShowPersonalAp) cost = 0;
             foreach(var pair in unitViews)
                 if(pair.Value!=null)pair.Value.SetPreviewApCost(pair.Key==actorId?cost:0);
         }
 
+        private void SetBoardDimensions(BattleState state)
+        {
+            boardWidth = state != null && state.Width > 0 ? state.Width : BoardSize;
+            boardHeight = state != null && state.Height > 0 ? state.Height : BoardSize;
+        }
+
         public Vector3 World(GridPos pos)
         {
-            return new Vector3(pos.X - 3.5f, 0f, 3.5f - pos.Y);
+            float centerX = (boardWidth - 1) * .5f;
+            float centerY = (boardHeight - 1) * .5f;
+            return new Vector3(pos.X - centerX, 0f, centerY - pos.Y);
         }
 
         private void Update()
         {
             float time = Time.time;
+            // Shared AP opts into board-based intent; personal AP retains its existing presentation.
+            if (!ShowPersonalAp)
+            {
+                if(sharedPulseBlock==null)sharedPulseBlock=new MaterialPropertyBlock();
+                float pulse = .70f + .22f * Mathf.Sin(time * Mathf.PI * 2f / .8f);
+                foreach (var marker in cellOutlineObjects)
+                {
+                    if (marker == null) continue;
+                    var line = marker.GetComponent<LineRenderer>();
+                    if (line != null) line.widthMultiplier = 1f + pulse * .5f;
+                }
+                foreach (var line in intentLines)
+                {
+                    if (line == null) continue;
+                    var color = new Color(1f, .65f, .18f, pulse);
+                    sharedPulseBlock.SetColor("_Color", color); sharedPulseBlock.SetColor("_BaseColor", color);
+                    line.SetPropertyBlock(sharedPulseBlock);
+                }
+            }
             for (int i = 0; i < driftingMotes.Count; i++)
             {
                 Transform mote = driftingMotes[i];
@@ -122,10 +165,15 @@ namespace VC5PvE
 
         private void BuildCoordinates()
         {
-            for (int i = 0; i < BoardSize; i++)
+            float centerX = (boardWidth - 1) * .5f;
+            float centerY = (boardHeight - 1) * .5f;
+            for (int i = 0; i < boardWidth; i++)
             {
-                Coordinate(((char)('A' + i)).ToString(), new Vector3(i - 3.5f, .035f, 4.08f));
-                Coordinate((i + 1).ToString(), new Vector3(-4.12f, .035f, 3.5f - i));
+                Coordinate(((char)('A' + i)).ToString(), new Vector3(i - centerX, .035f, centerY + .58f));
+            }
+            for (int i = 0; i < boardHeight; i++)
+            {
+                Coordinate((i + 1).ToString(), new Vector3(-centerX - .62f, .035f, centerY - i));
             }
         }
 
@@ -149,9 +197,9 @@ namespace VC5PvE
             float distance;
             if (!boardPlane.Raycast(ray, out distance) || distance < 0f) return false;
             Vector3 hit = ray.GetPoint(distance);
-            int x = Mathf.FloorToInt(hit.x + 4f);
-            int y = Mathf.FloorToInt(4f - hit.z);
-            if (x < 0 || x >= BoardSize || y < 0 || y >= BoardSize) return false;
+            int x = Mathf.FloorToInt(hit.x + boardWidth * .5f);
+            int y = Mathf.FloorToInt(boardHeight * .5f - hit.z);
+            if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) return false;
             pos = new GridPos(x, y);
             return true;
         }
@@ -179,6 +227,84 @@ namespace VC5PvE
                     if (!ringTargets.Contains(target.Value)) AddDoubleRingHighlight(target.Value, "Unit target highlight", targetColor);
                 }
                 else AddHighlight(target.Value, new Color(1f, 0.70f, 0.20f, 0.62f), 0.04f);
+            }
+        }
+
+        public void ShowSharedActionRanges(IEnumerable<GridPos> moveCells, IEnumerable<GridPos> attackCells,
+            IEnumerable<GridPos> futureAttackCells = null, GridPos? target = null)
+        {
+            ClearHighlights();
+            if (boardRoot == null || highlightMaterial == null) return;
+            if (moveCells != null) foreach (var pos in new HashSet<GridPos>(moveCells))
+                AddHighlight(pos, new Color(.18f, .90f, .77f, .42f), .04f);
+            if (attackCells != null) foreach (var pos in new HashSet<GridPos>(attackCells))
+            {
+                AddSharedRangeSquare(pos, false);
+                if (currentState != null && currentState.UnitAt(pos) != null)
+                    AddDoubleRingHighlight(pos, "Shared attack target", new Color(1f, .73f, .32f));
+            }
+            if (futureAttackCells != null) foreach (var pos in new HashSet<GridPos>(futureAttackCells))
+                AddSharedRangeSquare(pos, true);
+            if (target.HasValue) AddDoubleRingHighlight(target.Value, "Shared chosen target", Color.white);
+        }
+
+        public void ShowSharedBasicActions(IEnumerable<GridPos> moves,IEnumerable<GridPos> targets)
+        {
+            ClearHighlights();
+            if(boardRoot==null||highlightMaterial==null)return;
+            foreach(var pos in moves)
+            {
+                AddHighlight(pos,new Color(.68f,.88f,.65f,.85f),.06f);
+                // Two small sole shapes, offset like footsteps, on the legal tile.
+                for(int foot=0;foot<2;foot++)
+                {
+                    var sole=new Vector3[9];
+                    for(int i=0;i<sole.Length;i++)
+                    {
+                        float angle=i*Mathf.PI/4;
+                        sole[i]=new Vector3((foot==0?-.12f:.12f)+Mathf.Cos(angle)*.06f,0,(foot==0?-.08f:.08f)+Mathf.Sin(angle)*.13f);
+                    }
+                    AddBasicStroke(pos,"Short step footprint",sole,new Color(.12f,.34f,.20f),.055f);
+                }
+            }
+            foreach(var pos in targets)
+            {
+                AddDoubleRingHighlight(pos,"Basic attack target",new Color(.96f,.78f,.36f));
+                AddBasicStroke(pos,"Basic sword",new[]{new Vector3(-.44f,0,-.38f),new Vector3(-.11f,0,-.05f)},Color.white,.075f);
+                AddBasicStroke(pos,"Basic sword hilt",new[]{new Vector3(-.48f,0,-.22f),new Vector3(-.30f,0,-.40f)},Color.white,.055f);
+            }
+        }
+
+        void AddBasicStroke(GridPos pos,string label,Vector3[] points,Color color,float width)
+        {
+            var go=new GameObject(label,typeof(LineRenderer));
+            go.transform.SetParent(boardRoot,false);go.transform.position=World(pos)+Vector3.up*.18f;
+            var line=go.GetComponent<LineRenderer>();line.useWorldSpace=false;
+            line.sharedMaterial=highlightMaterial;line.positionCount=points.Length;line.SetPositions(points);
+            line.startWidth=line.endWidth=width;line.startColor=line.endColor=color;
+            var block=new MaterialPropertyBlock();block.SetColor("_Color",color);block.SetColor("_BaseColor",color);
+            line.SetPropertyBlock(block);highlightObjects.Add(go);
+        }
+
+        private void AddSharedRangeSquare(GridPos pos, bool dashed)
+        {
+            if (pos.X < 0 || pos.Y < 0 || pos.X >= boardWidth || pos.Y >= boardHeight) return;
+            var corners = new[] { new Vector3(-.43f,0,-.43f), new Vector3(.43f,0,-.43f), new Vector3(.43f,0,.43f), new Vector3(-.43f,0,.43f) };
+            for (int side = 0; side < 4; side++)
+            {
+                int count = dashed ? 3 : 1;
+                for (int segment = 0; segment < count; segment++)
+                {
+                    var go = new GameObject(dashed ? "Shared future range segment" : "Shared attack range edge", typeof(LineRenderer));
+                    go.transform.SetParent(boardRoot, false); go.transform.position = World(pos) + Vector3.up * .09f;
+                    var line = go.GetComponent<LineRenderer>(); line.useWorldSpace = false; line.positionCount = 2;
+                    line.sharedMaterial = highlightMaterial; line.startWidth = line.endWidth = .035f;
+                    var color = new Color(1f,.73f,.32f,.92f);
+                    var block = new MaterialPropertyBlock(); block.SetColor("_Color",color);block.SetColor("_BaseColor",color);line.SetPropertyBlock(block);
+                    line.SetPosition(0, Vector3.Lerp(corners[side],corners[(side+1)%4],(float)segment/count));
+                    line.SetPosition(1, Vector3.Lerp(corners[side],corners[(side+1)%4],(segment+(dashed?.6f:1f))/count));
+                    highlightObjects.Add(go);
+                }
             }
         }
 
@@ -344,6 +470,49 @@ namespace VC5PvE
                 if (pair.Value != null) pair.Value.SetExecutorHighlight(false);
         }
 
+        public void ShowCellOutlines(IEnumerable<GridPos> cells, Color color)
+        {
+            ClearCellOutlines();
+            if (cells == null || boardRoot == null || highlightMaterial == null) return;
+            foreach (GridPos pos in cells)
+            {
+                if (pos.X < 0 || pos.X >= boardWidth || pos.Y < 0 || pos.Y >= boardHeight) continue;
+                var marker = new GameObject("Shared AP cell outline", typeof(LineRenderer));
+                marker.transform.SetParent(boardRoot, false);
+                marker.transform.position = World(pos) + Vector3.up * .16f;
+                var line = marker.GetComponent<LineRenderer>();
+                line.useWorldSpace = false;
+                line.loop = true;
+                line.positionCount = 4;
+                line.startWidth = line.endWidth = .045f;
+                line.numCapVertices = 2;
+                line.sharedMaterial = highlightMaterial;
+                line.startColor = line.endColor = color;
+                var block = new MaterialPropertyBlock();
+                block.SetColor("_BaseColor", color);
+                block.SetColor("_Color", color);
+                line.SetPropertyBlock(block);
+                const float half = .44f;
+                line.SetPosition(0, new Vector3(-half, 0f, -half));
+                line.SetPosition(1, new Vector3(half, 0f, -half));
+                line.SetPosition(2, new Vector3(half, 0f, half));
+                line.SetPosition(3, new Vector3(-half, 0f, half));
+                cellOutlineObjects.Add(marker);
+            }
+        }
+
+        public void ClearCellOutlines()
+        {
+            foreach (GameObject marker in cellOutlineObjects)
+                if (marker != null) { marker.SetActive(false); Destroy(marker); }
+            cellOutlineObjects.Clear();
+        }
+
+        public void SetAnimationState(BattleState state)
+        {
+            if (state != null) currentState = state;
+        }
+
         public IEnumerator Animate(ActionPlan plan, ActionResult result)
         {
             if (plan == null || plan.Request == null) yield break;
@@ -382,19 +551,22 @@ namespace VC5PvE
                 if (result != null && plan.Request.Kind != ActionKind.BossAoe && result.DamageSummary != null &&
                     result.DamageSummary.Killed && recipient.IsFacilityView)
                     yield return recipient.AnimateDestroyedFacility();
-                if (result != null && plan.Request.Kind == ActionKind.BossAoe && result.AreaDamageSummaries != null)
+                if (result != null && result.AreaDamageSummaries != null)
                 {
                     foreach (DamageSummary summary in result.AreaDamageSummaries)
                     {
                         if (summary == null) continue;
+                        if (plan.Request.Kind != ActionKind.BossAoe && result.DamageSummary != null &&
+                            summary.TargetId == result.DamageSummary.TargetId) continue;
                         UnitView hit;
                         if (!unitViews.TryGetValue(summary.TargetId, out hit) || hit == null) continue;
-                        hit.PlayStatusEffect(new Color(1f, .22f, .15f));
+                        hit.PlayStatusEffect(plan.Request.Kind == ActionKind.BossAoe
+                            ? new Color(1f, .22f, .15f) : new Color(1f, .48f, .30f));
                         string damageText = summary.HpLost > 0 ? "-" + summary.HpLost : "BLOCKED";
                         if (summary.ShieldAbsorbed > 0) damageText += "  S" + summary.ShieldAbsorbed;
                         hit.ShowFloatingText(damageText, new Color(1f, .43f, .24f));
                         if (summary.Killed && hit.IsFacilityView) yield return hit.AnimateDestroyedFacility();
-                        else yield return new WaitForSeconds(.10f);
+                        else yield return new WaitForSeconds(plan.Request.Kind == ActionKind.BossAoe ? .10f : .08f);
                     }
                 }
                 UnitView pushedView;
@@ -433,9 +605,9 @@ namespace VC5PvE
         private void BuildBoard(BattleState state)
         {
             BuildIslandFoundation();
-            // Eight raised stone/earth cells with exposed sides form one readable floating island.
-            for (int y = 0; y < BoardSize; y++)
-            for (int x = 0; x < BoardSize; x++)
+            // Raised stone/earth cells with exposed sides form one readable floating island.
+            for (int y = 0; y < boardHeight; y++)
+            for (int x = 0; x < boardWidth; x++)
             {
                 bool central = x >= 2 && x <= 5 && y >= 2 && y <= 5;
                 GameObject tile = CreateTile(x, y, central ? stoneMaterial : ((x + y) % 2 == 0 ? tileMaterialA : tileMaterialB));
@@ -522,7 +694,7 @@ namespace VC5PvE
         private GameObject CreateTile(int x, int y, Material topMaterial)
         {
             var go = new GameObject("Tile " + (char)('A' + x) + (y + 1));
-            go.transform.position = new Vector3(x - 3.5f, 0f, 3.5f - y);
+            go.transform.position = World(new GridPos(x, y));
             var mesh = new Mesh { name = "Raised forest floor tile" };
             var vertices = new[] {
                 new Vector3(-.5f, 0, -.5f), new Vector3(.5f, 0, -.5f), new Vector3(.5f, 0, .5f), new Vector3(-.5f, 0, .5f),
@@ -544,12 +716,19 @@ namespace VC5PvE
         private void BuildCliffWalls()
         {
             // Shallow warm strata keep the floating-island silhouette distinct without fencing in the board.
-            for (int i = 0; i < 8; i++)
+            float halfWidth = boardWidth * .5f;
+            float halfHeight = boardHeight * .5f;
+            for (int i = 0; i < boardWidth; i++)
             {
-                AddCliffBlock(new Vector3(-4f + i + .5f, -.39f, -4.03f), new Vector3(1.03f, .38f, .18f));
-                AddCliffBlock(new Vector3(-4f + i + .5f, -.39f, 4.03f), new Vector3(1.03f, .38f, .18f));
-                AddCliffBlock(new Vector3(-4.03f, -.39f, -3.5f + i), new Vector3(.18f, .38f, 1.03f));
-                AddCliffBlock(new Vector3(4.03f, -.39f, -3.5f + i), new Vector3(.18f, .38f, 1.03f));
+                float x = -halfWidth + i + .5f;
+                AddCliffBlock(new Vector3(x, -.39f, -halfHeight - .03f), new Vector3(1.03f, .38f, .18f));
+                AddCliffBlock(new Vector3(x, -.39f, halfHeight + .03f), new Vector3(1.03f, .38f, .18f));
+            }
+            for (int i = 0; i < boardHeight; i++)
+            {
+                float z = halfHeight - i - .5f;
+                AddCliffBlock(new Vector3(-halfWidth - .03f, -.39f, z), new Vector3(.18f, .38f, 1.03f));
+                AddCliffBlock(new Vector3(halfWidth + .03f, -.39f, z), new Vector3(.18f, .38f, 1.03f));
             }
         }
 
@@ -564,7 +743,7 @@ namespace VC5PvE
 
         private void AddTopDetail(int x, int y, bool central)
         {
-            Vector3 center = new Vector3(x - 3.5f, 0.012f, 3.5f - y);
+            Vector3 center = World(new GridPos(x, y)) + Vector3.up * .012f;
             if (central)
             {
                 // Fine seams make the 4x4 ancient plaza legible without adding obstacles.
@@ -573,7 +752,7 @@ namespace VC5PvE
             }
             else
             {
-                // Fine warm seams preserve the 8x8 grid while keeping grass cells distinct from the plaza.
+                // Fine warm seams keep each grass cell distinct from the plaza.
                 AddThinStoneSeam(center + new Vector3(-.49f, 0f, .48f), new Vector3(.98f, .008f, .012f));
                 if ((x + y) % 2 == 0)
                     AddThinStoneSeam(center + new Vector3(-.48f, 0f, -.49f), new Vector3(.012f, .008f, .98f));
@@ -911,6 +1090,7 @@ namespace VC5PvE
         private void ClearGenerated()
         {
             ClearBossTelegraph();
+            ClearCellOutlines();
             if (boardRoot != null) { boardRoot.gameObject.SetActive(false); Destroy(boardRoot.gameObject); }
             if (unitRoot != null) { unitRoot.gameObject.SetActive(false); Destroy(unitRoot.gameObject); }
             boardRoot = unitRoot = null;

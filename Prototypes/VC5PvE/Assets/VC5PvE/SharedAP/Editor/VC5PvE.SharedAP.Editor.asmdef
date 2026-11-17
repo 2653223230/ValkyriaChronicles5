@@ -1,0 +1,5 @@
+{
+  "name": "VC5PvE.SharedAP.Editor",
+  "references": ["VC5PvE.SharedAP.Runtime", "VC5PvE.SharedAP.Rules", "VC5PvE.Runtime", "Unity.RenderPipelines.Universal.Runtime"],
+  "includePlatforms": ["Editor"]
+}

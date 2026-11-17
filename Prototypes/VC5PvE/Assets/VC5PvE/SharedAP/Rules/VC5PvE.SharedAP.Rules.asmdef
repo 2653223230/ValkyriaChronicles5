@@ -1,0 +1,14 @@
+{
+  "name": "VC5PvE.SharedAP.Rules",
+  "rootNamespace": "VC5PvE.SharedAP.Rules",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

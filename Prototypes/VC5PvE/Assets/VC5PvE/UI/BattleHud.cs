@@ -259,6 +259,23 @@ namespace VC5PvE
             core.GetComponent<Image>().raycastTarget=false;
             return frame;
         }
+        // Visual-only entry points; callers supply already-resolved rules and copy.
+        public void SetPresentationCopy(string header,string hint,string detail,string focus,string actor)
+        {
+            Header.text=header;Hint.text=hint;Right.text=detail;intentCopy=detail;
+            growthInfo.text=focus;growthInfo.resizeTextForBestFit=true;growthInfo.resizeTextMinSize=15;growthInfo.resizeTextMaxSize=18;
+            actingUnitLabel.text=actor;DeploymentRoot.gameObject.SetActive(false);
+        }
+        public void ShowSharedActions(UnitState unit,Vector2 screen,int teamAp,bool canStep,bool canAttack,string name)
+        {
+            ShowActions(unit,screen);ActionMenu.sizeDelta=new Vector2(360,236);
+            actionTitle.text=name+" · "+Coord(unit.Position);remainingApLabel.text="全队AP：";
+            exhaustedApLabel.text=teamAp==0?"仍可免费短步":"";SetRemainingApDiamonds(teamAp);
+            Move.GetComponentInChildren<Text>().text="短步 · 免费\n四邻1格 / 每轮一次";
+            Attack.GetComponentInChildren<Text>().text="普通攻击 · 2 AP\n"+unit.Attack+"伤害 / 射程"+unit.AttackRange;
+            Move.interactable=canStep;Attack.interactable=canAttack;Heal.gameObject.SetActive(false);
+            foreach(var t in ActionMenu.GetComponentsInChildren<Transform>(true))if(t.name=="Action AP diamond")t.gameObject.SetActive(false);
+        }
         public static string Coord(GridPos p) { return ((char)('A'+p.X)).ToString()+(p.Y+1); }
         public static string Name(UnitRole r)
         {

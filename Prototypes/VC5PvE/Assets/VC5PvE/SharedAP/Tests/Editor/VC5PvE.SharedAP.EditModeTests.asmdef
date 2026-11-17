@@ -1,0 +1,6 @@
+{
+  "name": "VC5PvE.SharedAP.EditModeTests",
+  "references": ["VC5PvE.SharedAP.Rules"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

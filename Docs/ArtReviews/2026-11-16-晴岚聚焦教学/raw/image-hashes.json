@@ -1,0 +1,20 @@
+{
+  "01-opening": "20b27309a339708408ec4ad20a41719eca692c08",
+  "02-mage-selected": "dbf5668d298c7e18f47bad36a4a9ab8e3daf25f0",
+  "03-shortstep-done": "e5c813c813a22ecb5436b65ced64f3360ebb97fe",
+  "04-move-hover": "d73c45c1ca710641d9c9ae11a034475486e45cd6",
+  "05-move-landing": "2969d7081cd46f1c2b6ac54dee4d638fcd18f5bf",
+  "06-move-done": "6071cdfe5f09eded493cf7fa70fd0da4c6aaf3a9",
+  "07-skill-hover": "3514f3c71caf2637c132dcf74c471eb5bc98b7e9",
+  "08-skill-target": "ece6df060818abada5c48230026eb4662b972863",
+  "09-burst-done": "36457529c652c1230ee3f1edb5128db56bf93110",
+  "10-archer-selected": "f0d3d5e00518de7cd7b39dc2736921289ec49550",
+  "11-basic-done": "bfce298800ee326ee117bdf967214d4f9060e3ff",
+  "12-shield-hover": "3991d9bd4d692bf88536fc2d877207c8aaa0a734",
+  "13-shield-done": "f5f182f43fc82f89fc2faad5e9817c5aaa983014",
+  "14-retain-none": "3dd54ba80cfb85c0bfe4ae8f90b92d70d2172322",
+  "15-retain-selected": "c9083412033dc45ae66dfde0c9c692d91bedb77c",
+  "17-round2": "dd9fe6df533543f2820573240c617f9c30db9d33",
+  "18-skill-target-preview": "2b5f54fc084c7ffeb829f5be34a5380209816554",
+  "16-enemy-start": "4e07a6f4d0000029ef8377e97f7fbfb2a075ea91"
+}

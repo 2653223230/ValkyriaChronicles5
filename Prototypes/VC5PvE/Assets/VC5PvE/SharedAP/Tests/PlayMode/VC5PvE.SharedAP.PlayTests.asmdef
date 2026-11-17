@@ -1,0 +1,13 @@
+{
+  "name": "VC5PvE.SharedAP.PlayTests",
+  "references": [
+    "VC5PvE.SharedAP.Runtime",
+    "VC5PvE.SharedAP.Rules",
+    "UnityEngine.UI",
+    "VC5PvE.Rules",
+    "VC5PvE.Runtime"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -15,6 +15,7 @@ namespace VC5PvE
         public Action HoverExited;
         public Action<string> AvailabilityHint;
         public Func<Vector2?> AimOrigin;
+        public Func<string> SharedDragSummary;
         public Font Font;
         private RectTransform root;
         private Sprite[] unitSprites;
@@ -61,6 +62,65 @@ namespace VC5PvE
             if(cg==null) cg=root.gameObject.AddComponent<CanvasGroup>();
             cg.interactable=enabled;cg.alpha=enabled?1f:.35f;cg.blocksRaycasts=enabled;
         }
+        public sealed class Presentation
+        { public string Id,Name,Description,UserLabel;public int Cost;public bool Usable,Draggable; }
+        public void RenderPresentation(System.Collections.Generic.IList<Presentation> cards,string selectedId,bool enabled)
+        {
+            foreach(Transform child in root)
+            {
+                var retiring=child.GetComponent<CardDragInput>();
+                if(retiring!=null){retiring.DragCancelled=null;retiring.HoverExited=null;}
+                child.gameObject.SetActive(false);Destroy(child.gameObject);
+            }
+            for(int i=0;i<cards.Count;i++)
+            {
+                var card=cards[i];string id=card.Id;
+                var r=BattleHud.Panel(root,card.Name,i*230,0,216,184,SharedPaper.Paper,SharedPaper.Edge);
+                var group=r.gameObject.AddComponent<CanvasGroup>();group.alpha=card.Usable?1f:.85f;
+                var button=r.gameObject.AddComponent<Button>();button.targetGraphic=r.GetComponent<Image>();button.interactable=enabled;
+                button.onClick.AddListener(()=>Selected?.Invoke(id));
+                DrawCommandIcon(r,card.Name);
+                var title=BattleHud.Label(r,"Card name",58,12,90,37,24,SharedPaper.Ink,Font);title.text=card.Name;
+                var badge=BattleHud.Panel(r,"Shared card cost",150,14,54,26,new Color(.92f,.88f,.77f));
+                BattleHud.Label(badge,"Cost",5,2,48,24,15,SharedPaper.Ink,Font).text=card.Cost+" AP";
+                var text=BattleHud.Label(r,"Card effect",14,62,188,78,18,SharedPaper.Ink,Font);text.text=card.Description;
+                var role=BattleHud.Label(r,"Executor",14,143,188,30,15,SharedPaper.Green,Font);role.text=card.UserLabel;
+                var drag=r.gameObject.AddComponent<CardDragInput>();drag.SharedCardStyle=true;drag.SharedDragSummary=SharedDragSummary;drag.CardId=id;drag.Enabled=enabled;drag.SetSelected(selectedId==id);drag.SetUsable(card.Usable);drag.AllowUnavailableDrag=card.Draggable;
+                drag.Dropped=(c,p)=>Dropped?.Invoke(c,p);drag.DragStarted=c=>DragStarted?.Invoke(c);drag.DragCancelled=c=>DragCancelled?.Invoke(c);
+                drag.CanDrop=p=>CanDrop==null||CanDrop(p);drag.AimOrigin=AimOrigin;
+                drag.Hovered=()=>Hovered?.Invoke(new CardDefinition{Name=card.Name,Description=card.Description,Cost=card.Cost});
+                drag.HoverExited=()=>HoverExited?.Invoke();
+            }
+            var cg=root.GetComponent<CanvasGroup>();if(cg==null)cg=root.gameObject.AddComponent<CanvasGroup>();
+            cg.interactable=enabled;cg.blocksRaycasts=enabled;cg.alpha=enabled?1f:.35f;
+        }
+        static void DrawCommandIcon(RectTransform card,string name)
+        {
+            var icon=BattleHud.Rect(card,"Command icon",12,13,34,34);
+            // Coordinates follow the printed card, with y increasing downwards.
+            void Stroke(float x,float y,float dx,float dy)
+            {
+                var length=Mathf.Sqrt(dx*dx+dy*dy);
+                var line=BattleHud.Panel(icon,"Ink",x,y,length,3,SharedPaper.Green);
+                line.pivot=new Vector2(0,.5f);
+                line.localRotation=Quaternion.Euler(0,0,-Mathf.Atan2(dy,dx)*Mathf.Rad2Deg);
+                line.GetComponent<Image>().raycastTarget=false;
+            }
+            switch(name)
+            {
+                case "治疗": Stroke(16,3,0,26);Stroke(3,16,26,0);break;
+                case "护盾": Stroke(4,4,24,0);Stroke(4,4,3,16);Stroke(28,4,-3,16);Stroke(7,20,9,9);Stroke(25,20,-9,9);break;
+                case "机动": case "突击":
+                    Stroke(2,25,11,-11);Stroke(13,14,6,4);Stroke(19,18,10,-12);Stroke(29,6,-8,0);Stroke(29,6,0,8);break;
+                case "战技": Stroke(15,2,-8,16);Stroke(7,18,12,-2);Stroke(19,16,-5,15);Stroke(14,31,15,-20);break;
+                default: Stroke(4,29,24,-24);Stroke(2,18,12,12);if(name=="猛攻")Stroke(12,31,21,-21);break;
+            }
+        }
+        public void CancelDragVisuals()
+        {
+            if(root==null)return;
+            foreach(var input in root.GetComponentsInChildren<CardDragInput>())input.CancelVisualDrag();
+        }
         public void SetSelection(string cardId)
         {
             if(root==null)return;
@@ -69,6 +129,17 @@ namespace VC5PvE
                 var drag=child.GetComponent<CardDragInput>();
                 // Retired cards await Destroy at end of frame; they must not regain selection.
                 if(drag!=null && child.gameObject.activeInHierarchy)drag.SetSelected(drag.CardId==cardId);
+            }
+        }
+        /// <summary>Applies a multi-select state for opt-in shared AP discard selection.</summary>
+        public void SetSelections(System.Collections.Generic.ICollection<string> cardIds)
+        {
+            if(root==null)return;
+            var selected=cardIds==null?new System.Collections.Generic.HashSet<string>():new System.Collections.Generic.HashSet<string>(cardIds);
+            foreach(var child in root)
+            {
+                var drag=((Transform)child).GetComponent<CardDragInput>();
+                if(drag!=null&&((Transform)child).gameObject.activeInHierarchy)drag.SetSelected(selected.Contains(drag.CardId));
             }
         }
         public static string Role(UnitRole role)

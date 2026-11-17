@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-16",
+  "scene": "SharedAP_Qinglan",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "method": "existing controller / drag component events; not new tutorial implementation",
+  "images": [
+    {
+      "file": "01-opening.png",
+      "bytes": 3340733,
+      "sha256": "92a509d01c0ec774d2a2bac4f7bbbdab7eeb8eec26c1b69935f25fbbf723702e"
+    },
+    {
+      "file": "02-mage-selected.png",
+      "bytes": 3087191,
+      "sha256": "3e1c206c5525f7f09ac6d78e89074f06fa82806c64929371a341c12d32a17e98"
+    },
+    {
+      "file": "03-shortstep-done.png",
+      "bytes": 3098109,
+      "sha256": "2137003e40d0e0fcdb620a9be67b94620c1cb8faf6ba9856741ffbd97aec374d"
+    },
+    {
+      "file": "04-move-hover.png",
+      "bytes": 3062595,
+      "sha256": "8fae9371890b71981f186acaf494bad6c945fb51071d513561746f0fca9b96a5"
+    },
+    {
+      "file": "05-move-landing.png",
+      "bytes": 3063421,
+      "sha256": "0203d4177302452693369396f21c7043fa7ee3dc78dddc247553fbe9a9a50bc7"
+    },
+    {
+      "file": "06-move-done.png",
+      "bytes": 3098643,
+      "sha256": "cf7db9ea02f5506650261c4342a91e0f97d1f90045d3049311601d4a1bb93962"
+    },
+    {
+      "file": "07-skill-hover.png",
+      "bytes": 3055315,
+      "sha256": "229d3d3ca6319e983ae044302c99818f24d6bdc44a3b48552dc7bc3348f203fc"
+    },
+    {
+      "file": "08-skill-target.png",
+      "bytes": 3065107,
+      "sha256": "b8a700910aee18feb63d176646c00891c78eca16600a143bb5c78c2fa3778ef8"
+    },
+    {
+      "file": "09-burst-done.png",
+      "bytes": 3124160,
+      "sha256": "3ffd46c59f991be6ff02621a36c4dbd1f8465ad3e65aac40d10e1885b3ceffc4"
+    },
+    {
+      "file": "10-archer-selected.png",
+      "bytes": 3115780,
+      "sha256": "ceae085b48d82ae9f371ce99fb0cdf854282cc74765dcacd770a798b9cf0584d"
+    },
+    {
+      "file": "11-basic-done.png",
+      "bytes": 3154043,
+      "sha256": "e8b2f8449eee8c922a3cb4efe6d8d0606ac27bdc6a7d52c6cce118573b4acc42"
+    },
+    {
+      "file": "12-shield-hover.png",
+      "bytes": 3106526,
+      "sha256": "1ff98a6377f6d49d6b246c08a9b47546e9c788b5c0c5d22c0a018370bc2bc12a"
+    },
+    {
+      "file": "13-shield-done.png",
+      "bytes": 3168986,
+      "sha256": "08689475bac3bc614063f936e4c4a407fd48a8de5856fe7e5dd3193dc4fee5fd"
+    },
+    {
+      "file": "14-retain-none.png",
+      "bytes": 3128802,
+      "sha256": "2b198266d1bd95bae1a36402d02c55effc0e1a3a07ad27512e45602ef9841a98"
+    },
+    {
+      "file": "15-retain-selected.png",
+      "bytes": 3134698,
+      "sha256": "9b85f80724d34406ed5190e23b2bd88eeaeb2998cf27fe5644018a2562ba31d3"
+    },
+    {
+      "file": "16-enemy-start.png",
+      "bytes": 3338774,
+      "sha256": "87522c150f57d2738e98bd737d5d8fcdc264770f09a2e03c830145086036fde0"
+    },
+    {
+      "file": "17-round2.png",
+      "bytes": 3069101,
+      "sha256": "ca5002b589f346622ec4909f082fe0dc8766ba09d31895ec789bd167d88c091a"
+    },
+    {
+      "file": "18-skill-target-preview.png",
+      "bytes": 3061417,
+      "sha256": "60da8df897d755875ae533181da2ff56ac4d0a5c52266eb176482cc274212520"
+    }
+  ]
+}

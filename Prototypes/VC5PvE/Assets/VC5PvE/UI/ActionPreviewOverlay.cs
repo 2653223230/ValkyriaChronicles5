@@ -44,7 +44,7 @@ namespace VC5PvE
             if(graphic!=null){graphic.Lines.Clear();graphic.Lines.AddRange(ranges);graphic.SetVerticesDirty();}
         }
         public void Hide(){ranges.Clear();ClearResult();}
-        public void Show(BattleState before,ActionPlan plan,BattleState after,bool showTargetArrow=true)
+        public void Show(BattleState before,ActionPlan plan,BattleState after,bool showTargetArrow=true, bool crossArea=false)
         {
             ClearResult();if(plan==null||!plan.IsValid||after==null)return;
             var actor=before.FindUnit(plan.Request.ActorId);if(actor==null)return;
@@ -52,6 +52,15 @@ namespace VC5PvE
             var a=board.World(actor.Position)+Vector3.up*.16f;
             foreach(var cell in plan.Path){var b=board.World(cell)+Vector3.up*.16f;Edge(graphic.Lines,a,b,new Color(.35f,1f,.88f),4);a=b;}
             var target=before.FindUnit(plan.Request.TargetId);
+            if(crossArea && target!=null)
+            {
+                foreach(var offset in new[]{new GridPos(0,0),new GridPos(0,1),new GridPos(0,-1),new GridPos(1,0),new GridPos(-1,0)})
+                {
+                    var cell=new GridPos(target.Position.X+offset.X,target.Position.Y+offset.Y);
+                    if(cell.X>=0&&cell.X<before.Width&&cell.Y>=0&&cell.Y<before.Height&&!before.Obstacles.Contains(cell))
+                        Cell(graphic.Lines,cell,new Color(1f,.66f,.22f),.45f,3);
+                }
+            }
             if(showTargetArrow&&target!=null&&target.Id!=actor.Id)
             {
                 var from=Point(a+Vector3.up*.55f);var to=Point(board.World(target.Position)+Vector3.up*.7f);

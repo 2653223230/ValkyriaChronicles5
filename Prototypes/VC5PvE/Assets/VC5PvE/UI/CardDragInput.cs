@@ -15,6 +15,11 @@ namespace VC5PvE
 
         public string CardId;
         public bool Enabled;
+        public bool AllowUnavailableDrag;
+        public bool SharedCardStyle;
+        public Func<string> SharedDragSummary;
+        private RectTransform sharedGhost;
+        private Text ghostSummary;
         public Action<string,Vector2> Dropped;
         public Action<string> DragStarted;
         public Action<string> DragCancelled;
@@ -137,9 +142,18 @@ namespace VC5PvE
             UpdateBorder();
         }
 
+        /// <summary>Opt-in interaction gate used while the shared AP hand is in discard selection.</summary>
+        public void SetInteractionEnabled(bool value)
+        {
+            Enabled=value;
+            if(!value&&dragging)RestoreAfterDrag();
+            if(!value)pointerInside=false;
+            UpdateEmphasisTarget();
+        }
+
         public void OnBeginDrag(PointerEventData e)
         {
-            if (!Enabled || !usable || dragging || rect == null || (activeDrag != null && activeDrag != this)) return;
+            if (!Enabled || (!usable&&!AllowUnavailableDrag) || dragging || rect == null || (activeDrag != null && activeDrag != this)) return;
 
             dragging = true;
             activeDrag = this;
@@ -164,7 +178,18 @@ namespace VC5PvE
             group.alpha = .28f;
             DragStarted?.Invoke(CardId);
             var canvas = GetComponentInParent<Canvas>();
-            if (canvas != null)
+            if (canvas != null && SharedCardStyle)
+            {
+                sharedGhost=BattleHud.Panel(canvas.transform,"Shared drag card",0,0,205,104,SharedPaper.Paper,SharedPaper.Gold);
+                sharedGhost.pivot=new Vector2(0,1);
+                var blocker=sharedGhost.gameObject.AddComponent<CanvasGroup>();blocker.blocksRaycasts=false;blocker.interactable=false;
+                var source=transform.Find("Card name").GetComponent<Text>();
+                var cost=transform.Find("Shared card cost/Cost").GetComponent<Text>();
+                BattleHud.Label(sharedGhost,"Command",10,6,185,29,18,SharedPaper.Ink,source.font).text=source.text+" · "+cost.text;
+                ghostSummary=BattleHud.Label(sharedGhost,"Effect",10,36,185,60,16,SharedPaper.Green,source.font);
+                UpdateSharedDrag(e);
+            }
+            else if (canvas != null)
             {
                 arrow = canvas.gameObject.AddComponent<CardTargetingArrow>();
                 var origin = AimOrigin == null ? (Vector2?)null : AimOrigin();
@@ -172,10 +197,25 @@ namespace VC5PvE
             }
         }
 
+        void UpdateSharedDrag(PointerEventData e)
+        {
+            bool legal=CanDrop!=null&&CanDrop(e.position);
+            if(sharedGhost==null)return;
+            var canvas=(RectTransform)sharedGhost.parent;
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas,e.position,e.pressEventCamera,out var local))
+            {
+                float x=Mathf.Clamp(local.x+16,canvas.rect.xMin,canvas.rect.xMax-sharedGhost.rect.width);
+                float y=Mathf.Clamp(local.y+28,canvas.rect.yMin+sharedGhost.rect.height,canvas.rect.yMax);
+                sharedGhost.localPosition=new Vector3(x,y,0);
+            }
+            ghostSummary.text=SharedDragSummary?.Invoke()??(legal?"松手交给队员":"拖到队员查看效果");
+        }
+
         public void OnDrag(PointerEventData e)
         {
             if (!Enabled || !dragging || rect == null) return;
             lastPointerPosition = e.position;
+            if(SharedCardStyle){UpdateSharedDrag(e);return;}
             var origin = AimOrigin == null ? (Vector2?)null : AimOrigin();
             arrow?.UpdatePointer(origin ?? (Vector2)rect.position, e.position, CanDrop != null && CanDrop(e.position));
         }
@@ -188,6 +228,11 @@ namespace VC5PvE
             else DragCancelled?.Invoke(CardId);
         }
 
+        public void CancelVisualDrag()
+        {
+            if(dragging)RestoreAfterDrag();
+            pointerInside=false;selected=false;UpdateEmphasisTarget();UpdateBorder();
+        }
         private void OnDisable()
         {
             if (activeDrag == this) activeDrag = null;
@@ -202,7 +247,7 @@ namespace VC5PvE
             {
                 emphasisProgress = 0f;
                 emphasisFrom = 0f;
-                emphasisTarget = selected ? 1f : usable ? .5f : 0f;
+                emphasisTarget = selected ? 1f : usable && !SharedCardStyle ? .5f : 0f;
                 ApplyHoverTransform();
                 UpdateBorder();
             }
@@ -230,6 +275,7 @@ namespace VC5PvE
         private void RestoreAfterDrag(bool restoreSibling = true)
         {
             if (activeDrag == this) activeDrag = null;
+            if(sharedGhost!=null){sharedGhost.gameObject.SetActive(false);Destroy(sharedGhost.gameObject);sharedGhost=null;ghostSummary=null;}
             if (arrow != null) Destroy(arrow);
             arrow = null;
             if (rect != null)
@@ -260,7 +306,7 @@ namespace VC5PvE
         private void UpdateEmphasisTarget()
         {
             if (dragging) return;
-            float target = selected || pointerInside ? 1f : usable ? .5f : 0f;
+            float target = selected || pointerInside ? 1f : usable && !SharedCardStyle ? .5f : 0f;
             if (Mathf.Approximately(emphasisTarget, target)) return;
             emphasisFrom = emphasisProgress;
             emphasisTarget = target;
@@ -307,6 +353,7 @@ namespace VC5PvE
             if (borderImages == null) return;
             Color color = selected ? new Color(1f,.88f,.52f,1f) :
                 pointerInside ? BattleHud.Gold : usable ? new Color(.28f,.88f,1f,1f) : BattleHud.Jade;
+            if(SharedCardStyle)color=selected||pointerInside?SharedPaper.Gold:SharedPaper.Edge;
             for (int i = 0; i < borderImages.Length; i++)
                 if (borderImages[i] != null) borderImages[i].color = color;
         }

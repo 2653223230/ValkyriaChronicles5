@@ -1,0 +1,119 @@
+ M "Docs/VC5PvE_\345\274\200\345\217\221\344\272\244\346\216\245\344\270\216\345\205\261\344\272\253AP\350\256\276\350\256\241\344\273\273\345\212\241_20261028.md"
+ M "Docs/VC5PvE_\346\226\260\344\274\232\350\257\235\345\220\257\345\212\250\346\217\220\347\244\272\350\257\215_20261028.md"
+ M "Docs/VC5PvE_\347\211\210\346\234\254\344\270\216\345\233\236\346\273\232\350\256\260\345\275\225.md"
+ M "Docs/VC5_8x8_PvE\351\246\226\345\205\263\346\243\213\345\255\220\344\270\216\345\215\241\347\211\214\350\256\276\350\256\241_20260930.md"
+ M "Docs/VC5_\345\215\241\347\273\204\345\274\225\346\223\216\344\270\216\346\243\213\345\255\220\350\256\276\350\256\241\347\201\265\346\204\237_20261004.md"
+ M Prototypes/VC5PvE/Assets/VC5PvE/Runtime/BoardView.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/Runtime/UnitView.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/UI/ActionPreviewOverlay.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/UI/BattleHud.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/UI/CardDragInput.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/UI/CardHandView.cs
+ M Prototypes/VC5PvE/Assets/VC5PvE/UI/PartyPanelView.cs
+ M Prototypes/VC5PvE/README.md
+ M "\346\210\230\345\234\272\345\245\263\346\255\246\347\245\2365\350\247\204\345\210\231\344\270\216\345\215\241\347\211\214-v2-20260930-\346\260\270\351\223\203\345\233\236\345\223\215\351\243\216\346\240\274.md"
+?? .superpowers/
+?? Docs/Archive/
+?? Docs/ArtReviews/2026-10-29-SharedAP/
+?? Docs/ArtReviews/2026-10-29-SingleStage/
+?? Docs/ArtReviews/2026-11-02-SharedAP/
+?? Docs/ArtReviews/2026-11-03-SharedAP-Figma/
+?? Docs/ArtReviews/2026-11-04-SharedAP-Figma/
+?? Docs/ArtReviews/2026-11-04-SharedAP-Unity/
+?? Docs/ArtReviews/2026-11-09-SharedAP-Figma/
+?? Docs/ArtReviews/2026-11-09-SharedAP-Unity/
+?? Docs/ArtReviews/2026-11-10-SharedAP/
+?? "Docs/ArtReviews/2026-11-13-\346\231\264\345\262\232\351\246\226\346\210\230\346\225\231\345\255\246/"
+?? "Docs/ArtReviews/2026-11-16-\346\231\264\345\262\232\350\201\232\347\204\246\346\225\231\345\255\246/"
+?? "Docs/Plans/2026-10-29-VC5PvE\345\205\261\344\272\253AP\346\231\264\345\262\232\347\202\256\345\217\260\345\256\236\346\226\275\350\256\241\345\210\222.md"
+?? "Docs/Plans/2026-11-02-\345\205\261\344\272\253AP\345\244\215\347\224\250\344\270\252\344\272\272AP\350\241\250\347\216\260\344\270\216\344\272\244\344\272\222.md"
+?? "Docs/Plans/2026-11-03-\345\205\261\344\272\253AP\345\215\241\347\211\214\344\270\273\345\257\274\344\272\244\344\272\222\344\270\216UI\345\256\241\346\240\270\347\250\277.md"
+?? "Docs/Plans/2026-11-04-\345\205\261\344\272\253AP\344\272\244\344\272\222V2\345\256\236\346\226\275.md"
+?? "Docs/Plans/2026-11-04-\345\205\261\344\272\253AP\345\270\203\345\261\200\344\270\216\350\214\203\345\233\264\351\242\204\350\247\210V2.md"
+?? "Docs/Plans/2026-11-04-\345\205\261\344\272\253AP\345\274\203\347\211\214\350\247\204\345\210\231\345\256\236\346\226\275\350\256\260\345\275\225.md"
+?? "Docs/Plans/2026-11-04-\345\205\261\344\272\253AP\346\216\247\345\210\266\345\231\250\345\256\236\346\226\275\350\256\260\345\275\225.md"
+?? "Docs/Plans/2026-11-04-\345\205\261\344\272\253AP\347\225\214\351\235\242\345\256\236\346\226\275\350\256\260\345\275\225.md"
+?? "Docs/Plans/2026-11-09-\346\231\264\345\262\232\346\225\231\345\255\246\344\270\216\345\221\275\344\270\255\346\224\271\350\277\233.md"
+?? "Docs/Plans/2026-11-10-\346\231\264\345\262\232\345\207\272\345\207\273\344\270\216\345\237\272\347\241\200\350\241\214\345\212\250\346\225\231\345\255\246.md"
+?? "Docs/Plans/2026-11-10-\346\231\264\345\262\232\350\277\221\346\210\230\346\225\214\345\205\265\350\277\275\345\207\273\350\260\203\346\225\264.md"
+?? "Docs/Plans/2026-11-16-\346\231\264\345\262\232\350\201\232\347\204\246\346\225\231\345\255\246\345\256\236\346\226\275.md"
+?? Docs/PlayerGuide/2026-10-04/.build/
+?? "Docs/VC5PvE_\345\205\261\344\272\253AP\344\270\216\351\200\232\347\224\250\345\215\241\350\247\222\350\211\262\345\267\256\345\274\202\350\256\276\350\256\241_\345\276\205\345\256\241\346\240\270_20261028.md"
+?? "Docs/VC5PvE_\345\205\261\344\272\253AP\346\231\264\345\262\232\347\202\256\345\217\260_\345\256\236\347\216\260\344\270\216\345\256\241\346\240\270\350\256\260\345\275\225_20261029.md"
+?? "Docs/VC5PvE_\345\215\225\345\205\263\345\205\261\344\272\253AP\346\240\270\345\277\203\346\226\271\346\241\210_\345\276\205\350\256\250\350\256\272_20261029.md"
+?? "Docs/VC5PvE_\346\210\230\346\234\257\346\225\264\345\244\207\344\270\216\351\242\204\345\256\232_\346\234\252\351\200\232\350\277\207_20261029.md"
+?? "Docs/VC5PvE_\346\231\264\345\262\232\345\205\261\344\272\253AP_\345\256\214\346\225\264\347\211\214\350\241\250\344\270\216\346\212\275\347\211\214\351\241\272\345\272\217_20261112.md"
+?? "Docs/VC5PvE_\346\231\264\345\262\232\347\202\256\345\217\260\345\215\225\345\205\263\350\256\276\350\256\241_\345\276\205\345\256\241\346\240\270_20261029.md"
+?? "Docs/\345\205\261\344\272\253AP\347\216\251\346\263\225\350\247\204\345\210\231\344\270\216\345\256\214\346\225\264\347\211\214\350\241\250.md"
+?? "Docs/\346\231\264\345\262\232\347\202\256\345\217\260\345\205\263\345\215\241\343\200\201\344\272\244\344\272\222\344\270\216\347\225\214\351\235\242\350\256\276\350\256\241.md"
+?? "Docs/\350\201\212\345\244\251\350\256\260\345\275\225\344\277\235\345\255\230.md"
+?? Prototypes/VC5PvE/Assets/InitTestScene639282124707612432.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639282124707612432.unity.meta
+?? Prototypes/VC5PvE/Assets/InitTestScene639283037152982887.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639283037152982887.unity.meta
+?? Prototypes/VC5PvE/Assets/InitTestScene639292237846474003.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639292237846474003.unity.meta
+?? Prototypes/VC5PvE/Assets/InitTestScene639293981243202557.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639293981243202557.unity.meta
+?? Prototypes/VC5PvE/Assets/InitTestScene639293985519051390.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639293985519051390.unity.meta
+?? Prototypes/VC5PvE/Assets/InitTestScene639294023344501765.unity
+?? Prototypes/VC5PvE/Assets/InitTestScene639294023344501765.unity.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-Nov13-burst.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-Nov13-burst.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-HUD-basic.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-HUD-basic.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-HUD-opening.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-HUD-opening.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-battle.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-battle.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-board.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-board.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-clean.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-clean.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-basic.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-basic.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-discard.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-discard.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-drag.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-drag.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-lock.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-lock.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-opening.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-final-opening.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-reviewed-drag.png
+?? Prototypes/VC5PvE/Assets/Screenshots/Qinglan-V3-reviewed-drag.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-attack-final.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-attack-final.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-attack-preview.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-attack-preview.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-final.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-final.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-polished.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-polished.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-review.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-opening-review.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-attack.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-attack.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-charge-settled.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-charge-settled.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-charge.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-charge.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-discard.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-discard.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-mage.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-mage.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-round2.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-review-round2.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-attack.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-attack.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-mage.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-mage.png.meta
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-opening.png
+?? Prototypes/VC5PvE/Assets/Screenshots/SharedAP-V2-verified-opening.png.meta
+?? Prototypes/VC5PvE/Assets/VC5PvE/SharedAP.meta
+?? Prototypes/VC5PvE/Assets/VC5PvE/SharedAP/
+?? Prototypes/VC5PvE/Tools/RuleChecks/RuleChecks.exe
+?? Prototypes/VC5PvE/Tools/SharedAPReview/
+?? "\344\274\201\345\210\222\346\241\210\346\234\254\345\234\260\345\211\257\346\234\254/"
+?? "\346\234\252\345\221\275\345\220\215.md"

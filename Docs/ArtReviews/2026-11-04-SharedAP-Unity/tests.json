@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-04",
+  "full_play_mode": {
+    "job": "ec3b85cfe3e94d85b83267cb798e903f",
+    "total": 66,
+    "passed": 66,
+    "failed": 0
+  },
+  "full_edit_mode": {
+    "job": "9a1410442b6e45ab9093f3d634b865ec",
+    "total": 80,
+    "passed": 80,
+    "failed": 0
+  },
+  "after_final_layout_play_mode": {
+    "job": "5d529251bbad4a719cf7cb5d947d64d7",
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  },
+  "native_mouse_full_flow_verified": false,
+  "android_device_verified": false
+}

@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-16",
+  "status": "待审核，未实现",
+  "fileName": "VC5 Demo 玩家引导 UI",
+  "fileKey": "unsaved-mwim7hrf-ag4l70oe",
+  "pageId": "466:2",
+  "pageName": "晴岚 · 聚焦实操教学 · 11月16日",
+  "frames": [
+    {
+      "name": "01-A1-点击术师",
+      "nodeId": "467:3"
+    },
+    {
+      "name": "00A-实机聚焦选人",
+      "nodeId": "467:282"
+    },
+    {
+      "name": "00B-实机聚焦爆裂",
+      "nodeId": "468:284"
+    },
+    {
+      "name": "02-A2-认识信息",
+      "nodeId": "468:412"
+    },
+    {
+      "name": "03-B1-免费短步",
+      "nodeId": "468:735"
+    },
+    {
+      "name": "04-B2-拿起机动",
+      "nodeId": "468:1061"
+    },
+    {
+      "name": "05-B2P-机动预览",
+      "nodeId": "468:1392"
+    },
+    {
+      "name": "06-B3-机动落点",
+      "nodeId": "468:1887"
+    },
+    {
+      "name": "07-B4-拿起战技",
+      "nodeId": "468:2240"
+    },
+    {
+      "name": "08-B4P-战技预览",
+      "nodeId": "468:2561"
+    },
+    {
+      "name": "09-B5-选择弩手",
+      "nodeId": "468:2898"
+    },
+    {
+      "name": "10-C1-选择射手",
+      "nodeId": "468:3393"
+    },
+    {
+      "name": "11-C2-普通攻击",
+      "nodeId": "468:3652"
+    },
+    {
+      "name": "12-D1-护盾保护",
+      "nodeId": "468:3972"
+    },
+    {
+      "name": "13-D2-结束按钮",
+      "nodeId": "468:4274"
+    },
+    {
+      "name": "14-D3-留牌确认",
+      "nodeId": "468:4543"
+    },
+    {
+      "name": "15-D4-观察敌方",
+      "nodeId": "468:4838"
+    },
+    {
+      "name": "16-D5-自由战斗",
+      "nodeId": "469:5109"
+    },
+    {
+      "name": "17-错误投放",
+      "nodeId": "469:5418"
+    },
+    {
+      "name": "18-退出确认",
+      "nodeId": "469:5745"
+    }
+  ],
+  "scope": "Figma and documentation only; no Unity implementation",
+  "reference": "C3-V3R4 教学引导审核 v3（实际画面校准） existing exports; live page read timed out"
+}
